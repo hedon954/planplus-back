@@ -1,4 +1,4 @@
-package con.hedon;
+package com.hedon;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
