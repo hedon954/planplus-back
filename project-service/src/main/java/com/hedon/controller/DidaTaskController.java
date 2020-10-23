@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2020-10-23
  */
 @RestController
-@RequestMapping("/task")
+@RequestMapping("/project/task")
 public class DidaTaskController {
 
 }

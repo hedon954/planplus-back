@@ -41,7 +41,7 @@ public class DidaUser implements Serializable {
 
     @TableField("is_deleted")
     @TableLogic
-    private Integer dDeleted;
+    private Integer deleted;
 
     private String userAvatarUrl;
 

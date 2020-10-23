@@ -13,4 +13,13 @@ import common.entity.DidaUser;
  */
 public interface IDidaUserService extends IService<DidaUser> {
 
+    /**
+     * 根据ID查询用户信息
+     *
+     * @author hedon
+     * @create 2020.10.23
+     * @param userId
+     * @return
+     */
+    DidaUser getUserById(Integer userId);
 }
