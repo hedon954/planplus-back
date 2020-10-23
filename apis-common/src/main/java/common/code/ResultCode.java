@@ -1,4 +1,4 @@
-package common.codes;
+package common.code;
 
 import lombok.Getter;
 

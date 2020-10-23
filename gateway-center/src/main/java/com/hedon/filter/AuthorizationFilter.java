@@ -2,7 +2,7 @@ package com.hedon.filter;
 
 import cn.hutool.json.JSONUtil;
 import com.hedon.bean.CheckTokenInfo;
-import common.codes.ResultCode;
+import common.code.ResultCode;
 import common.entity.User;
 import common.mapper.UserMapper;
 import common.vo.common.ResponseBean;

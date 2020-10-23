@@ -3,7 +3,7 @@ package com.hedon.controller;
 
 import com.hedon.feign.UserFeignService;
 import com.hedon.service.ITestService;
-import common.codes.ResultCode;
+import common.code.ResultCode;
 import common.entity.User;
 import common.exception.ServiceException;
 import common.vo.common.ResponseBean;
@@ -12,9 +12,6 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ServerWebExchange;
-
-import java.util.List;
 
 /**
  * <p>

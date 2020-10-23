@@ -1,6 +1,6 @@
 package common.exception;
 
-import common.codes.ResultCode;
+import common.code.ResultCode;
 import common.vo.common.ResponseBean;
 import lombok.Data;
 

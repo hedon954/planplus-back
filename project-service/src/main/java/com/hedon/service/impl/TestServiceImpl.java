@@ -5,7 +5,7 @@ import com.hedon.service.ITestService;
 import com.netflix.hystrix.contrib.javanica.annotation.DefaultProperties;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
-import common.codes.ResultCode;
+import common.code.ResultCode;
 import common.entity.Test;
 import common.entity.User;
 import common.exception.ServiceException;

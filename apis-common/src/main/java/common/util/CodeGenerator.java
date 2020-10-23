@@ -1,4 +1,4 @@
-package common.utils;
+package common.util;
 
 import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import com.baomidou.mybatisplus.generator.AutoGenerator;
@@ -23,7 +23,7 @@ public class CodeGenerator {
     /**
      * 把要生成的数据库表明写在 TABLENAMES 里面
      */
-    private static final String[] TABLENAMES = new String[]{"tbl_user"};
+    private static final String[] TABLENAMES = new String[]{"tbl_dida_user_task"};
 
 
     /**
@@ -45,7 +45,7 @@ public class CodeGenerator {
 
         //数据库配置
         DataSourceConfig dsc = new DataSourceConfig();
-        dsc.setUrl("jdbc:mysql://127.0.0.1:3306/spring_cloud_common?useUnicode=true&characterEncoding=utf8&useSSL=false");
+        dsc.setUrl("jdbc:mysql://127.0.0.1:3306/dida_manager?useUnicode=true&characterEncoding=utf8&useSSL=false");
         dsc.setDriverName("com.mysql.cj.jdbc.Driver");
         dsc.setUsername("root");
         dsc.setPassword("root");

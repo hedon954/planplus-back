@@ -1,7 +1,7 @@
 package common.vo.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import common.codes.ResultCode;
+import common.code.ResultCode;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
