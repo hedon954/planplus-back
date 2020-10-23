@@ -51,7 +51,7 @@ public class OAuth2AuthServerConfig extends AuthorizationServerConfigurerAdapter
     }
 
 
-    ////配置令牌端点的安全约束 => 配置谁能来验 token （有一些请求连验 token 的资格都没有）
+    //配置令牌端点的安全约束 => 配置谁能来验 token （有一些请求连验 token 的资格都没有）
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
         //这里设置必须带身份信息来验证token才进行验证

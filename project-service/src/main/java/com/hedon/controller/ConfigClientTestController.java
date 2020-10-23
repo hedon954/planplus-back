@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
  * @create 2020-10-16 16:02
  */
 //@RestController
-@RefreshScope
-@RequestMapping("/project")
+//@RefreshScope
+//@RequestMapping("/project")
 public class ConfigClientTestController {
 
     @Value("${server.port}")

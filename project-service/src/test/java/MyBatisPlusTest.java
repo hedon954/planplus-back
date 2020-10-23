@@ -1,6 +1,6 @@
 import com.hedon.ProjectApplication;
-import com.hedon.service.ITestService;
-import common.mapper.TestMapper;
+import com.hedon.service.IDidaUserService;
+import common.entity.DidaUser;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,7 +16,7 @@ public class MyBatisPlusTest {
 
     //测试跨模块能否扫描到 Mapper => 已测试通过
     @Autowired
-    ITestService testService;
+    IDidaUserService didaUserService;
 
     //测试能否注入数据源 => 已测试通过
     @Autowired
@@ -25,7 +25,7 @@ public class MyBatisPlusTest {
     @Test
     public void test(){
         System.out.println("dataSource:" + dataSource);
-        common.entity.Test test = testService.getById(1);
-        System.out.println(test);
+        DidaUser didaUser = didaUserService.getById(1);
+        System.out.println(didaUser);
     }
 }

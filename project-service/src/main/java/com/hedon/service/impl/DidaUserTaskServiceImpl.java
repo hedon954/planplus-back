@@ -1,7 +1,7 @@
-package com.hedon.service.service.impl;
+package com.hedon.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.hedon.service.service.IDidaUserTaskService;
+import com.hedon.service.IDidaUserTaskService;
 import common.entity.DidaUserTask;
 import common.mapper.DidaUserTaskMapper;
 import org.springframework.stereotype.Service;

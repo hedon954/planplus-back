@@ -12,12 +12,5 @@ import org.springframework.web.bind.annotation.GetMapping;
 @FeignClient(value = "auth-center")  //指明要去调用注册中心的哪个微服务的接口
 public interface UserFeignService {
 
-    /**
-     * 获取所有用户信息
-     *
-     * @return 所有用户信息
-     */
-    @GetMapping("/oauth/user/users")
-    ResponseBean getUsers();
 
 }

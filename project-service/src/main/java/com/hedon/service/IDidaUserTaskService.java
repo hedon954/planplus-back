@@ -1,9 +1,7 @@
 package com.hedon.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import common.entity.User;
-
-import java.util.List;
+import common.entity.DidaUserTask;
 
 /**
  * <p>
@@ -11,8 +9,8 @@ import java.util.List;
  * </p>
  *
  * @author Jiahan Wang
- * @since 2020-10-16
+ * @since 2020-10-23
  */
-public interface IUserService extends IService<User> {
-    List<User> getUsers();
+public interface IDidaUserTaskService extends IService<DidaUserTask> {
+
 }

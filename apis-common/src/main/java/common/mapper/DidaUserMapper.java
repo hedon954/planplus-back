@@ -13,4 +13,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface DidaUserMapper extends BaseMapper<DidaUser> {
 
+    //根据手机（用户名）获取用户信息
+    DidaUser getUserByPhone(String user_name);
 }

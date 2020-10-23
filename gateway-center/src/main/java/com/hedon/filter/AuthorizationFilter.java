@@ -3,7 +3,9 @@ package com.hedon.filter;
 import cn.hutool.json.JSONUtil;
 import com.hedon.bean.CheckTokenInfo;
 import common.code.ResultCode;
+import common.entity.DidaUser;
 import common.entity.User;
+import common.mapper.DidaUserMapper;
 import common.mapper.UserMapper;
 import common.vo.common.ResponseBean;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +34,7 @@ import java.nio.charset.StandardCharsets;
 public class AuthorizationFilter implements GlobalFilter, Ordered {
 
     @Autowired
-    private UserMapper userMapper;
+    private DidaUserMapper didaUserMapper;
 
     /**
      * 授权逻辑
@@ -65,7 +67,7 @@ public class AuthorizationFilter implements GlobalFilter, Ordered {
                 //④ 认证成功（能拿到用户信息且有效） => 是否有权限
                 if (hasPermissions(tokenInfo,request)){
                     //有权限就放行, 并将用户信息放在 requestHeader 中，让接口可以获取到用户相关的信息
-                    User user = userMapper.getUserByUsername(tokenInfo.getUser_name());
+                    DidaUser user = didaUserMapper.getUserByPhone(tokenInfo.getUser_name());
                     exchange.getAttributes().put("user", user);
                 }else{
                     //没有权限，记录审计日志

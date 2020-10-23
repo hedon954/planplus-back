@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2020-10-23
  */
 @RestController
-@RequestMapping("//dida-user")
+@RequestMapping("/user")
 public class DidaUserController {
 
 }

@@ -1,7 +1,7 @@
-package com.hedon.service.service;
+package com.hedon.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import common.entity.DidaUser;
+import common.entity.DidaTask;
 
 /**
  * <p>
@@ -11,6 +11,6 @@ import common.entity.DidaUser;
  * @author Jiahan Wang
  * @since 2020-10-23
  */
-public interface IDidaUserService extends IService<DidaUser> {
+public interface IDidaTaskService extends IService<DidaTask> {
 
 }
