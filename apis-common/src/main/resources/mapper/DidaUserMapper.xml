@@ -6,4 +6,9 @@
     <select id="getUserByPhone" resultType="common.entity.DidaUser">
         SELECT * FROM tbl_dida_user WHERE user_phone = #{phone}
     </select>
+
+    <!--  根据requestVo修改用户信息  -->
+    <update id="updateUserByVo" parameterType="common.vo.response.DidaUserResponseVo">
+        UPDATE tbl_dida_user SET user_nickname = #{userNickname}, user_birthday = #{userBirthday}, user_gender = #{userGender} where user_id = #{userId}
+    </update>
 </mapper>

@@ -6,14 +6,12 @@ import common.code.ResultCode;
 import common.entity.DidaUser;
 import common.exception.ServiceException;
 import common.vo.common.ResponseBean;
+import common.vo.request.DidaUserRequestVo;
 import common.vo.response.DidaUserResponseVo;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * <p>
@@ -58,5 +56,33 @@ public class DidaUserController {
         }
         //封装信息，返回给前端
         return ResponseBean.success(didaUserResponseVo);
+    }
+
+    /**
+     * 接口1.4 修改用户信息
+     *
+     * @author yang jie
+     * @create 2020.10.24
+     * @param requestVo 封装的用户信息
+     * @return
+     */
+    @ApiOperation(value = "接口1.4 修改用户信息", httpMethod = "PUT")
+    @ApiImplicitParam(name = "requestVo", value = "用户信息", dataType = "Object", paramType = "query", required = true)
+    @PutMapping("/{userId}")
+    public ResponseBean updateUserById(@RequestBody DidaUserRequestVo requestVo) {
+
+        //判断id是否为空
+        if(requestVo.userId == null) {
+            return ResponseBean.fail(ResultCode.EMPTY_USER_ID);
+        }
+
+        //修改用户信息
+        try {
+            didaUserService.updateUserByVo(requestVo);
+        } catch (ServiceException e) {
+            return e.getFailResponse();
+        }
+
+        return ResponseBean.success();
     }
 }

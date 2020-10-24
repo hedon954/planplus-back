@@ -6,6 +6,7 @@ import common.code.ResultCode;
 import common.entity.DidaUser;
 import common.exception.ServiceException;
 import common.mapper.DidaUserMapper;
+import common.vo.request.DidaUserRequestVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,5 +40,19 @@ public class DidaUserServiceImpl extends ServiceImpl<DidaUserMapper, DidaUser> i
             throw new ServiceException(ResultCode.USER_NOT_EXIST);
         }
         return didaUser;
+    }
+
+    /**
+     * 根据requestVo修改用户信息
+     *
+     * @author yang jie
+     * @create 2020.10.24
+     * @param requestVo
+     */
+    public void updateUserByVo(DidaUserRequestVo requestVo) {
+        if(requestVo.userId == null) {
+            throw new ServiceException(ResultCode.EMPTY_USER_ID);
+        }
+        didaUserMapper.updateUserByVo(requestVo);
     }
 }
