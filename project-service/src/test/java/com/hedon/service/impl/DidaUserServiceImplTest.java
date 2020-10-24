@@ -8,6 +8,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @SpringBootTest(classes = {ProjectApplication.class})
 public class DidaUserServiceImplTest {
 
@@ -30,6 +33,10 @@ public class DidaUserServiceImplTest {
     @Test
     public void test2() {
         DidaUserRequestVo requestVo = new DidaUserRequestVo();
+        requestVo.setUserId(1);
+        requestVo.setUserGender(0);
+        requestVo.setUserBirthday(LocalDateTime.now());
+        requestVo.setUserNickname("hhhh");
         didaUserService.updateUserByVo(requestVo);
     }
 

@@ -8,6 +8,7 @@ import lombok.ToString;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -17,7 +18,7 @@ public class DidaUserRequestVo implements Serializable {
 
     private String userNickname;
 
-    private LocalDate userBirthday;
+    private LocalDateTime userBirthday;
 
     private Integer userGender;
 

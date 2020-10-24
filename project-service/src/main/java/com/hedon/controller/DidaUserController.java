@@ -72,7 +72,7 @@ public class DidaUserController {
     public ResponseBean updateUserById(@RequestBody DidaUserRequestVo requestVo) {
 
         //判断id是否为空
-        if(requestVo.userId == null) {
+        if(requestVo.getUserId() == null) {
             return ResponseBean.fail(ResultCode.EMPTY_USER_ID);
         }
 

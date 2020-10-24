@@ -49,8 +49,9 @@ public class DidaUserServiceImpl extends ServiceImpl<DidaUserMapper, DidaUser> i
      * @create 2020.10.24
      * @param requestVo
      */
+    @Override
     public void updateUserByVo(DidaUserRequestVo requestVo) {
-        if(requestVo.userId == null) {
+        if(requestVo.getUserId() == null) {
             throw new ServiceException(ResultCode.EMPTY_USER_ID);
         }
         didaUserMapper.updateUserByVo(requestVo);
