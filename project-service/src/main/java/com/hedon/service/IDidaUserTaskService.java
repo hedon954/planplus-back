@@ -13,4 +13,6 @@ import common.entity.DidaUserTask;
  */
 public interface IDidaUserTaskService extends IService<DidaUserTask> {
 
+    //插入用户——任务
+    void insertUserTask(DidaUserTask userTask);
 }

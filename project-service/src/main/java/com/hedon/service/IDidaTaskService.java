@@ -13,4 +13,12 @@ import common.entity.DidaTask;
  */
 public interface IDidaTaskService extends IService<DidaTask> {
 
+    /**
+     * 创建新任务
+     *
+     * @author yang jie
+     * @create 2020-20-25 23:50
+     * @param didaTask
+     */
+    void insertTask(DidaTask didaTask);
 }

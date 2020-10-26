@@ -2,4 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="common.mapper.DidaTaskMapper">
 
+    <!--  创建新任务，并返回新任务的id  -->
+    <insert id="insertTask" parameterType="common.entity.DidaTask">
+        <selectKey resultType="Integer" keyProperty="taskId" keyColumn="task_Id" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO tbl_dida_task (task_content,task_place,task_rate,task_start_time,task_predicted_finsh_time,task_advance_remind_time)
+        VALUES(#{taskContent},#{taskPlace},#{taskRate},#{taskStartTime},#{taskPredictedFinishTime},#{taskAdvanceRemindTime})
+    </insert>
+
 </mapper>

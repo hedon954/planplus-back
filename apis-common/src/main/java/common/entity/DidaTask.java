@@ -1,13 +1,12 @@
 package common.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
-
-import java.time.LocalDateTime;
-import java.io.Serializable;
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -36,7 +35,7 @@ public class DidaTask implements Serializable {
 
     private LocalDateTime taskStartTime;
 
-    private LocalDateTime taskPredictedFinshTime;
+    private LocalDateTime taskPredictedFinishTime;
 
     private LocalDateTime taskRealFinishTime;
 

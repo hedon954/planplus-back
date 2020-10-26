@@ -13,4 +13,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface DidaTaskMapper extends BaseMapper<DidaTask> {
 
+    //创建新任务
+    void insertTask(DidaTask didaTask);
 }
