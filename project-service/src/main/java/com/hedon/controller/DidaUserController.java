@@ -67,7 +67,7 @@ public class DidaUserController {
      * @return
      */
     @ApiOperation(value = "接口1.4 修改用户信息", httpMethod = "PUT")
-    @ApiImplicitParam(name = "requestVo", value = "用户信息", dataType = "Object", paramType = "query", required = true)
+    @ApiImplicitParam(name = "requestVo", value = "用户信息", dataType = "Object", paramType = "body", required = true)
     @PutMapping("/{userId}")
     public ResponseBean updateUserById(@RequestBody DidaUserRequestVo requestVo) {
 

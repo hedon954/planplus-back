@@ -1,26 +1,26 @@
-package common.vo.request;
+package common.vo.response;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import common.entity.DidaTask;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.beans.BeanUtils;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 前端传来的任务信息封装类
+ * 封装的任务信息，仅包含未完成任务所必需的字段
  *
  * @author yang jie
- * @create 2020-10-25 23:00
+ * @create 2020-10-26 22:10
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DidaTaskRequestVo implements Serializable {
+@ToString
+public class DidaTaskResponseVo implements Serializable {
 
     private String taskContent;
 
@@ -42,17 +42,7 @@ public class DidaTaskRequestVo implements Serializable {
 
     private Integer taskFinishPercent;
 
-    /**
-     * 将封装的任务信息转换成DidaTask对象
-     *
-     * @author yang jie
-     * @create 2020-10-25 23:00
-     * @param taskInfo
-     * @return
-     */
-    public static DidaTask toDidaTask(DidaTaskRequestVo taskInfo) {
-        DidaTask didaTask = new DidaTask();
-        BeanUtils.copyProperties(taskInfo, didaTask);
-        return didaTask;
+    public DidaTaskResponseVo(DidaTask didaTask) {
+        BeanUtils.copyProperties(didaTask, this);
     }
 }

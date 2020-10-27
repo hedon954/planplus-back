@@ -7,8 +7,26 @@
         <selectKey resultType="Integer" keyProperty="taskId" keyColumn="task_Id" order="AFTER">
             SELECT LAST_INSERT_ID()
         </selectKey>
-        INSERT INTO tbl_dida_task (task_content,task_place,task_rate,task_start_time,task_predicted_finsh_time,task_advance_remind_time)
-        VALUES(#{taskContent},#{taskPlace},#{taskRate},#{taskStartTime},#{taskPredictedFinishTime},#{taskAdvanceRemindTime})
+        INSERT INTO tbl_dida_task (task_content,task_place,task_rate,task_start_time,task_predicted_finish_time
+        <if test="taskAdvanceRemindTime != null">
+            ,task_advance_remind_time
+        </if>
+        )
+        VALUES(#{taskContent},#{taskPlace},#{taskRate},#{taskStartTime},#{taskPredictedFinishTime}
+        <if test="taskAdvanceRemindTime != null">
+            ,#{taskAdvanceRemindTime}
+        </if>
+        )
     </insert>
+
+    <!--  按日期查询待办任务  -->
+    <select id="selectByDate" resultType="common.entity.DidaTask">
+        select t.task_content, t.task_place, t.task_rate, t.task_start_time, t.task_predicted_finish_time, t.task_real_finish_time, t.task_advance_remind_time, t.task_consumed_time, t.task_status, t.task_finish_percent
+        from tbl_dida_user_task ut
+        left join tbl_dida_task t
+        on t.task_Id = ut.dida_task_Id
+        where dida_user_id = #{userId} and task_start_time like #{date} and task_status = 0 
+        order by task_start_time
+    </select>
 
 </mapper>
