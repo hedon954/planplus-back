@@ -33,8 +33,8 @@ public class DidaTaskServiceImplTest {
     @Test
     public void testCreateTask() {
         DidaTaskRequestVo requestVo = new DidaTaskRequestVo();
-        requestVo.setTaskContent("上工地搬砖");
-        requestVo.setTaskPlace("黄土高坡");
+        requestVo.setTaskContent("给长城贴瓷砖");
+        requestVo.setTaskPlace("山海关");
         requestVo.setTaskRate(0);
         requestVo.setTaskStartTime(LocalDateTime.now());
         requestVo.setTaskPredictedFinishTime(LocalDateTime.now());
@@ -55,5 +55,97 @@ public class DidaTaskServiceImplTest {
             System.out.println(taskResponseVo);
         }
         System.out.println("==================================");
+    }
+
+    /**
+     * 测试startTask
+     *
+     * @author yang jie
+     * @create 2020-10-29 12:10
+     */
+    @Test
+    public void testupdateTask() {
+        didaTaskService.startTask(17, 1);
+    }
+
+    /**
+     * 测试delayTask
+     *
+     * @author yang jie
+     * @create 2020-10-29 17:15
+     */
+    @Test
+    public void testDelayTask() {
+        didaTaskService.delayTask(17, 2, 30);
+    }
+
+    /**
+     * 测试finishTask
+     *
+     * @author yang jie
+     * @create 2020-10-29 18:40
+     */
+    @Test
+    public void testFinishTask() {
+        didaTaskService.finishTask(17, 1);
+    }
+
+    /**
+     * 测试modifyTask
+     *
+     * @author yang jie
+     * @create 2020-10-29 19:40
+     */
+    @Test
+    public void testModifyTask() {
+        DidaTaskRequestVo requestVo = new DidaTaskRequestVo();
+        requestVo.setTaskContent("给长城贴瓷砖");
+        requestVo.setTaskPlace("山海关");
+        requestVo.setTaskRate(0);
+        requestVo.setTaskStartTime(LocalDateTime.now());
+        requestVo.setTaskPredictedFinishTime(LocalDateTime.now().plusHours(2));
+        requestVo.setTaskAdvanceRemindTime(30);
+        didaTaskService.modifyTask(17, 1, requestVo);
+    }
+
+    /**
+     * 测试getTasksByStatus
+     *
+     * @author yang jie
+     * @create 2020-10-29 20:40
+     */
+    @Test
+    public void testGetTasksByStatus() {
+        ArrayList<DidaTaskResponseVo> didaTaskResponseVos = didaTaskService.getTasksByStatus(1, 1);
+        for (DidaTaskResponseVo didaTaskResponseVo : didaTaskResponseVos) {
+            System.out.println("========================");
+            System.out.println(didaTaskResponseVo);
+        }
+    }
+
+    /**
+     * 测试getAllTasks
+     *
+     * @author yang jie
+     * @create 2020-10-29 21:00
+     */
+    @Test
+    public void testGetAllTasks() {
+        ArrayList<DidaTaskResponseVo> didaTaskResponseVos = didaTaskService.getAllTasks(2);
+        for (DidaTaskResponseVo didaTaskResponseVo : didaTaskResponseVos) {
+            System.out.println("========================");
+            System.out.println(didaTaskResponseVo);
+        }
+    }
+
+    /**
+     * 测试deleteTask
+     *
+     * @author yang jie
+     * @create 2020-10-29 21:10
+     */
+    @Test
+    public void testDeleteTask() {
+        didaTaskService.deleteTask(1, 2);
     }
 }

@@ -64,7 +64,7 @@ public enum ResultCode {
      */
     EMPTY_USER_ID(50001L,"用户ID不能为空"),
     USER_NOT_EXIST(50002L,"用户不存在"),
-    PHONE_FORMAT_ERROR(50003L,"手机号格式不正确")
+    PHONE_FORMAT_ERROR(50003L,"手机号格式不正确"),
 
 
     /**
@@ -72,6 +72,13 @@ public enum ResultCode {
      *            可以自己再自定义一些新的错误码
      * ==============================================
      */
+
+    /**
+     * 任务相关的错误码
+     */
+    EMPTY_TASK_ID(60001L, "任务ID不能为空"),
+    TASK_NOT_EXIST(60002L, "任务不存在"),
+    USER_TASK_MISMATCHING(60003L, "用户和任务不匹配")
 
 
     ;

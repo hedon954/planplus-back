@@ -16,9 +16,15 @@ import java.util.ArrayList;
  */
 public interface DidaTaskMapper extends BaseMapper<DidaTask> {
 
-    //创建新任务
-    void insertTask(DidaTask didaTask);
+//   // 创建新任务
+//    void insertTask(DidaTask didaTask);
 
     //按日期查询待办任务
     ArrayList<DidaTask> selectByDate(@Param("userId") Integer userId, @Param("date") String date);
+
+    //按状态查询任务
+    ArrayList<DidaTask> selectByStatus(@Param("userId") Integer userId, @Param("taskStatus") Integer taskStatus);
+
+    //查询所有任务
+    ArrayList<DidaTask> selectAll(Integer userId);
 }
