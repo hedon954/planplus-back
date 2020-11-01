@@ -7,5 +7,4 @@
         SELECT * FROM tbl_dida_user WHERE user_phone = #{phone}
     </select>
 
-
 </mapper>

@@ -9,11 +9,14 @@ import com.hedon.service.IDidaUserService;
 import common.code.ResultCode;
 import common.entity.DidaUser;
 import common.exception.ServiceException;
+import common.util.PhoneFormatCheckUtils;
 import common.vo.common.ResponseBean;
+import common.vo.request.DidaUserRequestVo;
 import common.vo.response.DidaUserResponseVo;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,6 +34,32 @@ public class DidaUserController {
 
     @Autowired
     IDidaUserService didaUserService;
+
+
+    /**
+     * 登录
+     * @param phoneNumber
+     * @param password
+     * @return
+     */
+    @PostMapping("/login")
+    public ResponseBean login(@RequestParam("phoneNumber")String phoneNumber, @RequestParam("password")String password){
+        //判断手机格式是否正确
+        if (!PhoneFormatCheckUtils.isPhoneLegal(phoneNumber)){
+            return ResponseBean.fail(ResultCode.PHONE_FORMAT_ERROR);
+        }
+        //判断密码是否为空
+        if (StringUtils.isBlank(password)){
+            return ResponseBean.fail(ResultCode.EMPTY_PASSWORD);
+        }
+        //登录操作
+        try {
+            DidaUserResponseVo didaUser = didaUserService.login(phoneNumber,password);
+            return ResponseBean.success(didaUser);
+        }catch (ServiceException e){
+            return e.getFailResponse();
+        }
+    }
 
     /**
      * 接口1.5 获取用户信息

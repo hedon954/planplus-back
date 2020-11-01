@@ -10,6 +10,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
@@ -23,6 +24,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableFeignClients(basePackages = "com.hedon.feign")    //支持 openFeign
 @EnableHystrix                                           //支持 Hystrix
 @EnableCircuitBreaker                                    //启用断路器，支持服务熔断、降级
+@EnableTransactionManagement
 public class ProjectApplication {
 
     public static void main(String[] args) {
