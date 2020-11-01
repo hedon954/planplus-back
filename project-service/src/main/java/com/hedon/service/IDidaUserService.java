@@ -1,7 +1,10 @@
 package com.hedon.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.hedon.dto.DidaUserDTO;
 import common.entity.DidaUser;
+import common.vo.common.ResponseBean;
+import org.springframework.stereotype.Service;
 
 /**
  * <p>
@@ -22,4 +25,21 @@ public interface IDidaUserService extends IService<DidaUser> {
      * @return
      */
     DidaUser getUserById(Integer userId);
+
+    /**
+     * 根据修改用户信息
+     * @author Ruolin
+     * @create 2020.10.29
+     * @param didaUser
+     */
+    void updateUserInfoById(DidaUser didaUser);
+
+//    /**
+//     * 修改用户密码
+//     * @param userId
+//     * @param old_psw
+//     * @param new_psw
+//     * @return
+//     */
+//    void updatePassword(Integer userId,String old_psw,String new_psw);
 }

@@ -1,0 +1,55 @@
+#配置端口
+server:
+  port: 10020
+  servlet:
+    context-path: /
+#配置 spring
+spring:
+  application:
+    name: admin-center
+  #配置邮箱警报
+  mail:
+    host: smtp.qq.com                     #邮箱服务商
+    username: 171725713@qq.com            #邮箱地址
+    password: wtsyivyphqzubjie            #不是密码，是授权码，需要获取
+    properties:
+      mail:
+        stmp:
+          #设置是否需要认证，如果为true,那么用户名和密码就必须的
+          #如果设置false，可以不设置用户名和密码，当然也得看你的对接的平台是否支持无密码进行访问的。
+          auth: true
+          ##TARTTLS[1]  是对纯文本通信协议的扩展。它提供一种方式将纯文本连接升级为加密连接（TLS或SSL），而不是另外使用一个端口作加密通信
+          starttls:
+            enable: true                 #服务器启动 tls 验证
+            required: true               #服务器需要 tls 验证
+
+  boot:
+    #配置 admin
+    admin:
+      notify:
+        mail:
+          from: 171725713@qq.com         #谁来发邮件
+          to: 2018302110022@whu.edu.cn   #邮件发送给谁
+      #忽略掉 consul，不然会一直报 8300 断开连接的信息
+      discovery:
+        ignored-services: consul
+
+  cloud:
+    #注册进 Consul
+    consul:
+      host: localhost         #先配置在本机
+      port: 8500              #Consul默认端口8500
+      discovery:
+        register: true
+        instance-id: ${spring.application.name}-1
+        service-name: ${spring.application.name}
+        port: ${server.port}
+        prefer-ip-address: true #开启 ip 地址注册(默认是DNS解析）
+        ip-address: localhost
+
+# 暴露监控端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
