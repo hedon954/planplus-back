@@ -3,6 +3,7 @@ package com.hedon.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import common.entity.DidaUser;
 import common.vo.request.DidaUserRequestVo;
+import common.vo.response.DidaUserResponseVo;
 
 /**
  * <p>
@@ -33,4 +34,14 @@ public interface IDidaUserService extends IService<DidaUser> {
      */
     void updateUserByVo(DidaUserRequestVo requestVo);
 
+    /**
+     * 登录
+     *
+     * @author Jiahan Wang
+     * @create 2020.11.1
+     * @param phoneNumber  手机号
+     * @param password     密码
+     * @return
+     */
+    DidaUserResponseVo login(String phoneNumber, String password);
 }

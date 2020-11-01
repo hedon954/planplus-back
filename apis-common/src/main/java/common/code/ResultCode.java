@@ -65,6 +65,7 @@ public enum ResultCode {
     EMPTY_USER_ID(50001L,"用户ID不能为空"),
     USER_NOT_EXIST(50002L,"用户不存在"),
     PHONE_FORMAT_ERROR(50003L,"手机号格式不正确"),
+    EMPTY_PASSWORD(50004L,"密码不能为空"),
 
 
     /**
