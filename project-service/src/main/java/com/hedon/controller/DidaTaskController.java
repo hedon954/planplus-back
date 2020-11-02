@@ -2,11 +2,7 @@ package com.hedon.controller;
 
 
 import com.hedon.service.IDidaTaskService;
-import com.hedon.service.IDidaUserTaskService;
-//import com.sun.org.apache.regexp.internal.RE;
 import common.code.ResultCode;
-import common.entity.DidaTask;
-import common.entity.DidaUserTask;
 import common.exception.ServiceException;
 import common.vo.common.ResponseBean;
 import common.vo.request.DidaTaskRequestVo;
@@ -15,9 +11,14 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
+
+//import com.sun.org.apache.regexp.internal.RE;
 
 /**
  * <p>
@@ -50,7 +51,8 @@ public class DidaTaskController {
             @ApiImplicitParam(name = "taskInfo", value = "任务信息", dataType = "Object", paramType = "body", required = true)
     })
     @PostMapping("/create")
-    public ResponseBean createTask(@RequestParam("userId") Integer userId, @RequestBody DidaTaskRequestVo taskInfo) {
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseBean createTask(@AuthenticationPrincipal(expression = "#this.userId") Integer userId, @RequestBody DidaTaskRequestVo taskInfo) {
         //判断userId是否为空
         if(userId == null) {
             return ResponseBean.fail(ResultCode.EMPTY_USER_ID);
@@ -85,7 +87,8 @@ public class DidaTaskController {
             @ApiImplicitParam(name = "userId", value = "用户ID", dataType = "Integer", paramType = "query", required = true)
     })
     @PutMapping("/start/{taskId}")
-    public ResponseBean startTask(@PathVariable("taskId") Integer taskId, @RequestParam("userId") Integer userId) {
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseBean startTask(@PathVariable("taskId") Integer taskId, @AuthenticationPrincipal(expression = "#this.userId") Integer userId) {
         //判断userId是否为空
         if(userId == null) {
             return ResponseBean.fail(ResultCode.EMPTY_USER_ID);
@@ -112,7 +115,8 @@ public class DidaTaskController {
             @ApiImplicitParam(name = "delayTime", value = "推迟时间", dataType = "Integer", paramType = "query", required = true)
     })
     @PutMapping("delay/{taskId}")
-    public ResponseBean delayTask(@PathVariable("taskId") Integer taskId, @RequestParam("userId") Integer userId, @RequestParam("delayTime") Integer delayTime) {
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseBean delayTask(@PathVariable("taskId") Integer taskId, @AuthenticationPrincipal(expression = "#this.userId") Integer userId, @RequestParam("delayTime") Integer delayTime) {
 
         //判断userId是否为空
         if(userId == null) {
@@ -148,7 +152,8 @@ public class DidaTaskController {
             @ApiImplicitParam(name = "userId", value = "用户ID", dataType = "Integer", paramType = "query", required = true)
     })
     @PutMapping("/finish/{taskId}")
-    public ResponseBean finishTask(@PathVariable("taskId") Integer taskId, @RequestParam("userId") Integer userId) {
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseBean finishTask(@PathVariable("taskId") Integer taskId, @AuthenticationPrincipal(expression = "#this.userId") Integer userId) {
         //判断userId是否为空
         if(userId == null) {
             return ResponseBean.fail(ResultCode.EMPTY_USER_ID);
@@ -185,7 +190,8 @@ public class DidaTaskController {
             @ApiImplicitParam(name = "taskInfo", value = "任务内容", dataType = "Object", paramType = "body", required = true)
     })
     @PutMapping("/modify/{taskId}")
-    public ResponseBean modifyTask(@PathVariable("taskId") Integer taskId, @RequestParam("userId") Integer userId, @RequestBody DidaTaskRequestVo taskInfo) {
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseBean modifyTask(@PathVariable("taskId") Integer taskId, @AuthenticationPrincipal(expression = "#this.userId") Integer userId, @RequestBody DidaTaskRequestVo taskInfo) {
         //判断userId是否为空
         if(userId == null) {
             return ResponseBean.fail(ResultCode.EMPTY_USER_ID);
@@ -220,7 +226,8 @@ public class DidaTaskController {
     @ApiOperation(value = "接口2.1.3.1 查询今日任务", httpMethod = "GET")
     @ApiImplicitParam(name = "userId", value = "用户ID", dataType = "Integer", paramType = "query", required = true)
     @GetMapping("/today")
-    public ResponseBean getTodayTasks(@RequestParam("userId") Integer userId) {
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseBean getTodayTasks(@AuthenticationPrincipal(expression = "#this.userId") Integer userId) {
         if(userId == null) {
             return ResponseBean.fail(ResultCode.EMPTY_USER_ID);
         }
@@ -246,7 +253,8 @@ public class DidaTaskController {
     @ApiOperation(value = "接口2.1.3.2 查询明日任务", httpMethod = "GET")
     @ApiImplicitParam(name = "userId", value = "用户ID", dataType = "Integer", paramType = "query", required = true)
     @GetMapping("/tomorrow")
-    public ResponseBean getTomorrowTasks(@RequestParam("userId") Integer userId) {
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseBean getTomorrowTasks(@AuthenticationPrincipal(expression = "#this.userId") Integer userId) {
         if(userId == null) {
             return ResponseBean.fail(ResultCode.EMPTY_USER_ID);
         }
@@ -273,7 +281,8 @@ public class DidaTaskController {
     @ApiOperation(value = "接口2.1.3.3 查询所有待办", httpMethod = "GET")
     @ApiImplicitParam(name = "userId", value = "用户ID", dataType = "Integer", paramType = "query", required = true)
     @GetMapping("/todo")
-    public ResponseBean getTodoTasks(@RequestParam("userId") Integer userId) {
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseBean getTodoTasks(@AuthenticationPrincipal(expression = "#this.userId") Integer userId) {
         if (userId == null) {
             return ResponseBean.fail(ResultCode.EMPTY_USER_ID);
         }
@@ -300,7 +309,8 @@ public class DidaTaskController {
     @ApiOperation(value = "接口2.1.3.4 查询所有已办", httpMethod = "GET")
     @ApiImplicitParam(name = "userId", value = "用户ID", dataType = "Integer", paramType = "query", required = true)
     @GetMapping("/done")
-    public ResponseBean getDoneTasks(@RequestParam("userId") Integer userId) {
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseBean getDoneTasks(@AuthenticationPrincipal(expression = "#this.userId") Integer userId) {
         if (userId == null) {
             return ResponseBean.fail(ResultCode.EMPTY_USER_ID);
         }
@@ -327,7 +337,8 @@ public class DidaTaskController {
     @ApiOperation(value = "接口2.1.3.5 查询所有任务", httpMethod = "GET")
     @ApiImplicitParam(name = "userId", value = "用户ID", dataType = "Integer", paramType = "query", required = true)
     @GetMapping("/all")
-    public ResponseBean getAllTasks(@RequestParam("userId") Integer userId) {
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseBean getAllTasks(@AuthenticationPrincipal(expression = "#this.userId") Integer userId) {
         if (userId == null) {
             return ResponseBean.fail(ResultCode.EMPTY_USER_ID);
         }
@@ -358,7 +369,8 @@ public class DidaTaskController {
             @ApiImplicitParam(name = "userId", value = "用户ID", dataType = "Integer", paramType = "query", required = true)
     })
     @DeleteMapping("/delete/{taskId}")
-    public ResponseBean deleteTask(@PathVariable("taskId") Integer taskId, @RequestParam("userId") Integer userId) {
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseBean deleteTask(@PathVariable("taskId") Integer taskId, @AuthenticationPrincipal(expression = "#this.userId") Integer userId) {
         //判断userId是否为空
         if(userId == null) {
             return ResponseBean.fail(ResultCode.EMPTY_USER_ID);
