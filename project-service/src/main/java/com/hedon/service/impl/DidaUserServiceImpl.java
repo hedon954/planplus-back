@@ -63,9 +63,10 @@ public class DidaUserServiceImpl extends ServiceImpl<DidaUserMapper, DidaUser> i
         }catch (Exception e)
         {
             e.printStackTrace();
-            throw new ServiceException();
+            throw new ServiceException(ResultCode.ERROR);
         }
     }
+
 
 //    /**
 //     * 修改用户密码
@@ -95,20 +96,6 @@ public class DidaUserServiceImpl extends ServiceImpl<DidaUserMapper, DidaUser> i
 //    }
 
 
-     * 根据requestVo修改用户信息
-     *
-     * @author yang jie
-     * @create 2020.10.24
-     * @param requestVo
-     */
-    @Override
-    public void updateUserByVo(DidaUserRequestVo requestVo) {
-        if(requestVo.getUserId() == null) {
-            throw new ServiceException(ResultCode.EMPTY_USER_ID);
-        }
-        didaUserMapper.updateUserByVo(requestVo);
-    }
-
     /**
      * 登录
      *
@@ -135,5 +122,36 @@ public class DidaUserServiceImpl extends ServiceImpl<DidaUserMapper, DidaUser> i
         }
         DidaUserResponseVo didaUserResponseVo = new DidaUserResponseVo(didaUser);
         return didaUserResponseVo;
+    }
+
+    /**
+     * @param userId 用户id
+     * @param oldPwd 旧密码
+     * @param newPwd 新密码
+     * @author Ruolin
+     * @create 2020.11.2
+     */
+    @Override
+    public void updatePassword(Integer userId, String oldPwd, String newPwd) {
+        if(oldPwd==null||newPwd==null)
+        {
+            throw new ServiceException(ResultCode.EMPTY_PASSWORD);
+        }
+        DidaUser didaUser = didaUserMapper.selectById(userId);
+        if (didaUser == null){
+            throw new ServiceException(ResultCode.USER_NOT_EXIST);
+        }
+        if(!oldPwd.equals(didaUser.getUserPassword())){
+            throw new ServiceException(ResultCode.ERROR_PASSWORD);
+        }
+        DidaUser newDidaUser = new DidaUser();
+        newDidaUser.setUserId(userId);
+        newDidaUser.setUserPassword(newPwd);
+        try{
+            didaUserMapper.updateById(newDidaUser);
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new ServiceException(ResultCode.ERROR);
+        }
     }
 }

@@ -36,21 +36,6 @@ public interface IDidaUserService extends IService<DidaUser> {
      */
     void updateUserInfoById(DidaUser didaUser);
 
-//    /**
-//     * 修改用户密码
-//     * @param userId
-//     * @param old_psw
-//     * @param new_psw
-//     * @return
-//     */
-//    void updatePassword(Integer userId,String old_psw,String new_psw);
-     * 根据requestVo修改用户信息
-     *
-     * @author yang jie
-     * @create 2020.10.24
-     * @param requestVo 封装的用户信息
-     */
-    void updateUserByVo(DidaUserRequestVo requestVo);
 
     /**
      * 登录
@@ -62,4 +47,13 @@ public interface IDidaUserService extends IService<DidaUser> {
      * @return
      */
     DidaUserResponseVo login(String phoneNumber, String password);
+
+    /**
+     * @author Ruolin
+     * @create 2020.11.2
+     * @param userId    用户id
+     * @param oldPwd    旧密码
+     * @param newPwd    新密码
+     */
+    void updatePassword(Integer userId,String oldPwd,String newPwd);
 }

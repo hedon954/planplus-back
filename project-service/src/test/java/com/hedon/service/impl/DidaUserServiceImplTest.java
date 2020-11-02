@@ -24,20 +24,6 @@ public class DidaUserServiceImplTest {
         System.out.println(userById);
     }
 
-    /**
-     * 测试updateUserByVo
-     *
-     * @author yang jie
-     * @create 2020.10.24
-     */
-    @Test
-    public void test2() {
-        DidaUserRequestVo requestVo = new DidaUserRequestVo();
-        requestVo.setUserId(1);
-        requestVo.setUserGender(0);
-        requestVo.setUserBirthday(LocalDateTime.now());
-        requestVo.setUserNickname("hhhh");
-        didaUserService.updateUserByVo(requestVo);
-    }
+
 
 }

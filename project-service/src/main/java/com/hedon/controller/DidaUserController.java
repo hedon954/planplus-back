@@ -91,19 +91,48 @@ public class DidaUserController {
         return ResponseBean.success(didaUserResponseVo);
     }
 
+    /**
+     * @author Ruolin
+     * @create 2020.10.25
+     * @param userId
+     * @param json
+     * @return
+     */
     @PutMapping("/{userId}")
-    public ResponseBean upadtePassword(@PathVariable("userId")Integer userId,@RequestBody String json)throws JsonProcessingException {
+    public ResponseBean updateUserInfo(@PathVariable("userId")Integer userId,@RequestBody String json) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        DidaUserDTO didaUserDTO = objectMapper.readValue(json, DidaUserDTO.class);
-        //DidaUserDTO didaUserDTO = objectMapper.convertValue(objectMapper.readValue(json, ObjectNode.class).get("userInfo"),DidaUserDTO.class);
+        DidaUserRequestVo didaUserRequestVo = objectMapper.readValue(json,DidaUserRequestVo.class);
+        DidaUser didaUser = new DidaUser();
+        BeanUtils.copyProperties(didaUserRequestVo,didaUser);
         try{
-            DidaUser didaUser = new DidaUser();
-            BeanUtils.copyProperties(didaUserDTO,didaUser);
             didaUserService.updateUserInfoById(didaUser);
             return ResponseBean.success();
-        }catch (Exception e) {
+        }catch (ServiceException e) {
             e.printStackTrace();
-            return ResponseBean.fail(ResultCode.ERROR);
+            return e.getFailResponse();
+        }
+    }
+
+
+    /**
+     * @author Ruolin
+     * @create 2020.11.2
+     * @param userId
+     * @param json
+     * @return
+     * @throws JsonProcessingException
+     */
+    @PutMapping("/pwd/{userId}")
+    public ResponseBean updatePassword(@PathVariable("userId")Integer userId,@RequestBody String json)throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String oldPwd = objectMapper.readValue(json, ObjectNode.class).get("oldPwd").asText();
+        String newPwd = objectMapper.readValue(json, ObjectNode.class).get("newPwd").asText();
+        try{
+            didaUserService.updatePassword(userId,oldPwd,newPwd);
+            return ResponseBean.success();
+        }catch (ServiceException e) {
+            e.printStackTrace();
+            return e.getFailResponse();
         }
     }
 

@@ -21,12 +21,7 @@ public interface DidaUserMapper extends BaseMapper<DidaUser> {
     //根据手机（用户名）获取用户信息
     DidaUser getUserByPhone(String user_name);
 
-    /**
-     * 更新用户信息
-     * @param didaUser
-     */
-    @Results
-    void updateUserInfo(DidaUser didaUser);
+
 
 //    String getPsw(Integer user_id);
 //
