@@ -2,14 +2,11 @@ package com.hedon.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.hedon.dto.DidaUserDTO;
 import com.hedon.service.IDidaUserService;
 import common.code.ResultCode;
 import common.entity.DidaUser;
 import common.exception.ServiceException;
 import common.mapper.DidaUserMapper;
-import org.springframework.beans.BeanUtils;
-import common.vo.request.DidaUserRequestVo;
 import common.vo.response.DidaUserResponseVo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,18 +1,14 @@
 package com.hedon.controller;
 
 import com.hedon.sercurity.TokenInfo;
-import com.hedon.sercurity.UserDetailsEnhance;
 import common.code.ResultCode;
 import common.vo.common.ResponseBean;
 import common.vo.request.LoginRequestVo;
-import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
