@@ -125,6 +125,7 @@ public class DidaUserController {
     @PutMapping("/pwd/{userId}")
     public ResponseBean updatePassword(@PathVariable("userId")Integer userId,@RequestBody String json)throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
+        //获取新旧密码
         String oldPwd = objectMapper.readValue(json, ObjectNode.class).get("oldPwd").asText();
         String newPwd = objectMapper.readValue(json, ObjectNode.class).get("newPwd").asText();
         try{

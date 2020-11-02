@@ -68,34 +68,6 @@ public class DidaUserServiceImpl extends ServiceImpl<DidaUserMapper, DidaUser> i
     }
 
 
-//    /**
-//     * 修改用户密码
-//     *
-//     * @param userId
-//     * @param old_psw
-//     * @param new_psw
-//     * @return
-//     */
-//    @Override
-//    public void updatePassword(Integer userId, String old_psw, String new_psw) {
-//        String old_password = didaUserMapper.getPsw(userId);
-//        if(old_password==null)
-//        {
-//            throw new ServiceException(ResultCode.USER_NOT_EXIST);
-//        }
-//        else if(old_password!=old_psw)
-//        {
-//            throw new ServiceException(ResultCode.ERROR_PASSWORD);
-//        }
-//        try{
-//            didaUserMapper.updatePsw(userId,new_psw);
-//        }catch (Exception e)
-//        {
-//            throw new ServiceException();
-//        }
-//    }
-
-
     /**
      * 登录
      *
@@ -133,14 +105,16 @@ public class DidaUserServiceImpl extends ServiceImpl<DidaUserMapper, DidaUser> i
      */
     @Override
     public void updatePassword(Integer userId, String oldPwd, String newPwd) {
-        if(oldPwd==null||newPwd==null)
-        {
+        //判断新旧密码是否为空
+        if(oldPwd==null||newPwd==null) {
             throw new ServiceException(ResultCode.EMPTY_PASSWORD);
         }
+        //获取用户信息
         DidaUser didaUser = didaUserMapper.selectById(userId);
         if (didaUser == null){
             throw new ServiceException(ResultCode.USER_NOT_EXIST);
         }
+        //判断输入密码是否与数据库中存储密码相同
         if(!oldPwd.equals(didaUser.getUserPassword())){
             throw new ServiceException(ResultCode.ERROR_PASSWORD);
         }
