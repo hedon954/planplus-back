@@ -47,6 +47,8 @@ public enum ResultCode {
     INSUFFICIENT_PERMISSION(40301L, "权限不足"),
     ERROR_SIGNING(40302L, "签名有误"),
     ERROR_SIGNIN(40303L, "登陆失败"),
+    NO_LOGIN_IN(40304L,"未登录"),
+    TO_MANY_REQUESTS(40305L,"请求过多"),
 
 
     /**

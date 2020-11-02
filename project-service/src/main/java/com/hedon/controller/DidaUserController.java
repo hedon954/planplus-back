@@ -13,6 +13,9 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -65,9 +68,10 @@ public class DidaUserController {
      * @return 包含用户信息的 ResponseBean
      */
     @ApiOperation(value = "接口1.5 获取用户信息",httpMethod = "GET")
-    @ApiImplicitParam(name = "userId",value = "用户ID",dataType = "Integer",paramType = "path",required = true)
-    @GetMapping("/{userId}")
-    public ResponseBean getUserById(@PathVariable("userId")Integer userId){
+    @ApiImplicitParam(name = "userId",value = "用户ID",dataType = "Integer",paramType = "header",required = true)
+    @GetMapping("/info")
+    @PreAuthorize(("hasAuthority('ROLE_ADMIN')"))
+    public ResponseBean getUserById(@AuthenticationPrincipal(expression = "#this.userId")Integer userId){
 
         //检查id是否为空
         if (userId == null){

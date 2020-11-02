@@ -12,6 +12,12 @@
     <artifactId>auth-center</artifactId>
 
     <dependencies>
+        <!-- spring session -->
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-jdbc</artifactId>
+            <version>2.3.1.RELEASE</version>
+        </dependency>
         <!-- security 引入的话会有默认的安全认证 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

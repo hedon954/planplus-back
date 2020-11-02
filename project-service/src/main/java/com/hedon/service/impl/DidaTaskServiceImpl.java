@@ -15,10 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -177,6 +176,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
 
         //计算花费时间
         Duration duration = Duration.between(startTime, finishTime);
+
         int day = (int) duration.toDays();
         int hour = (int) duration.toHours() % (day == 0? 1: 24);
         int minutes = (int) duration.toMinutes() % (hour == 0? 1: 60);

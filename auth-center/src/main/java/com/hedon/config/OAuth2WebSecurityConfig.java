@@ -28,6 +28,7 @@ public class OAuth2WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private PasswordEncoder passwordEncoder;
 
 
+
     //配置如何构建 AuthenticationManager
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -46,13 +47,11 @@ public class OAuth2WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
                 .authorizeRequests()
-                .anyRequest()
-                .permitAll()
+                .antMatchers("/project/login/login","/oauth/**","/actuator/**").permitAll()
+                .anyRequest().authenticated()
                 .and()
-                .logout()
-                .permitAll();
+                .httpBasic();
     }
 
 }

@@ -3,6 +3,13 @@ server:
   port: 10030
   servlet:
     context-path: /
+    encoding:
+      enabled: true
+      charset: UTF-8
+      force: true
+      force-request: true
+      force-response: true
+
 
 #配置 Spring
 spring:
@@ -120,3 +127,15 @@ management:
     web:
       exposure:
         include: "*"
+
+#去获取 signingkey
+security:
+  oauth2:
+    #配置客户端信息
+    client:
+      client-id: planplus
+      client-secret: 123456
+    #配置拿 key 的请求路径
+    resource:
+      jwt:
+        key-uri: http://localhost:9527/oauth/token_key

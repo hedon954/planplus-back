@@ -1,6 +1,13 @@
 #配置端口
 server:
   port: 9527
+  servlet:
+    encoding:
+      enabled: true
+      charset: UTF-8
+      force: true
+      force-request: true
+      force-response: true
 
 #配置spring
 spring:
@@ -16,30 +23,6 @@ spring:
 
   # cloud 相关配置
   cloud:
-    #geatway 相关配置
-    gateway:
-      #配置全局超时控制
-      httpclient:
-        connect-timeout: 3000
-        response-timeout: 5s
-      discovery:
-        locator:
-          enabled: true   #开启从注册中心动态创建路由的功能，利用微服务名进行路由，这样才可以实现负载均衡
-      #配置路由
-      routes:
-        - id: project-route           #路由的ID，没有固定规则但要求要唯一，建议配合服务名
-          uri: lb://project-service   #lb://后面写上注册到注册中心的微服务名称
-          predicates:                 #断言
-            - Path=/project/**        #以 /project 开头的请求都转发到 project-service 服务
-        - id: auth-route
-          uri: lb://auth-center
-          predicates:
-            - Path=/oauth/**
-        - id: auth-login-route       #专门用来过滤掉 spring security 自带的 /login 接口
-          uri: lb://auth-center
-          predicates:
-            - Path=/login
-
     #注册进 Consul
     consul:
       host: localhost         #先配置在本机
@@ -73,6 +56,21 @@ spring:
 #    password: hedon
 #    virtual-host: /hedon
 
+#zuul相关配置
+zuul:
+  # 配置网关路由
+  routes:
+    auth-center:  #路由到认证服务器
+      path: /oauth/**
+      serviceId: auth-center
+      strip-prefix: false
+    project-service:  #路由业务模块
+      path: /project/**
+      serviceId: project-service
+      strip-prefix: false
+  sensitive-headers:  #敏感头默认是 cookie、set-cookie 和 authentication 这 3 个，设为敏感头的话 Zuul 将不会传递它们到下一个过滤器，这里我们需要传递，所以设为空
+
+
 # mybatis 配置
 mybatis-plus:
   mapper-locations: classpath*:mapper/*.xml
@@ -83,9 +81,25 @@ logging:
     name: ./logs/gateway-center.log   #文件名
     clean-history-on-start: true
 
+ribbon:
+  ReadTimeout: 120000
+  ConnectTimeout: 30000
+
 # 暴露监控端点
 management:
   endpoints:
     web:
       exposure:
         include: "*"
+
+#配置去认证服务器拿 SigningKey
+security:
+  oauth2:
+    #配置客户端信息
+    client:
+      client-id: gateway
+      client-secret: 123456
+    #配置拿 key 的请求路径
+    resource:
+      jwt:
+        key-uri: http://localhost:10040/oauth/token_key

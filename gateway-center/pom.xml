@@ -12,16 +12,28 @@
     <artifactId>gateway-center</artifactId>
 
     <dependencies>
-        <!-- gateway 网关 -->
+        <!-- oauth2.0-->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-gateway</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-web</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>spring-cloud-starter-oauth2</artifactId>
+        </dependency>
+        <!-- Zuul 的限流工具 -->
+        <dependency>
+            <groupId>com.marcosbarbero.cloud</groupId>
+            <artifactId>spring-cloud-zuul-ratelimit</artifactId>
+            <version>2.2.2.RELEASE</version>
+        </dependency>
+        <!-- Zuul 网关-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-zuul</artifactId>
+            <version>2.2.2.RELEASE</version>
+        </dependency>
+        <!-- 引入 Zuul 网关的话需要引入下面这个，不然会因为有些 bean 无法注入而报错-->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.11.1</version>
         </dependency>
         <!-- consul client -->
         <dependency>
@@ -43,13 +55,6 @@
             <groupId>com.hedon</groupId>
             <artifactId>apis-common</artifactId>
             <version>v2020.10.15</version>
-            <exclusions>
-                <!-- 需要排除掉 web -->
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-web</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <!-- actuator -->
         <dependency>

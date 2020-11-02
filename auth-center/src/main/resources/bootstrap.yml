@@ -1,6 +1,16 @@
 #配置端口
 server:
   port: 10040
+  servlet:
+    context-path: /
+    encoding:
+      enabled: true
+      charset: UTF-8
+      force: true
+      force-request: true
+      force-response: true
+    session:
+      timeout: 259200
 
 #配置spring
 spring:

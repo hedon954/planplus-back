@@ -13,6 +13,23 @@
 
 
     <dependencies>
+        <!-- oauth2.0 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-oauth2</artifactId>
+        </dependency>
+        <!-- Zuul 网关-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-zuul</artifactId>
+            <version>2.2.2.RELEASE</version>
+        </dependency>
+        <!-- 引入 Zuul 网关的话需要引入下面这个，不然会因为有些 bean 无法注入而报错-->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.11.1</version>
+        </dependency>
         <!-- 引入通用模块 -->
         <dependency>
             <groupId>com.hedon</groupId>
