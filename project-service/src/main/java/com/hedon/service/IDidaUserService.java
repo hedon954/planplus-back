@@ -1,7 +1,10 @@
 package com.hedon.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.hedon.dto.DidaUserDTO;
 import common.entity.DidaUser;
+import common.vo.common.ResponseBean;
+import org.springframework.stereotype.Service;
 import common.vo.request.DidaUserRequestVo;
 import common.vo.response.DidaUserResponseVo;
 
@@ -26,13 +29,13 @@ public interface IDidaUserService extends IService<DidaUser> {
     DidaUser getUserById(Integer userId);
 
     /**
-     * 根据requestVo修改用户信息
-     *
-     * @author yang jie
-     * @create 2020.10.24
-     * @param requestVo 封装的用户信息
+     * 根据修改用户信息
+     * @author Ruolin
+     * @create 2020.10.29
+     * @param didaUser
      */
-    void updateUserByVo(DidaUserRequestVo requestVo);
+    void updateUserInfoById(DidaUser didaUser);
+
 
     /**
      * 登录
@@ -44,4 +47,13 @@ public interface IDidaUserService extends IService<DidaUser> {
      * @return
      */
     DidaUserResponseVo login(String phoneNumber, String password);
+
+    /**
+     * @author Ruolin
+     * @create 2020.11.2
+     * @param userId    用户id
+     * @param oldPwd    旧密码
+     * @param newPwd    新密码
+     */
+    void updatePassword(Integer userId,String oldPwd,String newPwd);
 }

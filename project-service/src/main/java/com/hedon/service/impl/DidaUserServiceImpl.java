@@ -2,11 +2,13 @@ package com.hedon.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.hedon.dto.DidaUserDTO;
 import com.hedon.service.IDidaUserService;
 import common.code.ResultCode;
 import common.entity.DidaUser;
 import common.exception.ServiceException;
 import common.mapper.DidaUserMapper;
+import org.springframework.beans.BeanUtils;
 import common.vo.request.DidaUserRequestVo;
 import common.vo.response.DidaUserResponseVo;
 import org.apache.commons.lang.StringUtils;
@@ -48,19 +50,23 @@ public class DidaUserServiceImpl extends ServiceImpl<DidaUserMapper, DidaUser> i
     }
 
     /**
-     * 根据requestVo修改用户信息
+     * 修改用户信息
      *
-     * @author yang jie
-     * @create 2020.10.24
-     * @param requestVo
+     * @param didaUser
+     * @author Ruolin
+     * @create 2020.10.29
      */
     @Override
-    public void updateUserByVo(DidaUserRequestVo requestVo) {
-        if(requestVo.getUserId() == null) {
-            throw new ServiceException(ResultCode.EMPTY_USER_ID);
+    public void updateUserInfoById(DidaUser didaUser) {
+        try{
+            didaUserMapper.updateById(didaUser);
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            throw new ServiceException(ResultCode.ERROR);
         }
-        didaUserMapper.updateUserByVo(requestVo);
     }
+
 
     /**
      * 登录
@@ -88,5 +94,38 @@ public class DidaUserServiceImpl extends ServiceImpl<DidaUserMapper, DidaUser> i
         }
         DidaUserResponseVo didaUserResponseVo = new DidaUserResponseVo(didaUser);
         return didaUserResponseVo;
+    }
+
+    /**
+     * @param userId 用户id
+     * @param oldPwd 旧密码
+     * @param newPwd 新密码
+     * @author Ruolin
+     * @create 2020.11.2
+     */
+    @Override
+    public void updatePassword(Integer userId, String oldPwd, String newPwd) {
+        //判断新旧密码是否为空
+        if(oldPwd==null||newPwd==null) {
+            throw new ServiceException(ResultCode.EMPTY_PASSWORD);
+        }
+        //获取用户信息
+        DidaUser didaUser = didaUserMapper.selectById(userId);
+        if (didaUser == null){
+            throw new ServiceException(ResultCode.USER_NOT_EXIST);
+        }
+        //判断输入密码是否与数据库中存储密码相同
+        if(!oldPwd.equals(didaUser.getUserPassword())){
+            throw new ServiceException(ResultCode.ERROR_PASSWORD);
+        }
+        DidaUser newDidaUser = new DidaUser();
+        newDidaUser.setUserId(userId);
+        newDidaUser.setUserPassword(newPwd);
+        try{
+            didaUserMapper.updateById(newDidaUser);
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new ServiceException(ResultCode.ERROR);
+        }
     }
 }

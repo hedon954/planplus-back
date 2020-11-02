@@ -1,0 +1,122 @@
+#配置端口
+server:
+  port: 10030
+  servlet:
+    context-path: /
+
+#配置 Spring
+spring:
+  application:
+    name: project-service
+  # 数据库配置
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://182.61.131.18:3306/dida_manager?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: Hedon954!
+
+  # cloud 相关配置
+  cloud:
+
+    #注册进 Consul
+    consul:
+      host: localhost         #先配置在本机
+      port: 8500              #Consul默认端口8500
+      discovery:
+        register: true
+        instance-id: ${spring.application.name}-1
+        service-name: ${spring.application.name}
+        port: ${server.port}
+        prefer-ip-address: true #开启 ip 地址注册(默认是DNS解析）
+        ip-address: localhost
+    circuitbreaker:
+      hystrix:
+        enabled: true
+
+
+
+#    #配置config-client
+#    config:
+#      label: master          #分支名称
+#      name: config           #配置文件名称
+#      profile: dev           #读取后缀名称
+#      #上述3个综合起来 = master分支上的 config-dev.yml 配置文件被读取
+#      uri: http://localhost:10010   #配置中心地址
+#
+#  #rabbitmq
+#  rabbitmq:
+#    host: 172.16.208.150
+#    port: 5672
+#    username: hedon
+#    password: hedon
+#    virtual-host: /hedon
+
+# mybatis 配置
+mybatis-plus:
+    mapper-locations: classpath*:mapper/*.xml
+    global-config:
+      db-config:
+        #配置逻辑删除
+        logic-delete-field: deleted
+        logic-delete-value: 1
+        logic-not-delete-value: 0
+
+
+#-----------------Hystrix配置-----------------------
+hystrix:
+  # === === === == 默认Command === === === ==
+  command:
+    default:
+      execution:
+        isolation:
+          # 调用隔离方式, 默认: 采用线程隔离, ExecutionIsolationStrategy:THREAD
+          strategy: THREAD
+          # 调用超时时间, 默认: 5 秒
+          thread:
+            timeoutInMilliseconds: 8000
+          # 使用信号量隔离时, 命令调用最大的并发数
+          semaphore:
+            maxConcurrentRequests: 10
+      #使用信号量隔离时, 命令fallback调用最大的并发数
+      fallback:
+        isolation:
+          semaphore:
+            maxConcurrentRequests: 10
+      # === === === == 熔断器 === === === ==
+      circuitBreaker:
+        # 熔断器在整个统计时间内是否开启的阀值, 默认20个请求
+        requestVolumeThreshold: 8
+        # 熔断器默认工作时间, 默认: 5 秒
+        sleepWindowInMilliseconds: 5
+        # 默认: 50%, 当出错率超过50% 后熔断器启动
+        errorThresholdPercentage: 50
+        # 是否强制开启熔断器阻断所有请求, 默认: false, 不开启
+        forceOpen: false
+        # 是否允许熔断器忽略错误, 默认false, 不开启
+        forceClosed: false
+  # === === === == 线程池 === === === ==
+  threadpool:
+    default:
+      # 配置线程池大小, 默认值10个
+      coreSize: 10
+      # 配置队列长度, 默认-1使用SynchronousQueue,其他值则使用LinkedBlockingQueue:不可动态修改:
+      maxQueueSize: -1
+      # 队列拒绝的阈值,可通过修改这个变量动态修改允许排队的长度: maxQueueSize=-1时不适用:
+      queueSizeRejectionThreshold: 5
+      # 线程生存时间, 默认1分钟
+      keepAliveTimeMinutes: 1
+
+#日志配置
+logging:
+  file:
+    name: ./logs/project-service.log
+    clean-history-on-start: true
+
+
+# 暴露监控端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

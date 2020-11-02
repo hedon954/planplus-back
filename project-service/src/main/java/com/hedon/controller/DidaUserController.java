@@ -1,6 +1,10 @@
 package com.hedon.controller;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.hedon.dto.DidaUserDTO;
 import com.hedon.service.IDidaUserService;
 import common.code.ResultCode;
 import common.entity.DidaUser;
@@ -11,6 +15,7 @@ import common.vo.request.DidaUserRequestVo;
 import common.vo.response.DidaUserResponseVo;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -83,7 +88,7 @@ public class DidaUserController {
             DidaUser didaUser = didaUserService.getUserById(userId);
             didaUserResponseVo = new DidaUserResponseVo(didaUser);
         }catch (ServiceException e){
-            //从抛出的异常信息中封装出一个 ResponseBean
+            //从抛出的异常信息中封装出一个 ResponseBean6
             return e.getFailResponse();
         }
         //封装信息，返回给前端
@@ -91,30 +96,51 @@ public class DidaUserController {
     }
 
     /**
-     * 接口1.4 修改用户信息
-     *
-     * @author yang jie
-     * @create 2020.10.24
-     * @param requestVo 封装的用户信息
+     * @author Ruolin
+     * @create 2020.10.25
+     * @param userId
+     * @param json
      * @return
      */
-    @ApiOperation(value = "接口1.4 修改用户信息", httpMethod = "PUT")
-    @ApiImplicitParam(name = "requestVo", value = "用户信息", dataType = "Object", paramType = "body", required = true)
     @PutMapping("/{userId}")
-    public ResponseBean updateUserById(@RequestBody DidaUserRequestVo requestVo) {
-
-        //判断id是否为空
-        if(requestVo.getUserId() == null) {
-            return ResponseBean.fail(ResultCode.EMPTY_USER_ID);
-        }
-
-        //修改用户信息
-        try {
-            didaUserService.updateUserByVo(requestVo);
-        } catch (ServiceException e) {
+    public ResponseBean updateUserInfo(@PathVariable("userId")Integer userId,@RequestBody String json) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        DidaUserRequestVo didaUserRequestVo = objectMapper.readValue(json,DidaUserRequestVo.class);
+        DidaUser didaUser = new DidaUser();
+        BeanUtils.copyProperties(didaUserRequestVo,didaUser);
+        try{
+            didaUserService.updateUserInfoById(didaUser);
+            return ResponseBean.success();
+        }catch (ServiceException e) {
+            e.printStackTrace();
             return e.getFailResponse();
         }
-
-        return ResponseBean.success();
     }
+
+
+    /**
+     * @author Ruolin
+     * @create 2020.11.2
+     * @param userId
+     * @param json
+     * @return
+     * @throws JsonProcessingException
+     */
+    @PutMapping("/pwd/{userId}")
+    public ResponseBean updatePassword(@PathVariable("userId")Integer userId,@RequestBody String json)throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        //获取新旧密码
+        String oldPwd = objectMapper.readValue(json, ObjectNode.class).get("oldPwd").asText();
+        String newPwd = objectMapper.readValue(json, ObjectNode.class).get("newPwd").asText();
+        try{
+            didaUserService.updatePassword(userId,oldPwd,newPwd);
+            return ResponseBean.success();
+        }catch (ServiceException e) {
+            e.printStackTrace();
+            return e.getFailResponse();
+        }
+    }
+
+
+
 }
