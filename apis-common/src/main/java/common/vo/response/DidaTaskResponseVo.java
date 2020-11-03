@@ -22,6 +22,8 @@ import java.time.LocalDateTime;
 @ToString
 public class DidaTaskResponseVo implements Serializable {
 
+    private Integer taskId;
+
     private String taskContent;
 
     private String taskPlace;
