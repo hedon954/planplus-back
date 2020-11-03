@@ -45,5 +45,9 @@ public class DidaUser implements Serializable {
 
     private String userAvatarUrl;
 
+    private String userOpenId;
+
+    private String userSessionKey;
+
 
 }

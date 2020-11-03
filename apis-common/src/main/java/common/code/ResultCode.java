@@ -49,6 +49,7 @@ public enum ResultCode {
     ERROR_SIGNIN(40303L, "登陆失败"),
     NO_LOGIN_IN(40304L,"未登录"),
     TO_MANY_REQUESTS(40305L,"请求过多"),
+    NO_AUTHENTICATION_CODE(40306L,"小程序的 swan.login 没有成功传 code"),
 
 
     /**
@@ -68,6 +69,7 @@ public enum ResultCode {
     USER_NOT_EXIST(50002L,"用户不存在"),
     PHONE_FORMAT_ERROR(50003L,"手机号格式不正确"),
     EMPTY_PASSWORD(50004L,"密码不能为空"),
+    GET_OPENID_FAILED(50005L,"获取 openId 和 sessionKey 错误"),
 
 
     /**

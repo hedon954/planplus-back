@@ -7,6 +7,7 @@ import common.code.ResultCode;
 import common.entity.DidaUser;
 import common.exception.ServiceException;
 import common.mapper.DidaUserMapper;
+import common.vo.common.UserBaiduInfo;
 import common.vo.response.DidaUserResponseVo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,5 +125,21 @@ public class DidaUserServiceImpl extends ServiceImpl<DidaUserMapper, DidaUser> i
             e.printStackTrace();
             throw new ServiceException(ResultCode.ERROR);
         }
+    }
+
+    /**
+     * 存储用户百度信息
+     * @param userId        用户ID
+     * @param userBaiduInfo 里面有 openId 和 sessionKey
+     */
+    @Override
+    public void saveUserBaiduInfo(Integer userId, UserBaiduInfo userBaiduInfo) {
+        DidaUser didaUser = didaUserMapper.selectById(userId);
+        if (didaUser == null){
+            throw new ServiceException(ResultCode.USER_NOT_EXIST);
+        }
+        didaUser.setUserOpenId(userBaiduInfo.getOpenid());
+        didaUser.setUserSessionKey(userBaiduInfo.getSession_key());
+        didaUserMapper.updateById(didaUser);
     }
 }

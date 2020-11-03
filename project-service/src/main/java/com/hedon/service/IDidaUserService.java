@@ -3,6 +3,7 @@ package com.hedon.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import common.entity.DidaUser;
 import common.vo.common.ResponseBean;
+import common.vo.common.UserBaiduInfo;
 import org.springframework.stereotype.Service;
 import common.vo.request.DidaUserRequestVo;
 import common.vo.response.DidaUserResponseVo;
@@ -55,4 +56,11 @@ public interface IDidaUserService extends IService<DidaUser> {
      * @param newPwd    新密码
      */
     void updatePassword(Integer userId,String oldPwd,String newPwd);
+
+    /**
+     * 存储用户百度信息
+     * @param userId        用户ID
+     * @param userBaiduInfo 里面有 openId 和 sessionKey
+     */
+    void saveUserBaiduInfo(Integer userId, UserBaiduInfo userBaiduInfo);
 }

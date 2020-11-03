@@ -10,15 +10,26 @@ import common.entity.DidaUser;
 import common.exception.ServiceException;
 import common.util.PhoneFormatCheckUtils;
 import common.vo.common.ResponseBean;
+import common.vo.common.UserBaiduInfo;
 import common.vo.request.DidaUserRequestVo;
 import common.vo.response.DidaUserResponseVo;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.models.auth.In;
 import org.springframework.beans.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.client.OAuth2RestTemplate;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -35,6 +46,21 @@ public class DidaUserController {
 
     @Autowired
     IDidaUserService didaUserService;
+
+    /**
+     * 注入 OAuth2RestTemplate 实例
+     * 在主启动类定义
+     * 可以用来发送请求调用远程服务
+     * 且在发送请求的时候会自动帮我们带上上一个请求的请求头，即token
+     */
+    @Autowired
+    private OAuth2RestTemplate oAuth2RestTemplate;
+
+    /**
+     * 注入环境变量实例，可以通过它来读取配置文件中的值
+     */
+    @Autowired
+    private Environment environment;
 
 
     /**
@@ -140,5 +166,57 @@ public class DidaUserController {
     }
 
 
+    /**
+     * 百度小程序的 swan.login 成功后会传一个 code 过来
+     * 这个 code 可以获取用户百度账号下的 openId 和 sessionKey
+     * 需要将他们存储到数据库中，后面发送通知的时候需要用到 openId
+     * sessionKey 也可以用来解析用户数据，后面根据具体情况可以考虑
+     *
+     * @author Jiahan Wang
+     * @create 2020.11.3
+     * @param code
+     * @return
+     */
+    @PostMapping("/getUserOpenIdAndSessionKey")
+    @PreAuthorize(("hasAuthority('ROLE_ADMIN')"))
+    public ResponseBean getUserOpenIdAndSessionKey(@AuthenticationPrincipal(expression = "#this.userId") Integer userId,
+                                                   @RequestParam("code")String code){
+        //检查 code 是否为空
+        if (StringUtils.isNotBlank(code)){
+            //尝试发送请求获取 openId 和 sessionKey
+            try{
+                //获取 access_token
+                OAuth2AccessToken accessToken = oAuth2RestTemplate.getAccessToken();
+                String accessTokenValue = accessToken.getValue();
+                //请求链接
+                String jscode2sessionkeyUrl = "https://spapi.baidu.com/oauth/jscode2sessionkey";
+                //请求头
+                HttpHeaders httpHeaders = new HttpHeaders();
+                httpHeaders.set("Authorization","bearer "+accessTokenValue);
+                //请求参数
+                MultiValueMap<String,String> params = new LinkedMultiValueMap<>();
+                params.add("code",code);
+                params.add("client_id",environment.getProperty("baidu.planplus.client-id"));
+                params.add("sk",environment.getProperty("baidu.planplus.sk"));
+                //请求体
+                HttpEntity<MultiValueMap<String,String >> entity = new HttpEntity<>(params,httpHeaders);
+                ResponseEntity<UserBaiduInfo> responseEntity = oAuth2RestTemplate.exchange(jscode2sessionkeyUrl, HttpMethod.POST, entity,UserBaiduInfo.class);
+                //成功拿到的话，就存到数据库
+                UserBaiduInfo userBaiduInfo = responseEntity.getBody();
+                try{
+                    didaUserService.saveUserBaiduInfo(userId,userBaiduInfo);
+                    return ResponseBean.success(userBaiduInfo);
+                }catch (ServiceException e){
+                    return e.getFailResponse();
+                }
+            }catch (Exception e){
+                //如果捕获到异常，那就重新登录
+                e.printStackTrace();
+                return ResponseBean.fail(ResultCode.GET_OPENID_FAILED);
+            }
+        }
+
+        return ResponseBean.fail(ResultCode.NO_AUTHENTICATION_CODE);
+    }
 
 }

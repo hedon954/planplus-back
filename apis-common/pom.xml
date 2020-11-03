@@ -15,6 +15,12 @@
 
     <!--  导入一些比较通用的即可  -->
     <dependencies>
+        <!-- 解密工具 -->
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.15</version>
+        </dependency>
         <!-- Druid 数据源 -->
         <dependency>
             <groupId>com.alibaba</groupId>
