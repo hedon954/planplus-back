@@ -280,6 +280,27 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         didaUserTaskMapper.delete(queryWrapper);
     }
 
+    /**
+     * 查询单个任务
+     *
+     * @author yang jie
+     * @create 2020-11-05 11:50
+     * @param taskId
+     * @param userId
+     */
+    @Override
+    public DidaTaskResponseVo getTaskById(Integer taskId, Integer userId) {
+        /**
+         * 判断任务和用户是否匹配，
+         * 若不匹配则抛出异常
+         */
+        judgeUserTaskMatch(taskId, userId);
+
+        DidaTaskResponseVo didaTaskResponseVo = new DidaTaskResponseVo(didaTaskMapper.selectById(taskId));
+
+        return didaTaskResponseVo;
+    }
+
 
     /**
      * 判断用户和人物之间是否存在对应关系

@@ -33,11 +33,11 @@ public class DidaTaskServiceImplTest {
     @Test
     public void testCreateTask() {
         DidaTaskRequestVo requestVo = new DidaTaskRequestVo();
-        requestVo.setTaskContent("给长城贴瓷砖");
-        requestVo.setTaskPlace("山海关");
+        requestVo.setTaskContent("排练歌剧");
+        requestVo.setTaskPlace("大活");
         requestVo.setTaskRate(0);
-        requestVo.setTaskStartTime(LocalDateTime.now());
-        requestVo.setTaskPredictedFinishTime(LocalDateTime.now());
+        requestVo.setTaskStartTime(LocalDateTime.now().minusHours(3).plusDays(1));
+        requestVo.setTaskPredictedFinishTime(LocalDateTime.now().plusHours(1).plusDays(2));
         didaTaskService.createTask(1, requestVo);
     }
 
@@ -147,5 +147,16 @@ public class DidaTaskServiceImplTest {
     @Test
     public void testDeleteTask() {
         didaTaskService.deleteTask(1, 2);
+    }
+
+    /**
+     * 测试getTaskById
+     *
+     * @author yang jie
+     * @create 2020-11-05 12:05
+     */
+    @Test
+    public void testGetTaskById() {
+        System.out.println(didaTaskService.getTaskById(26, 1));
     }
 }
