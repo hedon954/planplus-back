@@ -109,4 +109,14 @@ public interface IDidaTaskService extends IService<DidaTask> {
      * @param userId
      */
     void deleteTask(Integer taskId, Integer userId);
+
+    /**
+     * 查询单个任务
+     *
+     * @author yang jie
+     * @create 2020-11-05 11:50
+     * @param taskId
+     * @param userId
+     */
+    DidaTaskResponseVo getTaskById(Integer taskId, Integer userId);
 }

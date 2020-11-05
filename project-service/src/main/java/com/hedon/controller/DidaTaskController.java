@@ -388,4 +388,36 @@ public class DidaTaskController {
         }
         return ResponseBean.success();
     }
+
+
+    /**
+     * 接口2.1.3.6 查询单个任务
+     *
+     * @author yang jie
+     * @create 2020-11-05 11:50
+     * @param userId
+     * @param taskId
+     * @return
+     */
+    @ApiOperation(value = "接口2.1.3.6 查询单个任务", httpMethod = "GET")
+    @ApiImplicitParam(name = "userId", value = "用户ID", dataType = "Integer", paramType = "query", required = true)
+    @GetMapping("/single/{taskId}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseBean getTask(@AuthenticationPrincipal(expression = "#this.userId") Integer userId, @PathVariable("taskId") Integer taskId) {
+        if(userId == null) {
+            return ResponseBean.fail(ResultCode.EMPTY_USER_ID);
+        }
+        if(taskId == null) {
+            return ResponseBean.fail(ResultCode.EMPTY_TASK_ID);
+        }
+
+        //根据taskId查询单个任务
+        DidaTaskResponseVo didaTaskResponseVo;
+        try {
+            didaTaskResponseVo = didaTaskService.getTaskById(taskId, userId);
+        } catch (ServiceException e) {
+            return e.getFailResponse();
+        }
+        return ResponseBean.success(didaTaskResponseVo);
+    }
 }
