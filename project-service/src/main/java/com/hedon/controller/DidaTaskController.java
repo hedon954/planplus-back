@@ -62,13 +62,15 @@ public class DidaTaskController {
             return ResponseBean.fail(ResultCode.PARAMETER_ERROR);
         }
 
+        //新建任务的id
+        Integer taskId;
         //创建新任务
         try {
-            didaTaskService.createTask(userId, taskInfo);
+            taskId = didaTaskService.createTask(userId, taskInfo);
         } catch (ServiceException e) {
             return e.getFailResponse();
         }
-        return ResponseBean.success();
+        return ResponseBean.success(taskId);
     }
 
 
