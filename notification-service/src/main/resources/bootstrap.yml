@@ -56,6 +56,29 @@ spring:
     password: hedon
     virtual-host: /hedon
 
+#自定义变量，表示本地开发环境
+mq:
+  env: local
+  dead:
+    queue:
+      name: ${mq.env}.middleware.mq.dead.queue
+    exchange:
+      name: ${mq.env}.middleware.mq.dead.exchange
+    routing:
+      key:
+        name: ${mq.env}.middleware.mq.dead.routing.key
+  producer:
+    basic:
+      exchange:
+        name: ${mq.env}.middleware.mq.producer.basic.exchange
+      routing:
+        key:
+          name: ${mq.env}.middleware.mq.producer.basic.routing.key
+  consumer:
+    real:
+      queue:
+        name: ${mq.env}.middleware.mq.consumer.real.queue
+
 #mybatis 配置
 mybatis-plus:
   mapper-locations: classpath*:mapper/*.xml

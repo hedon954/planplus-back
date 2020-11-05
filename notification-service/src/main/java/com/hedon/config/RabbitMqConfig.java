@@ -66,6 +66,7 @@ public class RabbitMqConfig {
     public SimpleRabbitListenerContainerFactory multiListenerContainerFactory(){
         //申明消息监听器所在的容器工厂
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factoryConfigurer.configure(factory,connectionFactory);
         //设置消息传输格式为 JSON
         factory.setMessageConverter(new Jackson2JsonMessageConverter());
         //设置消息的确认消费模式，这里为手动确认 MANUAL

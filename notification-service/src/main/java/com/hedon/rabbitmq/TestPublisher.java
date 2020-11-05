@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+
 /**
  * RabbitMQ 测试生产者
  *
@@ -22,7 +24,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Slf4j
-public class TestProducer {
+public class TestPublisher {
 
     //读取环境变量
     @Autowired
@@ -63,7 +65,7 @@ public class TestProducer {
                     }
                 });
                 //打印日志
-                log.info("死信队列实战-发送对象类型的信息入死信队列-生产者-内容为：{}",deadInfo);
+                log.info("死信队列实战-发送对象类型的信息入死信队列-生产者-内容为：{}，时间：{}",deadInfo, LocalDateTime.now());
             }catch (Exception e){
                 log.error("死信队列实战-发送对象类型的信息入死信队列-生产者-发生异常：{}",deadInfo,e.fillInStackTrace());
             }
