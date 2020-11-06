@@ -140,6 +140,42 @@ public class DidaTaskController {
 
 
     /**
+     * 补充接口 将任务保存至草稿箱
+     *
+     * @author yang jie
+     * @create 2020-11-06 22:50
+     * @param taskId
+     * @param userId
+     * @return
+     */
+    @ApiOperation(value = "补充接口 将任务保存至草稿箱", httpMethod = "PUT")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "taskId", value = "任务ID", dataType = "Integer", paramType = "path", required = true),
+            @ApiImplicitParam(name = "userId", value = "用户ID", dataType = "Integer", paramType = "query", required = true)
+    })
+    @PutMapping("/draft/{taskId}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseBean draftTask(@PathVariable("taskId") Integer taskId, @AuthenticationPrincipal(expression = "#this.userId") Integer userId) {
+        //判断userId是否为空
+        if(userId == null) {
+            return ResponseBean.fail(ResultCode.EMPTY_USER_ID);
+        }
+        //判断taskInfo是否为空
+        if(taskId == null) {
+            return ResponseBean.fail(ResultCode.EMPTY_TASK_ID);
+        }
+
+        //将任务保存至草稿箱
+        try {
+            didaTaskService.draftTask(taskId, userId);
+        } catch (ServiceException e) {
+            return e.getFailResponse();
+        }
+        return ResponseBean.success();
+    }
+
+
+    /**
      * 接口2.1.2.4 结束任务
      *
      * @author yang jie

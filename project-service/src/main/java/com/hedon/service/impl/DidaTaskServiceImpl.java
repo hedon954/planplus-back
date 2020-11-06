@@ -305,6 +305,34 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
 
 
     /**
+     * 将任务保存至草稿箱
+     *
+     * @author yang jie
+     * @create 2020-11-06 23:50
+     * @param taskId
+     * @param userId
+     */
+    @Override
+    public void draftTask(Integer taskId, Integer userId) {
+        /**
+         * 判断任务和用户是否匹配，
+         * 若不匹配则抛出异常
+         */
+        judgeUserTaskMatch(taskId, userId);
+
+        DidaTask task = didaTaskMapper.selectById(taskId);
+
+        //判断任务是否存在
+        if(task == null) {
+            throw new ServiceException(ResultCode.TASK_NOT_EXIST);
+        }
+
+        task.setTaskStatus(3);
+        didaTaskMapper.updateById(task);
+    }
+
+
+    /**
      * 判断用户和人物之间是否存在对应关系
      *
      * @author yang jie

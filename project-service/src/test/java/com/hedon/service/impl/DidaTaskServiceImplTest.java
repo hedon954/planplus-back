@@ -67,7 +67,7 @@ public class DidaTaskServiceImplTest {
      * @create 2020-10-29 12:10
      */
     @Test
-    public void testupdateTask() {
+    public void testStartTask() {
         didaTaskService.startTask(17, 1);
     }
 
@@ -161,5 +161,16 @@ public class DidaTaskServiceImplTest {
     @Test
     public void testGetTaskById() {
         System.out.println(didaTaskService.getTaskById(26, 1));
+    }
+
+    /**
+     * 测试draftTask
+     *
+     * @author yang jie
+     * @create 2020-11-06 22:55
+     */
+    @Test
+    public void testDraftTask() {
+        didaTaskService.draftTask(17, 1);
     }
 }

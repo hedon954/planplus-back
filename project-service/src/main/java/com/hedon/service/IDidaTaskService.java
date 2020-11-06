@@ -119,4 +119,14 @@ public interface IDidaTaskService extends IService<DidaTask> {
      * @param userId
      */
     DidaTaskResponseVo getTaskById(Integer taskId, Integer userId);
+
+    /**
+     * 将任务保存至草稿箱
+     *
+     * @author yang jie
+     * @create 2020-11-06 23:50
+     * @param taskId
+     * @param userId
+     */
+    void draftTask(Integer taskId, Integer userId);
 }
