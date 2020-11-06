@@ -33,12 +33,15 @@ public class DidaTaskServiceImplTest {
     @Test
     public void testCreateTask() {
         DidaTaskRequestVo requestVo = new DidaTaskRequestVo();
-        requestVo.setTaskContent("排练歌剧");
-        requestVo.setTaskPlace("大活");
+        requestVo.setTaskContent("胡吃海喝");
+        requestVo.setTaskPlace("二食堂");
         requestVo.setTaskRate(0);
         requestVo.setTaskStartTime(LocalDateTime.now().minusHours(3).plusDays(1));
         requestVo.setTaskPredictedFinishTime(LocalDateTime.now().plusHours(1).plusDays(2));
-        didaTaskService.createTask(1, requestVo);
+        Integer taskId = didaTaskService.createTask(1, requestVo);
+        System.out.println("==============");
+        System.out.println(taskId);
+        System.out.println("===============");
     }
 
     /**

@@ -47,7 +47,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
      */
     @Override
     @Transactional()
-    public void createTask(Integer userId, DidaTaskRequestVo taskInfo) {
+    public Integer createTask(Integer userId, DidaTaskRequestVo taskInfo) {
 
         //修改任务表
         DidaTask didaTask = DidaTaskRequestVo.toDidaTask(taskInfo);
@@ -60,6 +60,8 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         didaUserTask.setDidaTaskId(taskId);
         didaUserTask.setDidaUserId(userId);
         didaUserTaskMapper.insert(didaUserTask);
+
+        return taskId;
     }
 
     /**

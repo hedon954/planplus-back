@@ -24,9 +24,9 @@ public interface IDidaTaskService extends IService<DidaTask> {
      * @author yang jie
      * @create 2020-10-25 23:50
      * @param userId
-     * @param didaTask
+     * @param taskInfo
      */
-    void createTask(Integer userId, DidaTaskRequestVo taskInfo);
+    Integer createTask(Integer userId, DidaTaskRequestVo taskInfo);
 
     /**
      * 按日期查询待办任务
