@@ -56,28 +56,28 @@ spring:
     password: hedon
     virtual-host: /hedon
 
-#自定义变量，表示本地开发环境
+#RabbitMQ 环境变量
 mq:
-  env: local
+  env: task
   dead:
     queue:
-      name: ${mq.env}.middleware.mq.dead.queue
+      name: ${mq.env}.mq.dead.queue
     exchange:
-      name: ${mq.env}.middleware.mq.dead.exchange
+      name: ${mq.env}.mq.dead.exchange
     routing:
       key:
-        name: ${mq.env}.middleware.mq.dead.routing.key
+        name: ${mq.env}.mq.dead.routing.key
   producer:
     basic:
       exchange:
-        name: ${mq.env}.middleware.mq.producer.basic.exchange
+        name: ${mq.env}.mq.producer.basic.exchange
       routing:
         key:
-          name: ${mq.env}.middleware.mq.producer.basic.routing.key
+          name: ${mq.env}.mq.producer.basic.routing.key
   consumer:
     real:
       queue:
-        name: ${mq.env}.middleware.mq.consumer.real.queue
+        name: ${mq.env}.mq.consumer.real.queue
 
 #mybatis 配置
 mybatis-plus:
@@ -145,3 +145,10 @@ management:
     web:
       exposure:
         include: "*"
+
+#百度小程序的APP客户端信息
+baidu:
+  planplus:
+    client-id: sbSTA92oLC83h39GG5Awq4QX2cgeg1DN
+    sk: tAHnN4LfcrssMHQGzOXcZSe8hj4zaRsD
+    app-id: 22868233
