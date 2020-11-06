@@ -83,7 +83,8 @@ public enum ResultCode {
      */
     EMPTY_TASK_ID(60001L, "任务ID不能为空"),
     TASK_NOT_EXIST(60002L, "任务不存在"),
-    USER_TASK_MISMATCHING(60003L, "用户和任务不匹配")
+    USER_TASK_MISMATCHING(60003L, "用户和任务不匹配"),
+    TIMED_TASK_CREATE_FAILED(60004L,"定时任务创建失败")
 
 
     ;
