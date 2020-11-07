@@ -116,7 +116,7 @@ public class DidaTaskController {
             @ApiImplicitParam(name = "userId", value = "用户ID", dataType = "Integer", paramType = "query", required = true),
             @ApiImplicitParam(name = "delayTime", value = "推迟时间", dataType = "Integer", paramType = "query", required = true)
     })
-    @PutMapping("delay/{taskId}")
+    @PutMapping("/delay/{taskId}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseBean delayTask(@PathVariable("taskId") Integer taskId, @AuthenticationPrincipal(expression = "#this.userId") Integer userId, @RequestParam("delayTime") Integer delayTime) {
 
