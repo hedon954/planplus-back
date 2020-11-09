@@ -29,8 +29,6 @@ public class ZuulRateLimitFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
 
-        System.out.println("0 开始做限流了 ");
-
         if (rateLimiter.tryAcquire()){
             filterChain.doFilter(httpServletRequest,httpServletResponse);
         }else {

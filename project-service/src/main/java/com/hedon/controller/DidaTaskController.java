@@ -1,8 +1,12 @@
 package com.hedon.controller;
 
 
+import com.hedon.feign.NotificationFeignService;
 import com.hedon.service.IDidaTaskService;
+import com.hedon.service.IDidaUserService;
 import common.code.ResultCode;
+import common.dto.TaskNotificationDto;
+import common.entity.DidaUser;
 import common.exception.ServiceException;
 import common.vo.common.ResponseBean;
 import common.vo.request.DidaTaskRequestVo;
@@ -35,6 +39,12 @@ public class DidaTaskController {
     @Autowired
     IDidaTaskService didaTaskService;
 
+    @Autowired
+    IDidaUserService didaUserService;
+
+    @Autowired
+    NotificationFeignService notificationFeignService;
+
 
     /**
      * 接口2.1.1 创建新任务
@@ -61,7 +71,6 @@ public class DidaTaskController {
         if(taskInfo == null) {
             return ResponseBean.fail(ResultCode.PARAMETER_ERROR);
         }
-
         //新建任务的id
         Integer taskId;
         //创建新任务

@@ -2,16 +2,22 @@ package com.hedon.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.hedon.feign.NotificationFeignService;
 import com.hedon.service.IDidaTaskService;
 import common.code.ResultCode;
+import common.dto.TaskNotificationDto;
 import common.entity.DidaTask;
+import common.entity.DidaUser;
 import common.entity.DidaUserTask;
 import common.exception.ServiceException;
 import common.mapper.DidaTaskMapper;
+import common.mapper.DidaUserMapper;
 import common.mapper.DidaUserTaskMapper;
+import common.vo.common.ResponseBean;
 import common.vo.request.DidaTaskRequestVo;
 import common.vo.response.DidaTaskResponseVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +43,12 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
     @Autowired
     DidaUserTaskMapper didaUserTaskMapper;
 
+    @Autowired
+    NotificationFeignService notificationFeignService;
+
+    @Autowired
+    DidaUserMapper didaUserMapper;
+
     /**
      * 创建新任务
      *
@@ -46,7 +58,8 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
      * @param taskInfo
      */
     @Override
-    @Transactional()
+    @Transactional
+    @Async
     public Integer createTask(Integer userId, DidaTaskRequestVo taskInfo) {
 
         //修改任务表
@@ -55,6 +68,26 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
 
         //获取新建任务的taskId
         Integer taskId = didaTask.getTaskId();
+
+        //发送通知
+        DidaUser didaUser = didaUserMapper.selectById(userId);
+        TaskNotificationDto dto = new TaskNotificationDto();
+        dto.setTaskId(taskId);
+        //设置延迟时间
+        Instant nowInstant = LocalDateTime.now().toInstant(ZoneOffset.UTC);
+        Instant startInstant = didaTask.getTaskStartTime().toInstant(ZoneOffset.UTC);
+        dto.setExpiration(startInstant.getEpochSecond() - nowInstant.getEpochSecond());
+        dto.setSceneId(taskInfo.getTaskFormId());
+        dto.setTouserOpenId(didaUser.getUserOpenId());
+        dto.setPage("/pages/modification/modification?taskId="+taskId);
+        System.out.println("dto:" + dto);
+        ResponseBean responseBean = notificationFeignService.sendNotificationMsg(dto);
+        if (responseBean.getCode() != 1000L){
+            //如果发送消息不成功，那就要回滚 => 这里先手动回滚删除前面插入的数据
+            didaTaskMapper.deleteById(taskId);
+            throw new ServiceException(ResultCode.TIMED_TASK_CREATE_FAILED);
+        }
+
         //修改用户任务表
         DidaUserTask didaUserTask = new DidaUserTask();
         didaUserTask.setDidaTaskId(taskId);

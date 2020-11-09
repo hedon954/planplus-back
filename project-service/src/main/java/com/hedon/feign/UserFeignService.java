@@ -1,8 +1,6 @@
 package com.hedon.feign;
 
-import common.vo.common.ResponseBean;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
 
 
 /**

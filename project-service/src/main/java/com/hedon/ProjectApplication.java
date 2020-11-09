@@ -9,6 +9,7 @@ import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,8 +30,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableFeignClients(basePackages = "com.hedon.feign")    //支持 openFeign
 @EnableHystrix                                           //支持 Hystrix
 @EnableCircuitBreaker                                    //启用断路器，支持服务熔断、降级
-@EnableTransactionManagement
-@EnableZuulProxy
+@EnableTransactionManagement                             //支持事务管理
+@EnableZuulProxy                                         //支持 Zuul 网关代理
+@EnableAsync                                             //支持异步请求
 public class ProjectApplication {
 
     public static void main(String[] args) {
