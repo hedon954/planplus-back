@@ -1,6 +1,7 @@
 package com.hedon.controller;
 
 
+import cn.hutool.core.util.RandomUtil;
 import com.hedon.feign.NotificationFeignService;
 import com.hedon.service.IDidaTaskService;
 import com.hedon.service.IDidaUserService;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 //import com.sun.org.apache.regexp.internal.RE;
 
@@ -71,15 +74,16 @@ public class DidaTaskController {
         if(taskInfo == null) {
             return ResponseBean.fail(ResultCode.PARAMETER_ERROR);
         }
-        //新建任务的id
-        Integer taskId;
+        Map<String,Object> map = new HashMap<>();
         //创建新任务
         try {
-            taskId = didaTaskService.createTask(userId, taskInfo);
+            Integer taskId = didaTaskService.createTask(userId, taskInfo);
+            map.put("taskId",taskId);
+            map.put("subScribeId", RandomUtil.randomBigDecimal());
         } catch (ServiceException e) {
             return e.getFailResponse();
         }
-        return ResponseBean.success(taskId);
+        return ResponseBean.success(map);
     }
 
 

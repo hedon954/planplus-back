@@ -199,8 +199,6 @@ public class TimedTaskConsumer {
         jsonStr += "\"keyword4\":{\"value\": \""+didaTask.getTaskPlace()+"\"},";
         //参数5：备注
         jsonStr += "\"keyword5\":{\"value\": \""+"备注"+"\"}}";
-
-        System.out.println(jsonStr);
         return jsonStr;
     }
 }
