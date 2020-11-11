@@ -15,6 +15,7 @@ import common.vo.response.DidaTaskResponseVo;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,6 +25,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 //import com.sun.org.apache.regexp.internal.RE;
 
@@ -79,7 +81,7 @@ public class DidaTaskController {
         try {
             Integer taskId = didaTaskService.createTask(userId, taskInfo);
             map.put("taskId",taskId);
-            map.put("subScribeId", RandomUtil.randomBigDecimal());
+            map.put("subScribeId", UUID.randomUUID().toString().substring(0,20));
         } catch (ServiceException e) {
             return e.getFailResponse();
         }
