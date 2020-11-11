@@ -50,7 +50,7 @@ spring:
 #rabbitmq
   rabbitmq:
 #    host: localhost
-    host: 172.16.208.157
+    host: 182.61.131.18
     port: 5672
     username: hedon
     password: hedon

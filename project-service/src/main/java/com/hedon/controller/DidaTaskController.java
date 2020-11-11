@@ -1,13 +1,9 @@
 package com.hedon.controller;
 
-
-import cn.hutool.core.util.RandomUtil;
 import com.hedon.feign.NotificationFeignService;
 import com.hedon.service.IDidaTaskService;
 import com.hedon.service.IDidaUserService;
 import common.code.ResultCode;
-import common.dto.TaskNotificationDto;
-import common.entity.DidaUser;
 import common.exception.ServiceException;
 import common.vo.common.ResponseBean;
 import common.vo.request.DidaTaskRequestVo;
@@ -15,19 +11,15 @@ import common.vo.response.DidaTaskResponseVo;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-//import com.sun.org.apache.regexp.internal.RE;
 
 /**
  * <p>
@@ -77,9 +69,11 @@ public class DidaTaskController {
             return ResponseBean.fail(ResultCode.PARAMETER_ERROR);
         }
         Map<String,Object> map = new HashMap<>();
+        Integer taskId = 0;
         //创建新任务
         try {
-            Integer taskId = didaTaskService.createTask(userId, taskInfo);
+            taskId = didaTaskService.createTask(userId, taskInfo);
+            System.out.println("task Id = " + taskId);
             map.put("taskId",taskId);
             map.put("subScribeId", UUID.randomUUID().toString().substring(0,20));
         } catch (ServiceException e) {
