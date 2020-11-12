@@ -163,6 +163,10 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         startTime = startTime.plusMinutes(delayTime);
         predictedFinishTime = predictedFinishTime.plusMinutes(delayTime);
 
+        //更新数据库
+        task.setTaskStartTime(startTime);
+        task.setTaskPredictedFinishTime(predictedFinishTime);
+
         //发送通知
         ResponseBean responseBean = sendNotification(userId, task, formId);
         if (responseBean.getCode() != 1000L){
@@ -170,9 +174,6 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
             throw new ServiceException(ResultCode.TASK_DELAY_FAILED);
         }
 
-        //更新数据库
-        task.setTaskStartTime(startTime);
-        task.setTaskPredictedFinishTime(predictedFinishTime);
         didaTaskMapper.updateById(task);
     }
 
