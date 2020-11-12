@@ -76,14 +76,31 @@ public class TimedTaskConsumer {
                 if ( didaTask != null){
                     //再检查任务的状态是否为未进行，未进行的才进行通知
                     if(didaTask.getTaskStatus() == 0){
-                        //再检查开始时间与当前开始时间是否相差1分钟内，如果不是，表示已经被推迟了
-                        LocalDateTime now = LocalDateTime.now();
-                        Instant instantNow = now.toInstant(ZoneOffset.UTC);
-                        long epochSecondNow = instantNow.getEpochSecond();
-                        LocalDateTime taskStartTime = didaTask.getTaskStartTime();
-                        Instant instantStart = taskStartTime.toInstant(ZoneOffset.UTC);
-                        long epochSecondStart = instantStart.getEpochSecond();
-                        if (Math.abs(epochSecondNow-epochSecondStart) < 60){
+                        //再检查当前时间与(开始时间-提前提醒时间-10s)是否相差1分钟内，如果不是，表示已经被推迟了
+                        long epochSecondNow = LocalDateTime.now().toInstant(ZoneOffset.UTC).getEpochSecond();
+                        long epochSecondStart = didaTask.getTaskStartTime().toInstant(ZoneOffset.UTC).getEpochSecond();
+                        Integer taskAdvanceRemindTime = didaTask.getTaskAdvanceRemindTime();
+                        long advance = 0L;
+                        switch (taskAdvanceRemindTime){
+                            case 0:  //提前5分钟
+                                advance = 60L * 5;
+                                break;
+                            case 1:  //提前15分钟
+                                advance = 60L * 15;
+                                break;
+                            case 2:  //提前30分钟
+                                advance = 60L * 30;
+                                break;
+                            case 3:  //提前1小时
+                                advance = 60L * 1 * 60;
+                                break;
+                            case 4:  //提前3小时
+                                advance = 60L * 3 * 60;
+                                break;
+                            default:
+                                break;
+                        }
+                        if (Math.abs(epochSecondNow-epochSecondStart) < 60L || Math.abs(epochSecondStart-advance-10L-epochSecondNow) < 60L){
                             //相差1分钟内，说明没有被推迟，需要向用户发送通知
                             sendTimedTaskMsgToUser(dto,didaTask);
                         }else{
