@@ -1,7 +1,8 @@
 package com.hedon.controller;
 
-
+import com.hedon.feign.NotificationFeignService;
 import com.hedon.service.IDidaTaskService;
+import com.hedon.service.IDidaUserService;
 import common.code.ResultCode;
 import common.exception.ServiceException;
 import common.vo.common.ResponseBean;
@@ -14,11 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
-
-//import com.sun.org.apache.regexp.internal.RE;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * <p>
@@ -34,6 +35,12 @@ public class DidaTaskController {
 
     @Autowired
     IDidaTaskService didaTaskService;
+
+    @Autowired
+    IDidaUserService didaUserService;
+
+    @Autowired
+    NotificationFeignService notificationFeignService;
 
 
     /**
@@ -61,16 +68,18 @@ public class DidaTaskController {
         if(taskInfo == null) {
             return ResponseBean.fail(ResultCode.PARAMETER_ERROR);
         }
-
-        //新建任务的id
-        Integer taskId;
+        Map<String,Object> map = new HashMap<>();
+        Integer taskId = 0;
         //创建新任务
         try {
             taskId = didaTaskService.createTask(userId, taskInfo);
+            System.out.println("task Id = " + taskId);
+            map.put("taskId",taskId);
+            map.put("subScribeId", UUID.randomUUID().toString().substring(0,20));
         } catch (ServiceException e) {
             return e.getFailResponse();
         }
-        return ResponseBean.success(taskId);
+        return ResponseBean.success(map);
     }
 
 
@@ -118,7 +127,10 @@ public class DidaTaskController {
     })
     @PutMapping("/delay/{taskId}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseBean delayTask(@PathVariable("taskId") Integer taskId, @AuthenticationPrincipal(expression = "#this.userId") Integer userId, @RequestParam("delayTime") Integer delayTime) {
+    public ResponseBean delayTask(@PathVariable("taskId") Integer taskId,
+                                  @AuthenticationPrincipal(expression = "#this.userId") Integer userId,
+                                  @RequestParam("delayTime") Integer delayTime,
+                                  @RequestParam("formId") String formId) {
 
         //判断userId是否为空
         if(userId == null) {
@@ -129,13 +141,16 @@ public class DidaTaskController {
             return ResponseBean.fail(ResultCode.EMPTY_TASK_ID);
         }
 
+        Map<String,Object> map = new HashMap<>();
         //推迟任务
         try {
-            didaTaskService.delayTask(taskId, userId, delayTime);
+            didaTaskService.delayTask(taskId, userId, delayTime,formId);
+            //返回一个随机生成的订阅ID，便于前端发起订阅
+            map.put("subScribeId",UUID.randomUUID().toString().substring(0,30));
         } catch (ServiceException e) {
             return e.getFailResponse();
         }
-        return ResponseBean.success();
+        return ResponseBean.success(map);
     }
 
 
@@ -243,13 +258,15 @@ public class DidaTaskController {
             return ResponseBean.fail(ResultCode.PARAMETER_ERROR);
         }
 
+        Map<String,Object> map = new HashMap<>();
         //修改任务内容
         try {
             didaTaskService.modifyTask(taskId, userId, taskInfo);
+            map.put("subScribeId",UUID.randomUUID().toString().substring(0,30));
         } catch (ServiceException e) {
             return e.getFailResponse();
         }
-        return ResponseBean.success();
+        return ResponseBean.success(map);
     }
 
 

@@ -18,6 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+
 /**
  * 定时任务生产者
  *
@@ -54,6 +58,11 @@ public class TimedTaskPublisher {
     public ResponseBean sendTimedTaskMsg(TaskNotificationDto dto){
         if (dto != null){
             try {
+                //判断时间是否在100天内
+                long expiration = dto.getExpiration();
+                if (expiration > 100 * 24 * 60 * 60 || expiration < 0){
+                    return ResponseBean.fail(ResultCode.TASK_TO_FAR);
+                }
                 //设置消息传输格式为JSON
                 rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
                 //绑定路由
@@ -67,6 +76,8 @@ public class TimedTaskPublisher {
                         MessageProperties messageProperties = message.getMessageProperties();
                         messageProperties.setDeliveryMode(MessageDeliveryMode.PERSISTENT);
                         messageProperties.setHeader(AbstractJavaTypeMapper.DEFAULT_CONTENT_CLASSID_FIELD_NAME,TaskNotificationDto.class);
+                        //设置延迟时间
+                        messageProperties.setExpiration(String.valueOf(expiration * 1000));
                         return message;
                     }
                 });

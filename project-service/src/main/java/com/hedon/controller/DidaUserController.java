@@ -31,6 +31,9 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 /**
  * <p>
@@ -119,19 +122,23 @@ public class DidaUserController {
         return ResponseBean.success(didaUserResponseVo);
     }
 
+
     /**
      * @author Ruolin
      * @create 2020.10.25
-     * @param userId
-     * @param json
+     * @param userId 用户id
+     * @param didaUserRequestVo 前端发送的修改信息
      * @return
+     * @throws JsonProcessingException
      */
-    @PutMapping("/{userId}")
-    public ResponseBean updateUserInfo(@PathVariable("userId")Integer userId,@RequestBody String json) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        DidaUserRequestVo didaUserRequestVo = objectMapper.readValue(json,DidaUserRequestVo.class);
+    @PutMapping("/info")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseBean updateUserInfo(@AuthenticationPrincipal(expression = "#this.userId")Integer userId,@RequestBody DidaUserRequestVo didaUserRequestVo) throws JsonProcessingException {
         DidaUser didaUser = new DidaUser();
+        //从前端传输的对象中复制属性
         BeanUtils.copyProperties(didaUserRequestVo,didaUser);
+        //设置用户id
+        didaUser.setUserId(userId);
         try{
             didaUserService.updateUserInfoById(didaUser);
             return ResponseBean.success();
@@ -217,6 +224,18 @@ public class DidaUserController {
         }
 
         return ResponseBean.fail(ResultCode.NO_AUTHENTICATION_CODE);
+    }
+
+    @PutMapping("/avatar")
+    public ResponseBean uploadAvatar(@AuthenticationPrincipal(expression = "#this.userId")Integer userId,
+                                     @RequestParam("file") MultipartFile avatar) throws IOException {
+        try{
+            didaUserService.uploadAvatar(userId,avatar);
+            return ResponseBean.success();
+        }catch (ServiceException e) {
+            e.printStackTrace();
+            return e.getFailResponse();
+        }
     }
 
 }

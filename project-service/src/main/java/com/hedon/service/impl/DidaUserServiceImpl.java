@@ -9,11 +9,23 @@ import common.exception.ServiceException;
 import common.mapper.DidaUserMapper;
 import common.vo.common.UserBaiduInfo;
 import common.vo.response.DidaUserResponseVo;
+import lombok.val;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>
@@ -57,7 +69,10 @@ public class DidaUserServiceImpl extends ServiceImpl<DidaUserMapper, DidaUser> i
     @Override
     public void updateUserInfoById(DidaUser didaUser) {
         try{
-            didaUserMapper.updateById(didaUser);
+            Integer updateCount = didaUserMapper.updateById(didaUser);
+            if(updateCount!=1){
+                throw new ServiceException(ResultCode.DATABASE_ERROR);
+            }
         }catch (Exception e)
         {
             e.printStackTrace();
@@ -142,4 +157,56 @@ public class DidaUserServiceImpl extends ServiceImpl<DidaUserMapper, DidaUser> i
         didaUser.setUserSessionKey(userBaiduInfo.getSession_key());
         didaUserMapper.updateById(didaUser);
     }
+
+    /**
+     * 上传文件
+     *
+     * @param userId 用户id
+     * @param file   文件
+     */
+    @Override
+    public void uploadAvatar(Integer userId, MultipartFile file) throws IOException {
+        //创建存储路径
+        try{
+            Path path = Paths.get("C:\\planplus\\avatar",userId.toString());
+            Files.createDirectories(path);
+            String originName = org.springframework.util.StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+            String extension = FilenameUtils.getExtension(originName);
+            String fileName = String.format("%s.%s", userId.toString(), extension);
+            Path filePath = path.resolve(fileName);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            DidaUser didaUser = new DidaUser();
+            didaUser.setUserId(userId);
+            didaUser.setUserAvatarUrl(filePath.toString());
+            didaUserMapper.updateById(didaUser);
+        }catch (Exception e) {
+            e.printStackTrace();
+            throw new ServiceException(ResultCode.ERROR);
+        }
+    }
+
+    /**
+     * 获取头像
+     *
+     * @param userId 用户id
+     * @return
+     */
+    @Override
+    public Resource loadAvatar(Integer userId) {
+        try {
+            Path path = Paths.get("C:\\planplus\\avatar",userId.toString());
+            Path filePath = path.resolve(userId.toString()).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+            if(resource.exists()) {
+                return resource;
+            } else {
+                throw new ServiceException(ResultCode.ERROR);
+            }
+        } catch (MalformedURLException ex) {
+            ex.printStackTrace();
+            throw new ServiceException(ResultCode.ERROR);
+        }
+    }
+
+
 }

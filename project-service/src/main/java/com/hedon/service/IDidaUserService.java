@@ -4,9 +4,13 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import common.entity.DidaUser;
 import common.vo.common.ResponseBean;
 import common.vo.common.UserBaiduInfo;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import common.vo.request.DidaUserRequestVo;
 import common.vo.response.DidaUserResponseVo;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 /**
  * <p>
@@ -63,4 +67,20 @@ public interface IDidaUserService extends IService<DidaUser> {
      * @param userBaiduInfo 里面有 openId 和 sessionKey
      */
     void saveUserBaiduInfo(Integer userId, UserBaiduInfo userBaiduInfo);
+
+
+    /**
+     * 上传头像
+     * @param userId 用户id
+     * @param file 头像文件
+     * @throws IOException
+     */
+    void uploadAvatar(Integer userId, MultipartFile file) throws IOException;
+
+    /**
+     * 获取头像
+     * @param userId 用户id
+     * @return
+     */
+    Resource loadAvatar(Integer userId);
 }

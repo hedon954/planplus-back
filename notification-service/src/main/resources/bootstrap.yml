@@ -50,7 +50,7 @@ spring:
 #rabbitmq
   rabbitmq:
 #    host: localhost
-    host: 172.16.208.156
+    host: 182.61.131.18
     port: 5672
     username: hedon
     password: hedon
@@ -58,7 +58,7 @@ spring:
 
 #RabbitMQ 环境变量
 mq:
-  env: task
+  env: timedtask
   dead:
     queue:
       name: ${mq.env}.mq.dead.queue

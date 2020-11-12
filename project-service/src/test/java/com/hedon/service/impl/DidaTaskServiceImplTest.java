@@ -79,7 +79,7 @@ public class DidaTaskServiceImplTest {
      */
     @Test
     public void testDelayTask() {
-        didaTaskService.delayTask(17, 2, 30);
+        didaTaskService.delayTask(17, 2, 30,"formId");
     }
 
     /**

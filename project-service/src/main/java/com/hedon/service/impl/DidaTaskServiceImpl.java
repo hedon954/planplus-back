@@ -1,17 +1,24 @@
 package com.hedon.service.impl;
 
+import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.hedon.feign.NotificationFeignService;
 import com.hedon.service.IDidaTaskService;
 import common.code.ResultCode;
+import common.dto.TaskNotificationDto;
 import common.entity.DidaTask;
+import common.entity.DidaUser;
 import common.entity.DidaUserTask;
 import common.exception.ServiceException;
 import common.mapper.DidaTaskMapper;
+import common.mapper.DidaUserMapper;
 import common.mapper.DidaUserTaskMapper;
+import common.vo.common.ResponseBean;
 import common.vo.request.DidaTaskRequestVo;
 import common.vo.response.DidaTaskResponseVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +44,12 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
     @Autowired
     DidaUserTaskMapper didaUserTaskMapper;
 
+    @Autowired
+    NotificationFeignService notificationFeignService;
+
+    @Autowired
+    DidaUserMapper didaUserMapper;
+
     /**
      * 创建新任务
      *
@@ -46,7 +59,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
      * @param taskInfo
      */
     @Override
-    @Transactional()
+    @Transactional
     public Integer createTask(Integer userId, DidaTaskRequestVo taskInfo) {
 
         //修改任务表
@@ -55,6 +68,15 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
 
         //获取新建任务的taskId
         Integer taskId = didaTask.getTaskId();
+
+        //发送通知
+        ResponseBean responseBean = sendNotification(userId,didaTask,taskInfo.getTaskFormId());
+        if (responseBean.getCode() != 1000L){
+            //如果发送消息不成功，那就要回滚 => 这里先手动回滚删除前面插入的数据
+            didaTaskMapper.deleteById(taskId);
+            throw new ServiceException(ResultCode.TIMED_TASK_CREATE_FAILED);
+        }
+
         //修改用户任务表
         DidaUserTask didaUserTask = new DidaUserTask();
         didaUserTask.setDidaTaskId(taskId);
@@ -119,7 +141,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
      * @param delayTime
      */
     @Override
-    public void delayTask(Integer taskId, Integer userId, Integer delayTime) {
+    public void delayTask(Integer taskId, Integer userId, Integer delayTime,String formId) {
         /**
          * 判断任务和用户是否匹配，
          * 若不匹配则抛出异常
@@ -144,8 +166,17 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         //更新数据库
         task.setTaskStartTime(startTime);
         task.setTaskPredictedFinishTime(predictedFinishTime);
+
+        //发送通知
+        ResponseBean responseBean = sendNotification(userId, task, formId);
+        if (responseBean.getCode() != 1000L){
+            //如果发送消息不成功，抛出异常
+            throw new ServiceException(ResultCode.TASK_DELAY_FAILED);
+        }
+
         didaTaskMapper.updateById(task);
     }
+
 
 
     /**
@@ -215,12 +246,33 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
             throw new ServiceException(ResultCode.TASK_NOT_EXIST);
         }
 
+        //检查是否修改了任务的开始时间和提前提醒时间
+        Long oldTaskStartTime = task.getTaskStartTime().toEpochSecond(ZoneOffset.UTC);
+        Long newTaskStartTime = taskInfo.getTaskStartTime().toEpochSecond(ZoneOffset.UTC);
+        Integer oldTaskAdvanceRemindTime = task.getTaskAdvanceRemindTime();
+        Integer newTaskAdvanceRemindTime = taskInfo.getTaskAdvanceRemindTime();
+        Boolean needNotify = false;
+        if (!oldTaskStartTime.equals(newTaskStartTime) ||
+            !oldTaskAdvanceRemindTime.equals(newTaskAdvanceRemindTime)){
+            needNotify = true;
+        }
+
         task.setTaskContent(taskInfo.getTaskContent());
         task.setTaskPlace(taskInfo.getTaskPlace());
         task.setTaskRate(taskInfo.getTaskRate());
         task.setTaskStartTime(taskInfo.getTaskStartTime());
         task.setTaskPredictedFinishTime(taskInfo.getTaskPredictedFinishTime());
         task.setTaskAdvanceRemindTime(taskInfo.getTaskAdvanceRemindTime());
+
+        //发送通知
+        if (needNotify){
+            ResponseBean responseBean = sendNotification(userId, task, taskInfo.getTaskFormId());
+            if (responseBean.getCode() != 1000L){
+                //如果发送消息不成功，抛出异常
+                throw new ServiceException(ResultCode.TASK_DELAY_FAILED);
+            }
+        }
+
 
         //更新数据库
         didaTaskMapper.updateById(task);
@@ -374,6 +426,46 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
             didaTaskResponseVos.add(new DidaTaskResponseVo(didaTask));
         }
         return didaTaskResponseVos;
+    }
+
+    /**
+     * 调用通知模块发送通知
+     *
+     * @author Jiahan Wang
+     * @create Jiahan Wang
+     * @param userId    用户ID
+     * @param didaTask  任务体
+     * @param formId    表单ID
+     * @return
+     */
+    public ResponseBean sendNotification(Integer userId, DidaTask didaTask,String formId){
+        DidaUser didaUser = didaUserMapper.selectById(userId);
+        TaskNotificationDto dto = new TaskNotificationDto();
+        //设置任务ID
+        dto.setTaskId(didaTask.getTaskId());
+        //设置延迟时间
+        long nowEpochSecond = LocalDateTime.now().toInstant(ZoneOffset.UTC).getEpochSecond();
+        long startEpochSecond = didaTask.getTaskStartTime().toInstant(ZoneOffset.UTC).getEpochSecond();
+        Long expiration = startEpochSecond - nowEpochSecond;
+        Integer taskAdvanceRemindTime = didaTask.getTaskAdvanceRemindTime();
+        Long advance = 60L * taskAdvanceRemindTime;
+        //检查设置的提前提醒时间是否合理
+        if (expiration > (advance + 10L)){
+            expiration -= (advance + 10);
+        }else if (expiration >= 0){
+            //比如设置15分钟，但是现在离开始任务只有10分钟，那就立即通知
+            expiration = 1L;
+        }else{
+            //如果当前时间早于任务开始时间，那么发送通知失败
+            expiration = -1L;
+        }
+        dto.setExpiration(expiration);
+        dto.setSceneId(formId);
+        dto.setTouserOpenId(didaUser.getUserOpenId());
+        dto.setPage("/pages/modification/modification?taskId="+didaTask.getTaskId());
+
+        System.out.println("project-service dto : " + dto);
+        return notificationFeignService.sendNotificationMsg(dto);
     }
 
 }

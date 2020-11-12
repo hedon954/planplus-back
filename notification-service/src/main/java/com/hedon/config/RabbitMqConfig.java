@@ -69,8 +69,8 @@ public class RabbitMqConfig {
         factoryConfigurer.configure(factory,connectionFactory);
         //设置消息传输格式为 JSON
         factory.setMessageConverter(new Jackson2JsonMessageConverter());
-        //设置消息的确认消费模式，这里为手动确认 MANUAL
-        factory.setAcknowledgeMode(AcknowledgeMode.MANUAL);
+        //设置消息的确认消费模式，这里先设置为自动确认 AUTO，后面看效果再看要不要改成手动确认 MANUAL
+        factory.setAcknowledgeMode(AcknowledgeMode.AUTO);
         //设置并发消费者实例的初始数量 => 10 个
         factory.setConcurrentConsumers(10);
         //设置并发消费者实例的最大数量 => 20 个
@@ -128,8 +128,8 @@ public class RabbitMqConfig {
         args.put("x-dead-letter-exchange",environment.getProperty("mq.dead.exchange.name"));
         //创建死信路由
         args.put("x-dead-letter-routing-key",environment.getProperty("mq.dead.routing.key.name"));
-        //先不设定 TTL，在消息那边设定，单位是 ms
-        //args.put("x-message-ttl",10000);
+        //设定 TTL，在消息那边设定，单位是 ms，这里设置大一些，最大是100天
+        args.put("x-message-ttl",100*24*60*60*100);
         //创建并返回死信队列实例
         return new Queue(environment.getProperty("mq.dead.queue.name"),true,false,false,args);
     }
@@ -137,8 +137,8 @@ public class RabbitMqConfig {
     /**
      * 创建"基本消息模型"的基本交换机 —— 面向生产者
      */
-    @Bean(name = "basicProduceExchange")
-    public TopicExchange basicProduceExchange(){
+    @Bean(name = "basicProducerExchange")
+    public TopicExchange basicProducerExchange(){
         return new TopicExchange(environment.getProperty("mq.producer.basic.exchange.name"),true,false);
     }
 
@@ -148,8 +148,8 @@ public class RabbitMqConfig {
     @Bean(name = "basicProducerBinding")
     public Binding basicProducerBinding(){
         return BindingBuilder.bind(basicDeadQueue())
-                .to(basicProduceExchange())
-                .with(environment.getProperty("mq.producer.basic.routing.key"));
+                .to(basicProducerExchange())
+                .with(environment.getProperty("mq.producer.basic.routing.key.name"));
     }
 
     /**
