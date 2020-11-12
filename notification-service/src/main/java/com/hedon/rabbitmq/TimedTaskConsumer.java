@@ -81,7 +81,7 @@ public class TimedTaskConsumer {
                         long epochSecondStart = didaTask.getTaskStartTime().toInstant(ZoneOffset.UTC).getEpochSecond();
                         Integer taskAdvanceRemindTime = didaTask.getTaskAdvanceRemindTime();
                         long advance = 60L * taskAdvanceRemindTime;
-                        if (Math.abs(epochSecondNow-epochSecondStart) < 60L || Math.abs(epochSecondStart-advance-10L-epochSecondNow) < 60L){
+                        if (dto.getExpiration() == 1 || Math.abs(epochSecondNow-epochSecondStart) < 60L || Math.abs(epochSecondStart-advance-10L-epochSecondNow) < 60L){
                             //相差1分钟内，说明没有被推迟，需要向用户发送通知
                             sendTimedTaskMsgToUser(dto,didaTask);
                         }else{
