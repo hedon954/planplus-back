@@ -70,22 +70,23 @@ public class TimedTaskConsumer {
     public void consumeTimedTaskMsg(@Payload TaskNotificationDto dto){
         if (dto != null){
             try {
-                //先检查是否存在该任务
                 Integer taskId = dto.getTaskId();
                 DidaTask didaTask = didaTaskMapper.selectById(taskId);
+                //先检查是否存在该任务
                 if ( didaTask != null){
-                    //再检查开始时间与当前开始时间是否相差1分钟内，如果不是，表示已经被推迟了
-                    LocalDateTime now = LocalDateTime.now();
-                    Instant instantNow = now.toInstant(ZoneOffset.UTC);
-                    long epochSecondNow = instantNow.getEpochSecond();
-                    LocalDateTime taskStartTime = didaTask.getTaskStartTime();
-                    Instant instantStart = taskStartTime.toInstant(ZoneOffset.UTC);
-                    long epochSecondStart = instantStart.getEpochSecond();
-                    if (Math.abs(epochSecondNow-epochSecondStart) < 60){
-                        //相差1分钟内，说明没有被推迟，需要向用户发送通知
-                        sendTimedTaskMsgToUser(dto,didaTask);
-                    }else{
-                        //相差超过1分钟，说明已经被推迟了，不做任何处理
+                    //再检查任务的状态是否为未进行，未进行的才进行通知
+                    if(didaTask.getTaskStatus() == 0){
+                        //再检查当前时间与(开始时间-提前提醒时间-10s)是否相差1分钟内，如果不是，表示已经被推迟了
+                        long epochSecondNow = LocalDateTime.now().toInstant(ZoneOffset.UTC).getEpochSecond();
+                        long epochSecondStart = didaTask.getTaskStartTime().toInstant(ZoneOffset.UTC).getEpochSecond();
+                        Integer taskAdvanceRemindTime = didaTask.getTaskAdvanceRemindTime();
+                        long advance = 60L * taskAdvanceRemindTime;
+                        if (Math.abs(epochSecondNow-epochSecondStart) < 60L || Math.abs(epochSecondStart-advance-10L-epochSecondNow) < 60L){
+                            //相差1分钟内，说明没有被推迟，需要向用户发送通知
+                            sendTimedTaskMsgToUser(dto,didaTask);
+                        }else{
+                            //相差超过1分钟，说明已经被推迟了，不做任何处理
+                        }
                     }
                 }
             }catch (Exception e){
@@ -104,7 +105,7 @@ public class TimedTaskConsumer {
             //补充百度信息 access_token 和 token_time
             BaiduInfo planPlusInfo = baiduInfoService.getPlanPlusInfo();
             dto.setAccessToken(planPlusInfo.getAccessToken());
-            dto.setTokenTime(planPlusInfo.getTokenTime());
+            dto.setTokenTime(planPlusInfo.getTokenTime().toEpochSecond(ZoneOffset.UTC));
             //检查 token 是否过期
             if (dto.tokenIsExpired()){
                 //如果过期，则重新获取 token
@@ -125,7 +126,8 @@ public class TimedTaskConsumer {
             params.add("template_id",dto.getTemplateId());
             params.add("touser_openId",dto.getTouserOpenId());
             params.add("data",objectToJsonStr(didaTask));
-            params.add("scene_id",dto.getSceneType());
+            params.add("scene_id",dto.getSceneId());
+            params.add("scene_type",dto.getSceneType());
             params.add("page",dto.getPage());
             //请求头
             HttpEntity<MultiValueMap<String,Object>> entity = new HttpEntity<>(params,httpHeaders);
@@ -168,7 +170,7 @@ public class TimedTaskConsumer {
         //更新 token
         BaiduTokenInfo tokenInfo = response.getBody();
         dto.setAccessToken(tokenInfo.getAccess_token());
-        dto.setTokenTime(LocalDateTime.now());
+        dto.setTokenTime(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC));
         BaiduInfo planPlusInfo = baiduInfoService.getPlanPlusInfo();
         planPlusInfo.setAccessToken(tokenInfo.getAccess_token());
         planPlusInfo.setTokenTime(LocalDateTime.now());
@@ -188,13 +190,13 @@ public class TimedTaskConsumer {
         //参数1：日程描述
         jsonStr += "{\"keyword1\":{\"value\": \""+didaTask.getTaskContent()+"\"},";
         //参数2：开始时间
-        jsonStr += "{\"keyword2\":{\"value\": \""+didaTask.getTaskStartTime()+"\"},";
+        jsonStr += "\"keyword2\":{\"value\": \""+didaTask.getTaskStartTime()+"\"},";
         //参数3：结束时间
-        jsonStr += "{\"keyword3\":{\"value\": \""+didaTask.getTaskPredictedFinishTime()+"\"},";
+        jsonStr += "\"keyword3\":{\"value\": \""+didaTask.getTaskPredictedFinishTime()+"\"},";
         //参数4：日程地点
-        jsonStr += "{\"keyword4\":{\"value\": \""+didaTask.getTaskPlace()+"\"},";
+        jsonStr += "\"keyword4\":{\"value\": \""+didaTask.getTaskPlace()+"\"},";
         //参数5：备注
-        jsonStr += "{\"keyword5\":{\"value\": \""+"备注"+"\"}}";
+        jsonStr += "\"keyword5\":{\"value\": \""+"备注"+"\"}}";
         return jsonStr;
     }
 }

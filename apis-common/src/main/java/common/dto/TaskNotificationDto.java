@@ -1,18 +1,16 @@
 package common.dto;
 
-import javafx.concurrent.Task;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
-
 import java.io.Serializable;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
 /**
  * 传送消息时封装的消息通知对象，包含需要的字段
+ *
+ * 注意点：不支持 LocalDateTime
  *
  * @author Hedon Wang
  * @create 2020-11-06 10:30
@@ -29,14 +27,19 @@ public class TaskNotificationDto implements Serializable {
     private Integer taskId;
 
     /**
+     * 延迟时间 = 当前时间 - 任务开始时间
+     */
+    private Long expiration;
+
+    /**
      * 访问百度官方接口需要的令牌
      */
     private String accessToken;
 
     /**
-     * 获取 token 的时间节点
+     * 获取 token 的时间戳（相对于 UTC）
      */
-    private LocalDateTime tokenTime;
+    private Long tokenTime;
 
     /**
      * 消息模板ID
@@ -47,6 +50,11 @@ public class TaskNotificationDto implements Serializable {
      * 百度用户的 openID
      */
     private String touserOpenId;
+
+    /**
+     * 表单(场景)ID,一次订阅对应一个
+     */
+    private String sceneId;
 
     /**
      * 场景类型，固定为1
@@ -74,8 +82,7 @@ public class TaskNotificationDto implements Serializable {
         if (accessToken == null){
             return false;
         }
-        long getTokenTime = getTokenTime().toInstant(ZoneOffset.UTC).getEpochSecond();
-        long now = LocalDateTime.now().toInstant(ZoneOffset.UTC).getEpochSecond();
-        return (now - getTokenTime) >= 259000;
+        long now = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
+        return (now - tokenTime) >= 259000;
     }
 }

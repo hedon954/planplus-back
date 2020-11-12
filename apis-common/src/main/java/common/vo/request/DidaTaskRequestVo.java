@@ -43,6 +43,11 @@ public class DidaTaskRequestVo implements Serializable {
     private Integer taskFinishPercent;
 
     /**
+     * 订阅通知信息的表单ID，每条任务对应一个
+     */
+    private String taskFormId;
+
+    /**
      * 将封装的任务信息转换成DidaTask对象
      *
      * @author yang jie

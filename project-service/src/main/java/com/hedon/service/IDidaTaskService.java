@@ -58,7 +58,7 @@ public interface IDidaTaskService extends IService<DidaTask> {
      * @param userId
      * @param delayTime
      */
-    void delayTask(Integer taskId, Integer userId, Integer delayTime);
+    void delayTask(Integer taskId, Integer userId, Integer delayTime,String formId);
 
     /**
      * 结束任务，改任务状态，写任务实际结束时间、花费时间
