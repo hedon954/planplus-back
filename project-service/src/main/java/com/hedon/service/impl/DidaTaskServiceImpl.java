@@ -447,26 +447,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         long startEpochSecond = didaTask.getTaskStartTime().toInstant(ZoneOffset.UTC).getEpochSecond();
         Long expiration = startEpochSecond - nowEpochSecond;
         Integer taskAdvanceRemindTime = didaTask.getTaskAdvanceRemindTime();
-        Long advance = 0L;
-        switch (taskAdvanceRemindTime){
-            case 0:  //提前5分钟
-                advance = 60L * 5;
-                break;
-            case 1:  //提前15分钟
-                advance = 60L * 15;
-                break;
-            case 2:  //提前30分钟
-                advance = 60L * 30;
-                break;
-            case 3:  //提前1小时
-                advance = 60L * 1 * 60;
-                break;
-            case 4:  //提前3小时
-                advance = 60L * 3 * 60;
-                break;
-            default:
-                break;
-        };
+        Long advance = 60L * taskAdvanceRemindTime;
         //检查设置的提前提醒时间是否合理
         if (expiration > (advance + 10L)){
             expiration -= advance;

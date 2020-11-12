@@ -53,7 +53,7 @@ public class DidaTask implements Serializable {
 
     public DidaTask(){
         this.taskRate = 0;
-        this.taskAdvanceRemindTime = 1;
+        this.taskAdvanceRemindTime = 5;
         this.taskStatus = 0;
         this.taskFinishPercent = 0;
     }
