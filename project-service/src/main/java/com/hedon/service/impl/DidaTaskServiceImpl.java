@@ -251,8 +251,8 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         Integer oldTaskAdvanceRemindTime = task.getTaskAdvanceRemindTime();
         Integer newTaskAdvanceRemindTime = taskInfo.getTaskAdvanceRemindTime();
         Boolean needNotify = false;
-        if (Long.compare(oldTaskStartTime,newTaskStartTime) !=0 ||
-                Integer.compare(oldTaskAdvanceRemindTime,newTaskAdvanceRemindTime) != 0){
+        if (!oldTaskStartTime.equals(newTaskStartTime) ||
+            !oldTaskAdvanceRemindTime.equals(newTaskAdvanceRemindTime)){
             needNotify = true;
         }
 
@@ -450,10 +450,10 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         Long advance = 60L * taskAdvanceRemindTime;
         //检查设置的提前提醒时间是否合理
         if (expiration > (advance + 10L)){
-            expiration -= advance;
+            expiration -= (advance + 10);
         }else if (expiration >= 0){
             //比如设置15分钟，但是现在离开始任务只有10分钟，那就立即通知
-            expiration = 0L;
+            expiration = 1L;
         }else{
             //如果当前时间早于任务开始时间，那么发送通知失败
             expiration = -1L;
