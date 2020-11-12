@@ -1,0 +1,72 @@
+#配置端口
+server:
+  port: 10040
+  servlet:
+    context-path: /
+    encoding:
+      enabled: true
+      charset: UTF-8
+      force: true
+      force-request: true
+      force-response: true
+    session:
+      timeout: 259200
+
+#配置spring
+spring:
+  application:
+    name: auth-center
+  # 数据库配置
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://182.61.131.18:3306/dida_manager?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: Hedon954!
+
+  # cloud 相关配置
+  cloud:
+    #注册进 Consul
+    consul:
+      host: localhost         #先配置在本机
+      port: 8500              #Consul默认端口8500
+      discovery:
+        register: true
+        instance-id: ${spring.application.name}-1
+        service-name: ${spring.application.name}
+        port: ${server.port}
+        prefer-ip-address: true #开启 ip 地址注册(默认是DNS解析）
+        ip-address: localhost
+
+#    #配置config-client
+#    config:
+#      label: master          #分支名称
+#      name: config           #配置文件名称
+#      profile: dev           #读取后缀名称
+#      #上述3个综合起来 = master分支上的 config-dev.yml 配置文件被读取
+#      uri: http://localhost:10010   #配置中心地址
+#
+#  #rabbitmq
+#  rabbitmq:
+#    host: 172.16.208.150
+#    port: 5672
+#    username: hedon
+#    password: hedon
+#    virtual-host: /hedon
+
+# mybatis 配置
+mybatis-plus:
+  mapper-locations: classpath*:mapper/*.xml
+
+#日志配置
+logging:
+  file:
+    name: ./logs/auth-center.log   #文件名
+    clean-history-on-start: true
+
+# 暴露监控端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

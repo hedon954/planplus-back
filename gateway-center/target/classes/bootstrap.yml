@@ -1,0 +1,105 @@
+#配置端口
+server:
+  port: 9527
+  servlet:
+    encoding:
+      enabled: true
+      charset: UTF-8
+      force: true
+      force-request: true
+      force-response: true
+
+#配置spring
+spring:
+  application:
+    name: gateway-center
+  # 数据库配置
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://182.61.131.18:3306/dida_manager?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: Hedon954!
+
+  # cloud 相关配置
+  cloud:
+    #注册进 Consul
+    consul:
+      host: localhost         #先配置在本机
+      port: 8500              #Consul默认端口8500
+      discovery:
+        register: true
+        instance-id: ${spring.application.name}-1
+        service-name: ${spring.application.name}
+        port: ${server.port}
+        prefer-ip-address: true #开启 ip 地址注册(默认是DNS解析）
+        ip-address: localhost
+    #ockingLoadBalancerClientRibbonWarnLogger : You already have RibbonLoadBalancerClient on your classpath. It will be used by default. As Spring Cloud Ribbon is in maintenance mode. We recommend switching to BlockingLoadBalancerClient instead. In order to use it, set the value of `spring.cloud.loadbalancer.ribbon.enabled` to `false` or remove spring-cloud-starter-netflix-ribbon from your project.
+    #eactorLoadBalancerClientRibbonWarnLogger : You have RibbonLoadBalancerClient on your classpath. LoadBalancerExchangeFilterFunction that uses it under the hood will be used by default. Spring Cloud Ribbon is now in maintenance mode, so we suggest switching to ReactorLoadBalancerExchangeFilterFunction instead. In order to use it, set the value of `spring.cloud.loadbalancer.ribbon.enabled` to `false` or remove spring-cloud-starter-netflix-ribbon from your project.
+#    loadbalancer:
+#      ribbon:
+#        enabled: false
+
+    #配置config-client
+#    config:
+#      label: master          #分支名称
+#      name: config           #配置文件名称
+#      profile: dev           #读取后缀名称
+#      #上述3个综合起来 = master分支上的 config-dev.yml 配置文件被读取
+#      uri: http://localhost:10010   #配置中心地址
+
+  #rabbitmq
+#  rabbitmq:
+#    host: 172.16.208.150
+#    port: 5672
+#    username: hedon
+#    password: hedon
+#    virtual-host: /hedon
+
+#zuul相关配置
+zuul:
+  # 配置网关路由
+  routes:
+    auth-center:  #路由到认证服务器
+      path: /oauth/**
+      serviceId: auth-center
+      strip-prefix: false
+    project-service:  #路由业务模块
+      path: /project/**
+      serviceId: project-service
+      strip-prefix: false
+  sensitive-headers:  #敏感头默认是 cookie、set-cookie 和 authentication 这 3 个，设为敏感头的话 Zuul 将不会传递它们到下一个过滤器，这里我们需要传递，所以设为空
+
+
+# mybatis 配置
+mybatis-plus:
+  mapper-locations: classpath*:mapper/*.xml
+
+#日志配置
+logging:
+  file:
+    name: ./logs/gateway-center.log   #文件名
+    clean-history-on-start: true
+
+ribbon:
+  ReadTimeout: 120000
+  ConnectTimeout: 30000
+
+# 暴露监控端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+#配置去认证服务器拿 SigningKey
+security:
+  oauth2:
+    #配置客户端信息
+    client:
+      client-id: gateway
+      client-secret: 123456
+    #配置拿 key 的请求路径
+    resource:
+      jwt:
+        key-uri: http://localhost:10040/oauth/token_key
