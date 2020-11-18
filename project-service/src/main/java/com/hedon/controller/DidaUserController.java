@@ -20,6 +20,8 @@ import org.springframework.beans.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -226,7 +228,14 @@ public class DidaUserController {
         return ResponseBean.fail(ResultCode.NO_AUTHENTICATION_CODE);
     }
 
-    @PutMapping("/avatar")
+    /**
+     * 用户上传头像接口
+     * @param userId 用户id
+     * @param avatar 头像文件
+     * @return
+     * @throws IOException
+     */
+    @PostMapping("/avatar")
     public ResponseBean uploadAvatar(@AuthenticationPrincipal(expression = "#this.userId")Integer userId,
                                      @RequestParam("file") MultipartFile avatar) throws IOException {
         try{
@@ -236,6 +245,14 @@ public class DidaUserController {
             e.printStackTrace();
             return e.getFailResponse();
         }
+    }
+
+    @GetMapping("/avatar/download")
+    public ResponseEntity downloadAvatar(@AuthenticationPrincipal(expression = "#this.userId")Integer userId){
+        Resource resource = didaUserService.loadAvatar(userId);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,"attachment;filename=\""+resource.getFilename()+"\"")
+                .body(resource);
     }
 
 }

@@ -48,7 +48,7 @@ public class OAuth2WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/project/login/login","/oauth/**","/actuator/**").permitAll()
+                .antMatchers("/project/img/**","/project/login/login","/oauth/**","/actuator/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic();

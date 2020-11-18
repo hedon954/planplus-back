@@ -43,7 +43,14 @@ spring:
 
 
 
-#    #配置config-client
+
+  mvc:
+    static-path-pattern: /project/img/**    #配置config-client
+
+  spring:
+    resources:
+      static-locations: file:C:/planplus/avatar/
+
 #    config:
 #      label: master          #分支名称
 #      name: config           #配置文件名称
@@ -146,4 +153,7 @@ baidu:
   planplus:
     client-id: sbSTA92oLC83h39GG5Awq4QX2cgeg1DN
     sk: tAHnN4LfcrssMHQGzOXcZSe8hj4zaRsD
+
+
+
 
