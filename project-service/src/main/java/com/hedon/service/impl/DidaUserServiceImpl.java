@@ -186,7 +186,6 @@ public class DidaUserServiceImpl extends ServiceImpl<DidaUserMapper, DidaUser> i
     }
 
     /**
-     * 获取头像
      *
      * @param userId 用户id
      * @return
@@ -194,9 +193,11 @@ public class DidaUserServiceImpl extends ServiceImpl<DidaUserMapper, DidaUser> i
     @Override
     public Resource loadAvatar(Integer userId) {
         try {
-            Path path = Paths.get("C:\\planplus\\avatar",userId.toString());
+            //获取图片路径
+            Path path = Paths.get(didaUserMapper.selectById(userId).getUserAvatarUrl());
             Path filePath = path.resolve(userId.toString()).normalize();
-            Resource resource = new UrlResource(filePath.toUri());
+            //获取图片
+            Resource resource = new UrlResource(path.toUri());
             if(resource.exists()) {
                 return resource;
             } else {
@@ -207,6 +208,5 @@ public class DidaUserServiceImpl extends ServiceImpl<DidaUserMapper, DidaUser> i
             throw new ServiceException(ResultCode.ERROR);
         }
     }
-
 
 }
