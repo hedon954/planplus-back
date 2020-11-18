@@ -64,6 +64,12 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
 
         //修改任务表
         DidaTask didaTask = DidaTaskRequestVo.toDidaTask(taskInfo);
+        //判断任务开始时间是否早于结束时间
+        LocalDateTime begin = didaTask.getTaskStartTime();
+        LocalDateTime end = didaTask.getTaskPredictedFinishTime();
+        if(begin.isAfter(end)) {
+            throw new ServiceException(ResultCode.TASK_TIME_INVALID);
+        }
         didaTaskMapper.insert(didaTask);
 
         //获取新建任务的taskId
@@ -244,6 +250,11 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         //判断任务是否存在
         if(task == null) {
             throw new ServiceException(ResultCode.TASK_NOT_EXIST);
+        }
+
+        //判断任务开始时间是否早于结束时间
+        if(taskInfo.getTaskStartTime().isAfter(taskInfo.getTaskPredictedFinishTime())) {
+            throw new ServiceException(ResultCode.TASK_TIME_INVALID);
         }
 
         //检查是否修改了任务的开始时间和提前提醒时间

@@ -14,6 +14,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -59,7 +60,7 @@ public class DidaTaskController {
     })
     @PostMapping("/create")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseBean createTask(@AuthenticationPrincipal(expression = "#this.userId") Integer userId, @RequestBody DidaTaskRequestVo taskInfo) {
+    public ResponseBean createTask(@AuthenticationPrincipal(expression = "#this.userId") Integer userId, @RequestBody @Validated DidaTaskRequestVo taskInfo) {
         //判断userId是否为空
         if(userId == null) {
             return ResponseBean.fail(ResultCode.EMPTY_USER_ID);
@@ -244,7 +245,7 @@ public class DidaTaskController {
     })
     @PutMapping("/modify/{taskId}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseBean modifyTask(@PathVariable("taskId") Integer taskId, @AuthenticationPrincipal(expression = "#this.userId") Integer userId, @RequestBody DidaTaskRequestVo taskInfo) {
+    public ResponseBean modifyTask(@PathVariable("taskId") Integer taskId, @AuthenticationPrincipal(expression = "#this.userId") Integer userId, @RequestBody @Validated DidaTaskRequestVo taskInfo) {
         //判断userId是否为空
         if(userId == null) {
             return ResponseBean.fail(ResultCode.EMPTY_USER_ID);

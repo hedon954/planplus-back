@@ -19,13 +19,13 @@
 <!--        )-->
 <!--    </insert>-->
 
-    <!--  按日期查询待办任务  -->
+    <!--  按日期查询任务  -->
     <select id="selectByDate" resultType="common.entity.DidaTask">
         select t.task_id, t.task_content, t.task_place, t.task_rate, t.task_start_time, t.task_predicted_finish_time, t.task_real_finish_time, t.task_advance_remind_time, t.task_consumed_time, t.task_status, t.task_finish_percent
         from tbl_dida_user_task ut
         left join tbl_dida_task t
         on t.task_Id = ut.dida_task_Id
-        where dida_user_id = #{userId} and task_start_time like #{date} and task_status = 0 and t.is_deleted = 0
+        where dida_user_id = #{userId} and task_start_time like #{date} and (task_status = 0 or task_status = 1 or task_status = 2) and t.is_deleted = 0
         order by task_start_time
     </select>
 

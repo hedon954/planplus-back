@@ -1,13 +1,13 @@
 package common.vo.request;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import common.entity.DidaTask;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -22,12 +22,14 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class DidaTaskRequestVo implements Serializable {
 
+    @NotBlank(message = "任务内容不得为空")
     private String taskContent;
 
     private String taskPlace;
 
     private Integer taskRate;
 
+    @NotNull(message = "任务开始时间不得为空")
     private LocalDateTime taskStartTime;
 
     private LocalDateTime taskPredictedFinishTime;
