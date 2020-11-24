@@ -7,15 +7,19 @@ import common.code.ResultCode;
 import common.exception.ServiceException;
 import common.vo.common.ResponseBean;
 import common.vo.request.DidaTaskRequestVo;
+import common.vo.request.DidaTaskSentenceRequestVo;
 import common.vo.response.DidaTaskResponseVo;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -475,5 +479,47 @@ public class DidaTaskController {
             return e.getFailResponse();
         }
         return ResponseBean.success(didaTaskResponseVo);
+    }
+
+
+    /**
+     * 接口2.1.5 通过一句话创建任务
+     *
+     * @author Jiahan Wang
+     * @create 2020.11.24
+     * @param userId
+     * @param taskInfo
+     * @return
+     */
+    @ApiOperation(value = "接口2.1.5 通过一句话创建任务",httpMethod = "POST")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userId", value = "用户ID", dataType = "Integer", paramType = "query", required = true),
+            @ApiImplicitParam(name = "taskInfo",value = "任务信息",dataType = "DidaTaskSentenceRequestVo",paramType = "body",required = true)
+    })
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PostMapping("/createBySentence")
+    public ResponseBean createTaskBySentence(@AuthenticationPrincipal(expression = "#this.userId")Integer userId,
+                                             @RequestBody DidaTaskSentenceRequestVo taskInfo){
+        //检查 userId 是否为空
+        if (userId == null){
+            return ResponseBean.fail(ResultCode.EMPTY_USER_ID);
+        }
+        //检查 taskInfo 是否为空
+        if (StringUtils.isBlank(taskInfo.getTaskInfo())){
+            return ResponseBean.fail(ResultCode.TIMED_TASK_CREATE_FAILED,"任务创建失败，请输入任务信息!");
+        }
+        //创建任务
+        Map<String,Object> map = new HashMap<>();
+        Integer taskId = 0;
+        try{
+            taskId = didaTaskService.createTaskBySentence(userId,taskInfo);
+            map.put("taskId",taskId);
+            map.put("subScribeId", UUID.randomUUID().toString().substring(0,20));
+        }catch (ServiceException e){
+            return e.getFailResponse();
+        }catch (URISyntaxException e){
+            return ResponseBean.fail(ResultCode.TIMED_TASK_CREATE_FAILED);
+        }
+        return ResponseBean.success(map);
     }
 }

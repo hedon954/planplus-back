@@ -2,9 +2,12 @@ package com.hedon.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import common.entity.DidaTask;
+import common.exception.ServiceException;
 import common.vo.request.DidaTaskRequestVo;
+import common.vo.request.DidaTaskSentenceRequestVo;
 import common.vo.response.DidaTaskResponseVo;
 
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -129,4 +132,15 @@ public interface IDidaTaskService extends IService<DidaTask> {
      * @param userId
      */
     void draftTask(Integer taskId, Integer userId);
+
+    /**
+     * 根据一句话创建任务
+     *
+     * @author Jiahan Wang
+     * @create 2020.11.24
+     * @param userId    用户ID
+     * @param taskInfo  任务信息
+     * @return
+     */
+    Integer createTaskBySentence(Integer userId, DidaTaskSentenceRequestVo taskInfo) throws URISyntaxException, ServiceException;
 }

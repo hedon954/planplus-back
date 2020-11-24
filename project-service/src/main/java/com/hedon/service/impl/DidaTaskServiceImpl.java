@@ -14,16 +14,24 @@ import common.exception.ServiceException;
 import common.mapper.DidaTaskMapper;
 import common.mapper.DidaUserMapper;
 import common.mapper.DidaUserTaskMapper;
+import common.util.timenlp.nlp.TimeNormalizer;
+import common.util.timenlp.nlp.TimeUnit;
+import common.util.timenlp.util.DateUtil;
 import common.vo.common.ResponseBean;
 import common.vo.request.DidaTaskRequestVo;
+import common.vo.request.DidaTaskSentenceRequestVo;
 import common.vo.response.DidaTaskResponseVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -443,7 +451,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
      * 调用通知模块发送通知
      *
      * @author Jiahan Wang
-     * @create Jiahan Wang
+     * @create 2020.11.11
      * @param userId    用户ID
      * @param didaTask  任务体
      * @param formId    表单ID
@@ -479,4 +487,128 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         return notificationFeignService.sendNotificationMsg(dto);
     }
 
+
+    /**
+     * 根据一句话创建任务
+     *
+     * @author Jiahan Wang
+     * @create 2020.11.24
+     * @param userId    用户ID
+     * @param taskInfo  任务信息
+     * @return
+     */
+    @Override
+    @Transactional
+    public Integer createTaskBySentence(Integer userId, DidaTaskSentenceRequestVo taskInfo) throws URISyntaxException,ServiceException{
+
+        //创建任务体
+        DidaTask didaTask = new DidaTask();
+
+        //①抽取出任务时间
+        Map<String, Object> map = extractTime(taskInfo.getTaskInfo());
+        didaTask.setTaskStartTime((LocalDateTime) map.get("startTime"));
+        didaTask.setTaskPredictedFinishTime((LocalDateTime) map.get("finishTime"));
+        String timeStr = (String) map.get("timeStr");
+
+        //②抽取出任务地点
+
+
+        //③抽取出任务内容
+
+        //插入任务
+        didaTaskMapper.insert(didaTask);
+
+        //获取新建任务的taskId
+        Integer taskId = didaTask.getTaskId();
+
+        //发送通知
+        ResponseBean responseBean = sendNotification(userId,didaTask,taskInfo.getTaskFormId());
+        if (responseBean.getCode() != 1000L){
+            //如果发送消息不成功，那就要回滚 => 这里先手动回滚删除前面插入的数据
+            didaTaskMapper.deleteById(taskId);
+            throw new ServiceException(ResultCode.TIMED_TASK_CREATE_FAILED);
+        }
+
+        //修改用户任务表
+        DidaUserTask didaUserTask = new DidaUserTask();
+        didaUserTask.setDidaTaskId(taskId);
+        didaUserTask.setDidaUserId(userId);
+        didaUserTaskMapper.insert(didaUserTask);
+
+        return taskId;
+    }
+
+    /**
+     * 从句子中抽取出时间成分
+     *
+     * @author Jiahan Wang
+     * @create 2020.11.24
+     * @param sentence 句子
+     * @return 开始时间、结束时间、抽取出的时间语句
+     */
+    public Map<String,Object> extractTime(String sentence) throws URISyntaxException {
+
+        Map<String,Object> map = new HashMap<>();
+
+        URL url = TimeNormalizer.class.getResource("/TimeExp.m");
+        TimeNormalizer normalizer = new TimeNormalizer(url.toURI().toString());
+        normalizer.setPreferFuture(true);
+
+        //抽取时间
+        normalizer.parse(sentence);
+        TimeUnit[] unit = normalizer.getTimeUnit();
+        System.out.println(sentence);
+        
+        //先判断时间个数
+        //如果没抽取到时间，则抛出异常
+        if (unit.length < 1){
+            throw new ServiceException("创建任务失败，请在任务信息中说明任务开始时间！",ResultCode.TIMED_TASK_CREATE_FAILED);
+        }
+        //如果是有一个时间，那么就是瞬时任务，开始时间和结束时间相等
+        if (unit.length == 1){
+            Date date = unit[0].getTime();
+            LocalDateTime startTime = parseDateToLocalDateTime(date);
+            //如果只有日期，没有时间，那么默认就是早上9点，如（"明天去青岛"），那么就是明天早上9点去青岛
+            if (unit[0].getIsAllDayTime() == true){
+                startTime = startTime.plusHours(9);
+            }
+            //开始时间不能在当前时间之前
+            if (startTime.isBefore(LocalDateTime.now())){
+                throw new ServiceException("任务开始时间不能早于当前时间",ResultCode.TASK_TIME_INVALID);
+            }
+            map.put("startTime",startTime);
+            map.put("finishTime",startTime);
+            map.put("timeStr",unit[0].Time_Expression);
+        }
+        //如果有两个时间，那么第一个就是开始时间，第二个就是结束时间
+        if (unit.length >=2 ){
+            Date firstTime = unit[0].getTime();
+            Date secondTime = unit[0].getTime();
+            //早的那个是开始时间
+            LocalDateTime startTime = parseDateToLocalDateTime(firstTime.before(secondTime) ? firstTime : secondTime);
+            LocalDateTime finishTime = parseDateToLocalDateTime(secondTime.after(firstTime) ? secondTime : firstTime);
+            //判断开始时间是否早于当前时间
+            if (startTime.isBefore(LocalDateTime.now())){
+                throw new ServiceException("任务开始时间不能早于当前时间",ResultCode.TASK_TIME_INVALID);
+            }
+            map.put("startTime",startTime);
+            map.put("finishTime",finishTime);
+            map.put("timeStr",unit[0].Time_Expression + "-" + unit[1].Time_Expression);
+        }
+        return map;
+    }
+
+    /**
+     * 将 Date 转换为 LocalDatetime
+     *
+     * @author Jiahan Wang
+     * @create 2020.11.24
+     * @param date
+     * @return
+     */
+    public LocalDateTime parseDateToLocalDateTime(Date date){
+        Instant instant = date.toInstant();
+        ZoneId zoneId = ZoneId.systemDefault();
+        return LocalDateTime.ofInstant(instant,zoneId);
+    }
 }
