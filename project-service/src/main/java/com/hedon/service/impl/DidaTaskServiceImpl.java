@@ -580,11 +580,11 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
             //TODO:漏洞：早上、中午、下午、晚上都会识别为第二天，这个时间识别器的bug，后面解决
             String timeStr = unit[0].Time_Expression;
             if (!timeStr.contains("今") &&
-                            (timeStr.contains("早上") ||
-                            timeStr.contains("上午") ||
-                            timeStr.contains("中午") ||
-                            timeStr.contains("下午") ||
-                            timeStr.contains("晚上")) &&
+                            (timeStr.startsWith("早上") ||
+                            timeStr.startsWith("上午") ||
+                            timeStr.startsWith("中午") ||
+                            timeStr.startsWith("下午") ||
+                            timeStr.startsWith("晚上")) &&
                timeStr.contains("点")){
                 //TODO:这里先往前推一天
                 startTime = startTime.plusDays(-1);
@@ -613,11 +613,11 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
             //TODO:漏洞：早上、中午、下午、晚上都会识别为第二天，这个时间识别器的bug，后面解决
             String timeStr = unit[0].Time_Expression + "-" + unit[1].Time_Expression;
             if (!timeStr.contains("今") &&
-                    (timeStr.contains("早上") ||
-                            timeStr.contains("上午") ||
-                            timeStr.contains("中午") ||
-                            timeStr.contains("下午") ||
-                            timeStr.contains("晚上")) &&
+                    (timeStr.startsWith("早上") ||
+                            timeStr.startsWith("上午") ||
+                            timeStr.startsWith("中午") ||
+                            timeStr.startsWith("下午") ||
+                            timeStr.startsWith("晚上")) &&
                     timeStr.contains("点")){
                 //TODO:这里先往前推一天
                 startTime = startTime.plusDays(-1);

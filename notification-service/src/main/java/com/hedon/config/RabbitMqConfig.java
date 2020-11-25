@@ -76,7 +76,7 @@ public class RabbitMqConfig {
         //设置并发消费者实例的最大数量 => 20 个
         factory.setMaxConcurrentConsumers(20);
         //设置并发消费者实例中每个实例拉取的消息数量，在这里为 5 个
-        factory.setPrefetchCount(5);
+        factory.setPrefetchCount(1);
         //返回实例
         return factory;
     }
