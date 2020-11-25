@@ -98,8 +98,9 @@ public class NotificationServiceImpl implements INotificationService {
         for (DidaTask didaTask: didaTasks){
             //查询用户信息
             Integer taskId = didaTask.getTaskId();
+            System.out.println("taskId = " + taskId);
             QueryWrapper<DidaUserTask> queryWrapper1 = new QueryWrapper<>();
-            queryWrapper.eq("dida_task_id",taskId);
+            queryWrapper1.eq("dida_task_id",taskId);
             DidaUserTask didaUserTask = didaUserTaskMapper.selectOne(queryWrapper1);
             DidaUser didaUser = didaUserMapper.selectById(didaUserTask.getDidaUserId());
             //封装dto

@@ -1,6 +1,5 @@
 package com.hedon.service.impl;
 
-import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hedon.feign.NotificationFeignService;
@@ -16,7 +15,6 @@ import common.mapper.DidaUserMapper;
 import common.mapper.DidaUserTaskMapper;
 import common.util.timenlp.nlp.TimeNormalizer;
 import common.util.timenlp.nlp.TimeUnit;
-import common.util.timenlp.util.DateUtil;
 import common.vo.common.ResponseBean;
 import common.vo.request.DidaTaskRequestVo;
 import common.vo.request.DidaTaskSentenceRequestVo;
@@ -26,14 +24,11 @@ import org.ansj.domain.Term;
 import org.ansj.splitWord.analysis.ToAnalysis;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.*;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
