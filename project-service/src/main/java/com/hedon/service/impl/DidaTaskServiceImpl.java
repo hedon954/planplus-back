@@ -218,6 +218,28 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
             throw new ServiceException(ResultCode.TASK_NOT_EXIST);
         }
 
+        /**
+         * 判断任务频率
+         * 若任务仅执行一次，则写任务结束时间；
+         * 若任务执行多次，则按频率推迟任务开始时间和提前提醒时间
+         */
+        Integer rate = didaTask.getTaskRate();
+        if(rate == 1) {
+            //每天提醒
+            delayTask(taskId, userId, 1440, "abc");
+            return;
+        }
+        if(rate == 2) {
+            //每周提醒
+            delayTask(taskId, userId, 10080, "abc");
+            return;
+        }
+        if(rate == 3) {
+            //每月提醒
+//            delayTask(taskId, userId, );
+        }
+
+
         LocalDateTime startTime = didaTask.getTaskStartTime();
         LocalDateTime finishTime = LocalDateTime.now();
 
