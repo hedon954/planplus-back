@@ -142,5 +142,5 @@ public interface IDidaTaskService extends IService<DidaTask> {
      * @param taskInfo  任务信息
      * @return
      */
-    Integer createTaskBySentence(Integer userId, DidaTaskSentenceRequestVo taskInfo) throws URISyntaxException, ServiceException;
+    DidaTask createTaskBySentence(Integer userId, DidaTaskSentenceRequestVo taskInfo) throws URISyntaxException, ServiceException;
 }

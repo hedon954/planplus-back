@@ -500,7 +500,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
      */
     @Override
     @Transactional
-    public Integer createTaskBySentence(Integer userId, DidaTaskSentenceRequestVo taskInfo) throws URISyntaxException,ServiceException{
+    public DidaTask createTaskBySentence(Integer userId, DidaTaskSentenceRequestVo taskInfo) throws URISyntaxException,ServiceException{
 
         //创建任务体
         DidaTask didaTask = new DidaTask();
@@ -540,7 +540,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         didaUserTask.setDidaUserId(userId);
         didaUserTaskMapper.insert(didaUserTask);
 
-        return taskId;
+        return didaTask;
     }
 
     /**

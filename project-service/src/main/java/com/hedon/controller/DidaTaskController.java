@@ -4,6 +4,7 @@ import com.hedon.feign.NotificationFeignService;
 import com.hedon.service.IDidaTaskService;
 import com.hedon.service.IDidaUserService;
 import common.code.ResultCode;
+import common.entity.DidaTask;
 import common.exception.ServiceException;
 import common.vo.common.ResponseBean;
 import common.vo.request.DidaTaskRequestVo;
@@ -510,10 +511,10 @@ public class DidaTaskController {
         }
         //创建任务
         Map<String,Object> map = new HashMap<>();
-        Integer taskId = 0;
+        DidaTask didaTask = null;
         try{
-            taskId = didaTaskService.createTaskBySentence(userId,taskInfo);
-            map.put("taskId",taskId);
+            didaTask = didaTaskService.createTaskBySentence(userId,taskInfo);
+            map.put("didaTask",didaTask);
             map.put("subScribeId", UUID.randomUUID().toString().substring(0,20));
         }catch (ServiceException e){
             return e.getFailResponse();
