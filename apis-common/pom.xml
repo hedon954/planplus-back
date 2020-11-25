@@ -15,6 +15,12 @@
 
     <!--  导入一些比较通用的即可  -->
     <dependencies>
+        <!--分词工具-->
+        <dependency>
+            <groupId>org.ansj</groupId>
+            <artifactId>ansj_seg</artifactId>
+            <version>5.1.1</version>
+        </dependency>
         <dependency>
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>

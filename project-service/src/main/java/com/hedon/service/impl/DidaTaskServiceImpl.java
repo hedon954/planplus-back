@@ -21,6 +21,10 @@ import common.vo.common.ResponseBean;
 import common.vo.request.DidaTaskRequestVo;
 import common.vo.request.DidaTaskSentenceRequestVo;
 import common.vo.response.DidaTaskResponseVo;
+import org.ansj.domain.Result;
+import org.ansj.domain.Term;
+import org.ansj.splitWord.analysis.ToAnalysis;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -30,10 +34,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
@@ -504,16 +505,20 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         //创建任务体
         DidaTask didaTask = new DidaTask();
 
+        /**
+         * 明天下午三点到五点在计算机学院202教室考计组
+         */
+
         //①抽取出任务时间
-        Map<String, Object> map = extractTime(taskInfo.getTaskInfo());
-        didaTask.setTaskStartTime((LocalDateTime) map.get("startTime"));
-        didaTask.setTaskPredictedFinishTime((LocalDateTime) map.get("finishTime"));
-        String timeStr = (String) map.get("timeStr");
+        Map<String, Object> times = extractTime(taskInfo.getTaskInfo());
+        didaTask.setTaskStartTime((LocalDateTime) times.get("startTime"));
+        didaTask.setTaskPredictedFinishTime((LocalDateTime) times.get("finishTime"));
+        String timeStr = (String) times.get("timeStr");
 
-        //②抽取出任务地点
-
-
-        //③抽取出任务内容
+        //②抽取出任务地点和内容
+        Map<String, String> addressAndContent = extractAddressAndContent(timeStr, taskInfo.getTaskInfo());
+        didaTask.setTaskContent(addressAndContent.get("content"));
+        didaTask.setTaskPlace(addressAndContent.get("address"));
 
         //插入任务
         didaTaskMapper.insert(didaTask);
@@ -581,9 +586,9 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
             map.put("timeStr",unit[0].Time_Expression);
         }
         //如果有两个时间，那么第一个就是开始时间，第二个就是结束时间
-        if (unit.length >=2 ){
+        if (unit.length >=2){
             Date firstTime = unit[0].getTime();
-            Date secondTime = unit[0].getTime();
+            Date secondTime = unit[1].getTime();
             //早的那个是开始时间
             LocalDateTime startTime = parseDateToLocalDateTime(firstTime.before(secondTime) ? firstTime : secondTime);
             LocalDateTime finishTime = parseDateToLocalDateTime(secondTime.after(firstTime) ? secondTime : firstTime);
@@ -610,5 +615,89 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         Instant instant = date.toInstant();
         ZoneId zoneId = ZoneId.systemDefault();
         return LocalDateTime.ofInstant(instant,zoneId);
+    }
+
+    /**
+     * 从句子中抽取出地址成分和内容成分
+     *
+     * @param timeStr  时间成分
+     * @param sentence 任务信息
+     * @return 地址成分和内容成分
+     */
+    public Map<String,String> extractAddressAndContent(String timeStr, String sentence){
+        Map<String,String> map = new HashMap<>();
+
+        int addressStart = -1;
+        int contentStart = -1;
+
+        System.out.println("任务完整句子：" + sentence);
+
+        //去掉时间成分
+        String s1 = sentence.substring(timeStr.length());
+        System.out.println("去掉时间成分后：" + s1);
+
+        //分词
+        Result parse = ToAnalysis.parse(s1);
+        System.out.println("分词结果： " + parse);
+
+        List<Term> terms = parse.getTerms();
+
+        //遍历结果 —— 先找地址起始点
+        for (Term term: terms){
+            String s = term.toString();
+            String[] split = s.split("/");
+            //找到第一个动词
+            if (StringUtils.equals(split[1],"v")){
+                addressStart = term.getOffe();
+                break;
+            }
+        }
+        if (addressStart < 0){
+            throw new ServiceException("识别不到任务地点",ResultCode.TIMED_TASK_CREATE_FAILED);
+        }
+
+        //遍历结果 —— 往后找到任务内容的起始位置
+        int index = 0;
+        for (Term term: terms){
+            String s = term.toString();
+            String[] split = s.split("/");
+            //找到第2个动词
+            if (StringUtils.equals(split[1],"v")){
+                //不要第一个动词 —— 那是地址的
+                if (index!=0){
+                    contentStart = term.getOffe();
+                    break;
+                }
+                index++;
+            }
+        }
+        //动词找不到的话尝试找动名词 vn
+        if (contentStart < 0){
+            for (Term term: terms){
+                String s = term.toString();
+                String[] split = s.split("/");
+                //找到第一个动词
+                if (StringUtils.equals(split[1],"vn")){
+                    contentStart = term.getOffe();
+                }
+            }
+        }
+        //如果还找不到，则抛出异常
+        if (contentStart < 0){
+            throw new ServiceException("识别不到任务内容",ResultCode.TIMED_TASK_CREATE_FAILED);
+        }
+
+        String content = s1.substring(contentStart);
+        map.put("content",content);
+
+        System.out.println("任务内容：" + content);
+
+        //第一个动词v - 第二个动词v/vn 这个区间就是地址内容
+        String address = s1.substring(addressStart+1,contentStart);
+        map.put("address",address);
+
+        System.out.println("任务地点： " + address);
+
+        return map;
     }
 }
