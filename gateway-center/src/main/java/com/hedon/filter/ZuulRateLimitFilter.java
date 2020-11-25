@@ -22,9 +22,9 @@ import java.io.IOException;
 public class ZuulRateLimitFilter extends OncePerRequestFilter {
 
     /**
-     * 限流器，参数的每秒可以接受的请求量
+     * 限流器，参数为每秒可以接受的请求量
      */
-    private RateLimiter rateLimiter = RateLimiter.create(10);
+    private RateLimiter rateLimiter = RateLimiter.create(100);
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
