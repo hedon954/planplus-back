@@ -43,6 +43,8 @@ public class DidaTask implements Serializable {
 
     private String taskConsumedTime;
 
+    private LocalDateTime taskRemindTime;
+
     private Integer taskStatus;
 
     @TableField("is_deleted")
@@ -50,6 +52,8 @@ public class DidaTask implements Serializable {
     private Integer deleted;
 
     private Integer taskFinishPercent;
+
+    private String taskFormId;
 
     public DidaTask(){
         this.taskRate = 0;
