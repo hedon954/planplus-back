@@ -3,6 +3,8 @@ package common.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.time.LocalDateTime;
 import java.io.Serializable;
+import java.time.ZoneOffset;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -30,5 +32,18 @@ public class BaiduInfo implements Serializable {
 
     private LocalDateTime tokenTime;
 
+
+    /**
+     * 判断 token 是否过期
+     * @return true：过期；false：没过期
+     */
+    public boolean tokenIsExpired(){
+        if (accessToken == null){
+            return false;
+        }
+        long now = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
+        long tokenTimeSecond = tokenTime.toEpochSecond(ZoneOffset.UTC);
+        return (now - tokenTimeSecond) >= 259000;
+    }
 
 }

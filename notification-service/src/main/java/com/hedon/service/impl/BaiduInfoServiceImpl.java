@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hedon.service.IBaiduInfoService;
 import common.entity.BaiduInfo;
 import common.mapper.BaiduInfoMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 /**
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
  * @since 2020-11-06
  */
 @Service
+@Slf4j
 public class BaiduInfoServiceImpl extends ServiceImpl<BaiduInfoMapper, BaiduInfo> implements IBaiduInfoService {
 
     @Autowired
@@ -33,4 +36,7 @@ public class BaiduInfoServiceImpl extends ServiceImpl<BaiduInfoMapper, BaiduInfo
     public BaiduInfo getPlanPlusInfo() {
         return baiduInfoMapper.selectById(environment.getProperty("baidu.planplus.app-id"));
     }
+
+
+
 }

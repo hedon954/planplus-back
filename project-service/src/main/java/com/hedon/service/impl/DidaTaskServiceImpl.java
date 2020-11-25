@@ -513,6 +513,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         Map<String, Object> times = extractTime(taskInfo.getTaskInfo());
         didaTask.setTaskStartTime((LocalDateTime) times.get("startTime"));
         didaTask.setTaskPredictedFinishTime((LocalDateTime) times.get("finishTime"));
+        didaTask.setTaskRemindTime(didaTask.getTaskStartTime().plusMinutes(-didaTask.getTaskAdvanceRemindTime()));
         String timeStr = (String) times.get("timeStr");
 
         //②抽取出任务地点和内容
@@ -520,12 +521,17 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         didaTask.setTaskContent(addressAndContent.get("content"));
         didaTask.setTaskPlace(addressAndContent.get("address"));
 
+        //保存 formId
+        didaTask.setTaskFormId(taskInfo.getTaskFormId());
+
         //插入任务
         didaTaskMapper.insert(didaTask);
 
         //获取新建任务的taskId
         Integer taskId = didaTask.getTaskId();
 
+        /*
+                            RabbitMQ 队列问题后面再改进
         //发送通知
         ResponseBean responseBean = sendNotification(userId,didaTask,taskInfo.getTaskFormId());
         if (responseBean.getCode() != 1000L){
@@ -533,6 +539,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
             didaTaskMapper.deleteById(taskId);
             throw new ServiceException(ResultCode.TIMED_TASK_CREATE_FAILED);
         }
+         */
 
         //修改用户任务表
         DidaUserTask didaUserTask = new DidaUserTask();

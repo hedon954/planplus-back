@@ -14,4 +14,6 @@ import common.entity.BaiduInfo;
 public interface IBaiduInfoService extends IService<BaiduInfo> {
 
     BaiduInfo getPlanPlusInfo();
+
+
 }
