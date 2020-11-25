@@ -16,16 +16,22 @@ public class TestTimeNlp {
         TimeNormalizer normalizer = new TimeNormalizer(url.toURI().toString());
         normalizer.setPreferFuture(true);
 
-        normalizer.parse("Hi，all.下周一下午开会");// 抽取时间
+        normalizer.parse("Hi，all，上午3点开会");// 抽取时间
         TimeUnit[] unit = normalizer.getTimeUnit();
+        System.out.println("Hi，all.上午3点开会");
+        System.out.println(unit[0].Time_Expression);
+        System.out.println(DateUtil.formatDateDefault(unit[0].getTime()) + "-" + unit[0].getIsAllDayTime());
+
+        normalizer.parse("Hi，all.下周一下午开会");// 抽取时间
+        unit = normalizer.getTimeUnit();
         System.out.println("Hi，all.下周一下午开会");
         System.out.println(DateUtil.formatDateDefault(unit[0].getTime()) + "-" + unit[0].getIsAllDayTime());
 
 
-        normalizer.parse("Hi，all.下周一开会");// 抽取时间
-        unit = normalizer.getTimeUnit();
-        System.out.println("Hi，all.下周一开会");
-        System.out.println(DateUtil.formatDateDefault(unit[0].getTime()) + "-" + unit[0].getIsAllDayTime());
+//        normalizer.parse("Hi，all.三个小时后开会");// 抽取时间
+//        unit = normalizer.getTimeUnit();
+//        System.out.println("Hi，all.3个小时后开会");
+//        System.out.println(DateUtil.formatDateDefault(unit[0].getTime()) + "-" + unit[0].getIsAllDayTime());
 
 
         normalizer.parse("周四下午三点到五点开会");// 多时间识别，注意第二个时间点用了第一个时间的上文

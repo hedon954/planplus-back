@@ -1,6 +1,7 @@
 package com.hedon.service.impl;
 
 import com.hedon.ProjectApplication;
+import common.entity.DidaTask;
 import common.vo.request.DidaTaskRequestVo;
 import common.vo.request.DidaTaskSentenceRequestVo;
 import common.vo.response.DidaTaskResponseVo;
@@ -188,10 +189,9 @@ public class DidaTaskServiceImplTest {
 //        vo.setTaskInfo("明天下午3点到5点去计算机学院202教室进行计算机组成原理考试");
         vo.setTaskInfo("明天中午去老街烧烤吃烧烤");
         vo.setTaskFormId("13.470d05b4adcfa0cb773edded40b23496.723098.1606269036.1");
-        Integer taskId = didaTaskService.createTaskBySentence(1, vo);
+        DidaTask didaTask = didaTaskService.createTaskBySentence(1, vo);
 
-        DidaTaskResponseVo taskById = didaTaskService.getTaskById(taskId, 1);
-        System.out.println(taskById);
+        System.out.println(didaTask);
 
     }
 }

@@ -562,6 +562,9 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         //抽取时间
         normalizer.parse(sentence);
         TimeUnit[] unit = normalizer.getTimeUnit();
+        for (TimeUnit timeUnit:unit){
+            System.out.println(timeUnit);
+        }
         System.out.println(sentence);
         
         //先判断时间个数
@@ -573,6 +576,20 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         if (unit.length == 1){
             Date date = unit[0].getTime();
             LocalDateTime startTime = parseDateToLocalDateTime(date);
+
+            //TODO:漏洞：早上、中午、下午、晚上都会识别为第二天，这个时间识别器的bug，后面解决
+            String timeStr = unit[0].Time_Expression;
+            if (!timeStr.contains("今") &&
+                            (timeStr.contains("早上") ||
+                            timeStr.contains("上午") ||
+                            timeStr.contains("中午") ||
+                            timeStr.contains("下午") ||
+                            timeStr.contains("晚上")) &&
+               timeStr.contains("点")){
+                //TODO:这里先往前推一天
+                startTime = startTime.plusDays(-1);
+            }
+
             //如果只有日期，没有时间，那么默认就是早上9点，如（"明天去青岛"），那么就是明天早上9点去青岛
             if (unit[0].getIsAllDayTime() == true){
                 startTime = startTime.plusHours(9);
@@ -583,7 +600,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
             }
             map.put("startTime",startTime);
             map.put("finishTime",startTime);
-            map.put("timeStr",unit[0].Time_Expression);
+            map.put("timeStr",timeStr);
         }
         //如果有两个时间，那么第一个就是开始时间，第二个就是结束时间
         if (unit.length >=2){
@@ -592,13 +609,27 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
             //早的那个是开始时间
             LocalDateTime startTime = parseDateToLocalDateTime(firstTime.before(secondTime) ? firstTime : secondTime);
             LocalDateTime finishTime = parseDateToLocalDateTime(secondTime.after(firstTime) ? secondTime : firstTime);
+
+            //TODO:漏洞：早上、中午、下午、晚上都会识别为第二天，这个时间识别器的bug，后面解决
+            String timeStr = unit[0].Time_Expression + "-" + unit[1].Time_Expression;
+            if (!timeStr.contains("今") &&
+                    (timeStr.contains("早上") ||
+                            timeStr.contains("上午") ||
+                            timeStr.contains("中午") ||
+                            timeStr.contains("下午") ||
+                            timeStr.contains("晚上")) &&
+                    timeStr.contains("点")){
+                //TODO:这里先往前推一天
+                startTime = startTime.plusDays(-1);
+                finishTime = finishTime.plusDays(-1);
+            }
             //判断开始时间是否早于当前时间
             if (startTime.isBefore(LocalDateTime.now())){
                 throw new ServiceException("任务开始时间不能早于当前时间",ResultCode.TASK_TIME_INVALID);
             }
             map.put("startTime",startTime);
             map.put("finishTime",finishTime);
-            map.put("timeStr",unit[0].Time_Expression + "-" + unit[1].Time_Expression);
+            map.put("timeStr",timeStr);
         }
         return map;
     }
