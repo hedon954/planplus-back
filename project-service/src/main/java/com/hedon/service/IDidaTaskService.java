@@ -70,8 +70,9 @@ public interface IDidaTaskService extends IService<DidaTask> {
      * @create 2020-10-29 15:35
      * @param taskId
      * @param userId
+     * @param formId
      */
-    void finishTask(Integer taskId, Integer userId);
+    void finishTask(Integer taskId, Integer userId, String formId);
 
     /**
      * 修改任务内容

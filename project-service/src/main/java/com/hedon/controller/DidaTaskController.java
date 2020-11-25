@@ -203,16 +203,20 @@ public class DidaTaskController {
      * @create 2020-10-29 17:30
      * @param taskId
      * @param userId
+     * @param formId
      * @return
      */
     @ApiOperation(value = "接口2.1.2.4 结束任务", httpMethod = "PUT")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "taskId", value = "任务ID", dataType = "Integer", paramType = "path", required = true),
-            @ApiImplicitParam(name = "userId", value = "用户ID", dataType = "Integer", paramType = "query", required = true)
+            @ApiImplicitParam(name = "userId", value = "用户ID", dataType = "Integer", paramType = "query", required = true),
+            @ApiImplicitParam(name = "formId", value = "表单ID", dataType = "String", paramType = "query", required = true)
     })
     @PutMapping("/finish/{taskId}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseBean finishTask(@PathVariable("taskId") Integer taskId, @AuthenticationPrincipal(expression = "#this.userId") Integer userId) {
+    public ResponseBean finishTask(@PathVariable("taskId") Integer taskId,
+                                   @AuthenticationPrincipal(expression = "#this.userId") Integer userId,
+                                   @RequestParam("fromId") String formId) {
         //判断userId是否为空
         if(userId == null) {
             return ResponseBean.fail(ResultCode.EMPTY_USER_ID);
@@ -224,7 +228,7 @@ public class DidaTaskController {
 
         //结束任务
         try {
-            didaTaskService.finishTask(taskId, userId);
+            didaTaskService.finishTask(taskId, userId, formId);
         } catch (ServiceException e) {
             return e.getFailResponse();
         }

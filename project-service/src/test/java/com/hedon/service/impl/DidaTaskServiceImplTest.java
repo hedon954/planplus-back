@@ -92,7 +92,7 @@ public class DidaTaskServiceImplTest {
      */
     @Test
     public void testFinishTask() {
-        didaTaskService.finishTask(17, 1);
+        didaTaskService.finishTask(17, 1,"");
     }
 
     /**

@@ -156,7 +156,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
      * @param delayTime
      */
     @Override
-    public void delayTask(Integer taskId, Integer userId, Integer delayTime,String formId) {
+    public void delayTask(Integer taskId, Integer userId, Integer delayTime, String formId) {
         /**
          * 判断任务和用户是否匹配，
          * 若不匹配则抛出异常
@@ -181,16 +181,23 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         //更新数据库
         task.setTaskStartTime(startTime);
         task.setTaskPredictedFinishTime(predictedFinishTime);
+        task.setTaskRemindTime(startTime.minusMinutes(task.getTaskAdvanceRemindTime()));
 
+        /*
+                        暂时不需要
         //发送通知
         ResponseBean responseBean = sendNotification(userId, task, formId);
         if (responseBean.getCode() != 1000L){
             //如果发送消息不成功，抛出异常
             throw new ServiceException(ResultCode.TASK_DELAY_FAILED);
         }
+         */
 
         didaTaskMapper.updateById(task);
     }
+
+
+
 
 
 
@@ -201,9 +208,10 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
      * @create 2020-10-29 15:35
      * @param taskId
      * @param userId
+     * @param formId
      */
     @Override
-    public void finishTask(Integer taskId, Integer userId) {
+    public void finishTask(Integer taskId, Integer userId, String formId) {
         /**
          * 判断任务和用户是否匹配，
          * 若不匹配则抛出异常
@@ -216,27 +224,6 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         //判断任务是否存在
         if(didaTask == null) {
             throw new ServiceException(ResultCode.TASK_NOT_EXIST);
-        }
-
-        /**
-         * 判断任务频率
-         * 若任务仅执行一次，则写任务结束时间；
-         * 若任务执行多次，则按频率推迟任务开始时间和提前提醒时间
-         */
-        Integer rate = didaTask.getTaskRate();
-        if(rate == 1) {
-            //每天提醒
-            delayTask(taskId, userId, 1440, "abc");
-            return;
-        }
-        if(rate == 2) {
-            //每周提醒
-            delayTask(taskId, userId, 10080, "abc");
-            return;
-        }
-        if(rate == 3) {
-            //每月提醒
-//            delayTask(taskId, userId, );
         }
 
 
@@ -256,6 +243,67 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         didaTask.setTaskConsumedTime(consumedTime);
         didaTask.setTaskStatus(2);
         didaTaskMapper.updateById(didaTask);
+
+        /**
+         * 判断任务频率
+         * 若任务仅执行一次，则写任务结束时间；
+         * 若任务执行多次，则按频率推迟任务开始时间和提前提醒时间
+         */
+        generateTask(didaTask, userId, formId);
+
+    }
+
+    /**
+     * 迭代任务
+     *
+     * @param didaTask
+     * @param userId
+     */
+    @Transactional
+    private void generateTask(DidaTask didaTask, Integer userId, String formId) {
+
+        //修改任务表
+        didaTask.setTaskId(null);
+        didaTask.setTaskFormId(formId);
+        didaTask.setTaskRealFinishTime(null);
+        didaTask.setTaskConsumedTime(null);
+        didaTask.setTaskStatus(0);
+
+        //判断频率
+        switch (didaTask.getTaskRate()){
+            //每天
+            case 1:
+                didaTask.setTaskStartTime(didaTask.getTaskStartTime().plusDays(1));
+                didaTask.setTaskPredictedFinishTime(didaTask.getTaskPredictedFinishTime().plusDays(1));
+                didaTask.setTaskRemindTime(didaTask.getTaskStartTime().minusMinutes(didaTask.getTaskAdvanceRemindTime()));
+                break;
+            //每周
+            case 2:
+                didaTask.setTaskStartTime(didaTask.getTaskStartTime().plusWeeks(1));
+                didaTask.setTaskPredictedFinishTime(didaTask.getTaskPredictedFinishTime().plusWeeks(1));
+                didaTask.setTaskRemindTime(didaTask.getTaskStartTime().minusMinutes(didaTask.getTaskAdvanceRemindTime()));
+                break;
+            //每月
+            case 3:
+                didaTask.setTaskStartTime(didaTask.getTaskStartTime().plusMonths(1));
+                didaTask.setTaskPredictedFinishTime(didaTask.getTaskPredictedFinishTime().plusMonths(1));
+                didaTask.setTaskRemindTime(didaTask.getTaskStartTime().minusMinutes(didaTask.getTaskAdvanceRemindTime()));
+                break;
+            default:
+                return;
+        }
+
+        didaTaskMapper.insert(didaTask);
+
+        //获取新建任务的taskId
+        Integer taskId = didaTask.getTaskId();
+
+        //修改用户任务表
+        DidaUserTask didaUserTask = new DidaUserTask();
+        didaUserTask.setDidaTaskId(taskId);
+        didaUserTask.setDidaUserId(userId);
+        didaUserTaskMapper.insert(didaUserTask);
+
     }
 
 
@@ -288,6 +336,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
             throw new ServiceException(ResultCode.TASK_TIME_INVALID);
         }
 
+        /*
         //检查是否修改了任务的开始时间和提前提醒时间
         Long oldTaskStartTime = task.getTaskStartTime().toEpochSecond(ZoneOffset.UTC);
         Long newTaskStartTime = taskInfo.getTaskStartTime().toEpochSecond(ZoneOffset.UTC);
@@ -298,6 +347,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
             !oldTaskAdvanceRemindTime.equals(newTaskAdvanceRemindTime)){
             needNotify = true;
         }
+         */
 
         task.setTaskContent(taskInfo.getTaskContent());
         task.setTaskPlace(taskInfo.getTaskPlace());
@@ -305,7 +355,9 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         task.setTaskStartTime(taskInfo.getTaskStartTime());
         task.setTaskPredictedFinishTime(taskInfo.getTaskPredictedFinishTime());
         task.setTaskAdvanceRemindTime(taskInfo.getTaskAdvanceRemindTime());
+        task.setTaskRemindTime(taskInfo.getTaskStartTime().minusMinutes(taskInfo.getTaskAdvanceRemindTime()));
 
+        /*
         //发送通知
         if (needNotify){
             ResponseBean responseBean = sendNotification(userId, task, taskInfo.getTaskFormId());
@@ -314,6 +366,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
                 throw new ServiceException(ResultCode.TASK_DELAY_FAILED);
             }
         }
+         */
 
 
         //更新数据库
