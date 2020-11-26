@@ -25,7 +25,6 @@ spring:
 
   # cloud 相关配置
   cloud:
-
     #注册进 Consul
     consul:
       host: localhost         #先配置在本机
@@ -41,16 +40,33 @@ spring:
       hystrix:
         enabled: true
 
-
-
-
   mvc:
-    static-path-pattern: /project/img/**    #配置config-client
+    static-path-pattern: /project/img/**
 
   spring:
     resources:
       static-locations: file:C:/planplus/avatar/
 
+  #配置邮箱
+  mail:
+    host: smtp.qq.com                     #邮箱服务商
+    username: 171725713@qq.com            #邮箱地址
+    password: wtsyivyphqzubjie            #不是密码，是授权码，需要获取
+    from: 171725713@qq.com
+    to: 171725713@qq.com
+    properties:
+      mail:
+        stmp:
+          #设置是否需要认证，如果为true,那么用户名和密码就必须的
+          #如果设置false，可以不设置用户名和密码，当然也得看你的对接的平台是否支持无密码进行访问的。
+          auth: true
+          ##TARTTLS[1]  是对纯文本通信协议的扩展。它提供一种方式将纯文本连接升级为加密连接（TLS或SSL），而不是另外使用一个端口作加密通信
+          starttls:
+            enable: true                 #服务器启动 tls 验证
+            required: true               #服务器需要 tls 验证
+    default-encoding: utf-8
+
+#配置config-client
 #    config:
 #      label: master          #分支名称
 #      name: config           #配置文件名称

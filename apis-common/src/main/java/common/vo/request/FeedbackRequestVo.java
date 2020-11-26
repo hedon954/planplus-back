@@ -8,18 +8,24 @@ import lombok.ToString;
 import java.io.Serializable;
 
 /**
- * 注册请求封装体
- *
  * @author Hedon Wang
- * @create 2020-11-26 11:32
+ * @create 2020-11-26 19:25
  */
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class RegisterRequestVo implements Serializable {
+public class FeedbackRequestVo implements Serializable {
 
-    private String phoneNumber;
-    private String password;
+    /**
+     * 反馈者邮件
+     */
+    private String email;
+
+    /**
+     * 反馈信息
+     */
+    private String content;
 
 }

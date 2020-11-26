@@ -13,6 +13,11 @@
 
 
     <dependencies>
+        <!--邮件支持-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
         <!-- oauth2.0 -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
