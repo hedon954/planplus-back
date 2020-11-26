@@ -88,8 +88,13 @@ public enum ResultCode {
     TIMED_TASK_CREATE_FAILED(60004L,"定时任务创建失败"),
     TASK_TO_FAR(60005L,"创建任务失败，只能创建未来一百天内的任务"),
     TASK_DELAY_FAILED(60006L,"任务推迟失败"),
-    TASK_TIME_INVALID(60007L, "任务起止时间无效")
+    TASK_TIME_INVALID(60007L, "任务起止时间无效"),
 
+
+    /**
+     * 反馈相关错误码
+     */
+    FEEDBACK_FAILED(70001L,"反馈失败，请重试！")
     ;
 
 
