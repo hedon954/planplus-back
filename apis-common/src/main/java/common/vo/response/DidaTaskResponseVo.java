@@ -36,6 +36,8 @@ public class DidaTaskResponseVo implements Serializable {
 
     private LocalDateTime taskRealFinishTime;
 
+    private LocalDateTime taskRemindTime;
+
     private Integer taskAdvanceRemindTime;
 
     private String taskConsumedTime;
