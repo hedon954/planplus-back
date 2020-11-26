@@ -7,6 +7,8 @@ import common.code.ResultCode;
 import common.entity.DidaUser;
 import common.exception.ServiceException;
 import common.mapper.DidaUserMapper;
+import common.util.PhoneFormatCheckUtils;
+import common.vo.common.ResponseBean;
 import common.vo.common.UserBaiduInfo;
 import common.vo.response.DidaUserResponseVo;
 import lombok.val;
@@ -15,6 +17,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,6 +40,9 @@ import java.util.Objects;
  */
 @Service
 public class DidaUserServiceImpl extends ServiceImpl<DidaUserMapper, DidaUser> implements IDidaUserService {
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @Autowired
     DidaUserMapper didaUserMapper;
@@ -82,6 +88,8 @@ public class DidaUserServiceImpl extends ServiceImpl<DidaUserMapper, DidaUser> i
 
 
     /**
+     * [已废弃]
+     *
      * 登录
      *
      * @author Jiahan Wang
@@ -90,6 +98,7 @@ public class DidaUserServiceImpl extends ServiceImpl<DidaUserMapper, DidaUser> i
      * @param password     密码
      * @return
      */
+    @Deprecated
     @Override
     public DidaUserResponseVo login(String phoneNumber, String password) {
         //先判断用户是否存在
@@ -127,15 +136,16 @@ public class DidaUserServiceImpl extends ServiceImpl<DidaUserMapper, DidaUser> i
         if (didaUser == null){
             throw new ServiceException(ResultCode.USER_NOT_EXIST);
         }
-        //判断输入密码是否与数据库中存储密码相同
-        if(!oldPwd.equals(didaUser.getUserPassword())){
+        //检查密码是否正确
+        if (!passwordEncoder.matches(oldPwd,didaUser.getUserPassword())){
             throw new ServiceException(ResultCode.ERROR_PASSWORD);
         }
-        DidaUser newDidaUser = new DidaUser();
-        newDidaUser.setUserId(userId);
-        newDidaUser.setUserPassword(newPwd);
+        //加密密码
+        newPwd = passwordEncoder.encode(newPwd);
+        //更新密码
+        didaUser.setUserPassword(newPwd);
         try{
-            didaUserMapper.updateById(newDidaUser);
+            didaUserMapper.updateById(didaUser);
         }catch (Exception e){
             e.printStackTrace();
             throw new ServiceException(ResultCode.ERROR);
@@ -209,4 +219,28 @@ public class DidaUserServiceImpl extends ServiceImpl<DidaUserMapper, DidaUser> i
         }
     }
 
+    /**
+     * 通过手机号和密码进行注册
+     *
+     * @author Jiahan Wang
+     * @create 2020.11.26
+     * @param phoneNumber
+     * @param password
+     */
+    @Override
+    public void registerByPhoneAndPwd(String phoneNumber, String password) {
+        //判断手机格式是否正确
+        if (!PhoneFormatCheckUtils.isPhoneLegal(phoneNumber)){
+            throw new ServiceException(ResultCode.PHONE_FORMAT_ERROR);
+        }
+        //判断密码是否为空
+        if (StringUtils.isBlank(password)) {
+            throw new ServiceException(ResultCode.EMPTY_PASSWORD);
+        }
+        //注册用户
+        DidaUser didaUser = new DidaUser();
+        didaUser.setUserPassword(phoneNumber);
+        didaUser.setUserPassword(passwordEncoder.encode(password));
+        didaUserMapper.insert(didaUser);
+    }
 }

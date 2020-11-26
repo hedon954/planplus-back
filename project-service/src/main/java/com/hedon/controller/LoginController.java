@@ -1,10 +1,14 @@
 package com.hedon.controller;
 
 import com.hedon.sercurity.TokenInfo;
+import com.hedon.service.IDidaUserService;
 import common.code.ResultCode;
+import common.exception.ServiceException;
 import common.vo.common.ResponseBean;
 import common.vo.request.LoginRequestVo;
+import common.vo.request.RegisterRequestVo;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -26,6 +30,9 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 @EnableGlobalMethodSecurity(prePostEnabled = true)   //支持全局方法安全控制
 public class LoginController {
+
+    @Autowired
+    IDidaUserService didaUserService;
 
     /**
      * 发送 http 请求工具
@@ -91,6 +98,31 @@ public class LoginController {
 
         //没传参
         return ResponseBean.fail(ResultCode.ERROR);
+    }
+
+
+    /**
+     * 通过手机号和密码进行注册
+     *
+     * @author Jiahan Wang
+     * @create 2020.11.26
+     * @param vo
+     * @return
+     */
+    @PostMapping("/registerByPhoneAndPwd")
+    public ResponseBean registerByPhoneAndPwd(@RequestBody RegisterRequestVo vo){
+
+        if (vo == null){
+            return ResponseBean.fail(ResultCode.REGISTER_FAILED);
+        }
+        //注册
+        try {
+            didaUserService.registerByPhoneAndPwd(vo.getPhoneNumber(),vo.getPassword());
+        }catch (ServiceException e){
+            return e.getFailResponse();
+        }
+
+        return ResponseBean.success();
     }
 
     /**

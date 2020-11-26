@@ -69,11 +69,14 @@ public class DidaUserController {
 
 
     /**
+     * [已废弃]
+     *
      * 登录
      * @param phoneNumber
      * @param password
      * @return
      */
+    @Deprecated
     @PostMapping("/login")
     public ResponseBean login(@RequestParam("phoneNumber")String phoneNumber, @RequestParam("password")String password){
         //判断手机格式是否正确
