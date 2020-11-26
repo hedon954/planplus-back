@@ -42,6 +42,8 @@ public interface IDidaUserService extends IService<DidaUser> {
 
 
     /**
+     * [已废弃]
+     *
      * 登录
      *
      * @author Jiahan Wang
@@ -50,6 +52,7 @@ public interface IDidaUserService extends IService<DidaUser> {
      * @param password     密码
      * @return
      */
+    @Deprecated
     DidaUserResponseVo login(String phoneNumber, String password);
 
     /**
@@ -83,4 +86,14 @@ public interface IDidaUserService extends IService<DidaUser> {
      * @return
      */
     Resource loadAvatar(Integer userId);
+
+    /**
+     * 通过手机号和密码进行注册
+     *
+     * @author Jiahan Wang
+     * @create 2020.11.26
+     * @param phoneNumber
+     * @param password
+     */
+    void registerByPhoneAndPwd(String phoneNumber, String password);
 }

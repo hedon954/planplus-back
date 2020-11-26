@@ -177,6 +177,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         task.setTaskStartTime(startTime);
         task.setTaskPredictedFinishTime(predictedFinishTime);
         task.setTaskRemindTime(startTime.minusMinutes(task.getTaskAdvanceRemindTime()));
+        task.setTaskFormId(formId);
 
         /*
                         暂时不需要
@@ -255,7 +256,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
      * @param userId
      */
     @Transactional
-    private void generateTask(DidaTask didaTask, Integer userId, String formId) {
+    public void generateTask(DidaTask didaTask, Integer userId, String formId) {
 
         //修改任务表
         didaTask.setTaskId(null);
@@ -750,26 +751,38 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
 
         List<Term> terms = parse.getTerms();
 
+        //索引值，用来粗略估计哪个动词是地址的，哪个动词是任务内容的
+        int index = 0;
+
         //遍历结果 —— 先找地址起始点
         for (Term term: terms){
             String s = term.toString();
             String[] split = s.split("/");
-            //找到第一个动词
+            //先找找看有没有"在"
+            if (StringUtils.equals(split[0],"在")){
+                addressStart = term.getOffe();
+                index ++;
+                break;
+            }
+            //没有"在"就找到第一个动词
             if (StringUtils.equals(split[1],"v")){
                 addressStart = term.getOffe();
                 break;
             }
         }
+
+        //识别不到任务地点的话就时间后面全部作为任务内容，没有任务地点
         if (addressStart < 0){
-            throw new ServiceException("识别不到任务地点",ResultCode.TIMED_TASK_CREATE_FAILED);
+            map.put("content",s1);
+            map.put("address","");
+            return map;
         }
 
         //遍历结果 —— 往后找到任务内容的起始位置
-        int index = 0;
         for (Term term: terms){
             String s = term.toString();
             String[] split = s.split("/");
-            //找到第2个动词
+            //找到第2个动词，或者是"在"后面的动词
             if (StringUtils.equals(split[1],"v")){
                 //不要第一个动词 —— 那是地址的
                 if (index!=0){
@@ -784,28 +797,36 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
             for (Term term: terms){
                 String s = term.toString();
                 String[] split = s.split("/");
-                //找到第一个动词
+                //找到第一个动名词
                 if (StringUtils.equals(split[1],"vn")){
+                    contentStart = term.getOffe();
+                    break;
+                }
+            }
+        }
+
+        //动名词 vn 还找不到的话就找方位词 f，这里只承认"上"和"下"这两个方位词可能作为动词使用
+        if (contentStart < 0){
+            for (Term term: terms){
+                String s = term.toString();
+                String[] split = s.split("/");
+                //方位词找最后一个
+                if (StringUtils.equals(split[0],"上")||StringUtils.equals(split[0],"下")){
                     contentStart = term.getOffe();
                 }
             }
         }
+
         //如果还找不到，则抛出异常
         if (contentStart < 0){
             throw new ServiceException("识别不到任务内容",ResultCode.TIMED_TASK_CREATE_FAILED);
         }
-
+        //第二个动词 v/vn - end 这个区间就是任务内容
         String content = s1.substring(contentStart);
         map.put("content",content);
-
-        System.out.println("任务内容：" + content);
-
-        //第一个动词v - 第二个动词v/vn 这个区间就是地址内容
+        //第一个动词v(或"在") - 第二个动词v/vn 这个区间就是地址内容
         String address = s1.substring(addressStart+1,contentStart);
         map.put("address",address);
-
-        System.out.println("任务地点： " + address);
-
         return map;
     }
 }

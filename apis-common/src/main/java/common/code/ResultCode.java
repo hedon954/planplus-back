@@ -70,6 +70,7 @@ public enum ResultCode {
     PHONE_FORMAT_ERROR(50003L,"手机号格式不正确"),
     EMPTY_PASSWORD(50004L,"密码不能为空"),
     GET_OPENID_FAILED(50005L,"获取 openId 和 sessionKey 错误"),
+    REGISTER_FAILED(50006L,"注册失败"),
 
 
     /**

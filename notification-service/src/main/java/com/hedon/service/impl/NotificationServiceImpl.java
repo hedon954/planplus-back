@@ -19,15 +19,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.*;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -68,6 +65,9 @@ public class NotificationServiceImpl implements INotificationService {
 
     /**
      * 每一分钟扫描一次：判断是否需要给用户发送通知
+     *
+     * @author Jiahan Wang
+     * @create 2020.11.26
      */
     @Override
     @Scheduled(cron = "0 * * * * *")
@@ -117,6 +117,9 @@ public class NotificationServiceImpl implements INotificationService {
 
     /**
      * 发送通知给用户
+     *
+     * @author Jiahan Wang
+     * @create 2020.11.26
      * @param dto
      * @param didaTask
      */
@@ -155,6 +158,9 @@ public class NotificationServiceImpl implements INotificationService {
 
     /**
      * 获取百度 token
+     *
+     * @author Jiahan Wang
+     * @create 2020.11.26
      * @param planPlusInfo
      */
     private void getBaiduToken(BaiduInfo planPlusInfo) throws Exception{
@@ -184,7 +190,8 @@ public class NotificationServiceImpl implements INotificationService {
      * 将一个 DidaTask 转为 JSON 字符串，且要符合以下规律：
      * {"keyword1":{"value":"2018-09-06"},"keyword2":{"value":"kfc"},"keyword3":{"value":"kfc"}}
      *
-     *
+     * @author Jiahan Wang
+     * @create 2020.11.26
      * @param didaTask
      * @return
      */
