@@ -3,6 +3,16 @@ server:
   port: 10020
   servlet:
     context-path: /
+  #配置HTTPS证书
+  ssl:
+    key-store: classpath:hedon-wang-tomcat-1127211857.jks   #证书名称
+    key-store-password: planplus                            #密钥库密码
+    key-store-type: JKS                                     #证书类型
+  #请求头大小
+  tomcat:
+    max-http-form-post-size: 32768
+  max-http-header-size: 32768
+
 #配置 spring
 spring:
   application:
@@ -10,7 +20,7 @@ spring:
   #配置邮箱警报
   mail:
     host: smtp.qq.com                     #邮箱服务商
-    username: 171725713@qq.com            #邮箱地址
+    username: 321584084@qq.com            #邮箱地址
     password: znxoxjzqkgltbgbf            #不是密码，是授权码，需要获取
     properties:
       mail:
@@ -28,8 +38,8 @@ spring:
     admin:
       notify:
         mail:
-          from: 171725713@qq.com         #谁来发邮件
-          to: 2018302110022@whu.edu.cn   #邮件发送给谁
+          from: 321584084@qq.com         #谁来发邮件
+          to: 171725713@qq.com   #邮件发送给谁
       #忽略掉 consul，不然会一直报 8300 断开连接的信息
       discovery:
         ignored-services: consul
@@ -37,7 +47,7 @@ spring:
   cloud:
     #注册进 Consul
     consul:
-      host: localhost         #先配置在本机
+      host: www.hedon.wang         #先配置在本机
       port: 8500              #Consul默认端口8500
       discovery:
         register: true
@@ -45,7 +55,8 @@ spring:
         service-name: ${spring.application.name}
         port: ${server.port}
         prefer-ip-address: true #开启 ip 地址注册(默认是DNS解析）
-        ip-address: localhost
+        ip-address: www.hedon.wang
+        scheme: https
 
 # 暴露监控端点
 management:

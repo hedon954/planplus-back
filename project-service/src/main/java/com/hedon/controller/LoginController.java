@@ -72,7 +72,7 @@ public class LoginController {
              */
             try{
                 //请求路径
-                String oauthServiceUrl = "http://localhost:9527/oauth/token";
+                String oauthServiceUrl = "https://www.hedon.wang:443/oauth/token";
                 //请求头
                 HttpHeaders httpHeaders = new HttpHeaders();
                 httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
