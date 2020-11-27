@@ -15,6 +15,7 @@ import common.mapper.DidaUserMapper;
 import common.mapper.DidaUserTaskMapper;
 import common.util.timenlp.nlp.TimeNormalizer;
 import common.util.timenlp.nlp.TimeUnit;
+import common.util.timenlp.util.StringUtil;
 import common.vo.common.ResponseBean;
 import common.vo.request.DidaTaskRequestVo;
 import common.vo.request.DidaTaskSentenceRequestVo;
@@ -664,8 +665,12 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
                             timeStr.startsWith("下午") ||
                             timeStr.startsWith("晚上")) &&
                timeStr.contains("点")){
-                //TODO:这里先往前推一天
-                startTime = startTime.plusDays(-1);
+                //进一步判断是否是第二天
+                if (startTime.getDayOfMonth() != LocalDateTime.now().getDayOfMonth()){
+                    //TODO:这里先往前推一天
+                    startTime = startTime.plusDays(-1);
+                }
+
             }
 
             //如果只有日期，没有时间，那么默认就是早上9点，如（"明天去青岛"），那么就是明天早上9点去青岛
@@ -697,9 +702,12 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
                             timeStr.startsWith("下午") ||
                             timeStr.startsWith("晚上")) &&
                     timeStr.contains("点")){
-                //TODO:这里先往前推一天
-                startTime = startTime.plusDays(-1);
-                finishTime = finishTime.plusDays(-1);
+                //进一步判断是否是第二天
+                if (startTime.getDayOfMonth() != LocalDateTime.now().getDayOfMonth()){
+                    //TODO:这里先往前推一天
+                    startTime = startTime.plusDays(-1);
+                    finishTime = finishTime.plusDays(-1);
+                }
             }
             //判断开始时间是否早于当前时间
             if (startTime.isBefore(LocalDateTime.now())){
@@ -777,6 +785,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
             map.put("address","");
             return map;
         }
+
 
         //遍历结果 —— 往后找到任务内容的起始位置
         for (Term term: terms){

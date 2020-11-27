@@ -51,7 +51,7 @@ spring:
   mail:
     host: smtp.qq.com                     #邮箱服务商
     username: 171725713@qq.com            #邮箱地址
-    password: wtsyivyphqzubjie            #不是密码，是授权码，需要获取
+    password: znxoxjzqkgltbgbf            #不是密码，是授权码，需要获取
     from: 171725713@qq.com
     to: 171725713@qq.com
     properties:
