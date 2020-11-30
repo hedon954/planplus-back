@@ -274,4 +274,44 @@ public class DidaUserServiceImpl extends ServiceImpl<DidaUserMapper, DidaUser> i
         verificationCode.setIsActive(0);
         verificationCodeMapper.updateById(verificationCode);
     }
+
+    /**
+     * 找回密码
+     *
+     * @author Jiahan Wang
+     * @create 2020.11.30
+     * @param username
+     * @param password
+     * @param code
+     */
+    @Override
+    public void getPasswordBack(String username, String password, String code) {
+        //检查验证码是否正确
+        QueryWrapper<VerificationCode> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("code_username",username);
+        VerificationCode verificationCode = verificationCodeMapper.selectOne(queryWrapper);
+        if (verificationCode == null){
+            throw new ServiceException("请先获取验证码",ResultCode.REGISTER_FAILED);
+        }
+        if (verificationCode.getIsActive() == 0){
+            throw new ServiceException("验证码已失效",ResultCode.REGISTER_FAILED);
+        }
+        if (!verificationCode.getCodeNumber().equals(code)){
+            throw new ServiceException("验证码错误",ResultCode.REGISTER_FAILED);
+        }
+
+        //判断密码是否为空
+        if (StringUtils.isBlank(password)) {
+            throw new ServiceException(ResultCode.EMPTY_PASSWORD);
+        }
+
+        //修改密码
+        DidaUser user = didaUserMapper.getUserByPhoneOrEmail(username);
+        user.setUserPassword(passwordEncoder.encode(password));
+        didaUserMapper.updateById(user);
+
+        //失效验证码
+        verificationCode.setIsActive(0);
+        verificationCodeMapper.updateById(verificationCode);
+    }
 }

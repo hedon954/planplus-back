@@ -3,15 +3,15 @@ server:
   port: 10020
   servlet:
     context-path: /
-  #配置HTTPS证书
-  ssl:
-    key-store: classpath:hedon-wang-tomcat-1127211857.jks   #证书名称
-    key-store-password: planplus                            #密钥库密码
-    key-store-type: JKS                                     #证书类型
-  #请求头大小
-  tomcat:
-    max-http-form-post-size: 32768
-  max-http-header-size: 32768
+#  #配置HTTPS证书
+#  ssl:
+#    key-store: classpath:hedon-wang-tomcat-1127211857.jks   #证书名称
+#    key-store-password: planplus                            #密钥库密码
+#    key-store-type: JKS                                     #证书类型
+#  #请求头大小
+#  tomcat:
+#    max-http-form-post-size: 32768
+#  max-http-header-size: 32768
 
 #配置 spring
 spring:
@@ -21,7 +21,7 @@ spring:
   mail:
     host: smtp.qq.com                     #邮箱服务商
     username: 321584084@qq.com            #邮箱地址
-    password: znxoxjzqkgltbgbf            #不是密码，是授权码，需要获取
+    password: wurufzzingiahdeb            #不是密码，是授权码，需要获取
     properties:
       mail:
         stmp:
@@ -47,7 +47,7 @@ spring:
   cloud:
     #注册进 Consul
     consul:
-      host: www.hedon.wang         #先配置在本机
+      host: localhost         #先配置在本机
       port: 8500              #Consul默认端口8500
       discovery:
         register: true
@@ -55,8 +55,8 @@ spring:
         service-name: ${spring.application.name}
         port: ${server.port}
         prefer-ip-address: true #开启 ip 地址注册(默认是DNS解析）
-        ip-address: www.hedon.wang
-        scheme: https
+        ip-address: localhost
+#        scheme: https
 
 # 暴露监控端点
 management:

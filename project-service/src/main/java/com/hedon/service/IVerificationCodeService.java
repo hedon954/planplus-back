@@ -14,9 +14,20 @@ import common.entity.VerificationCode;
 public interface IVerificationCodeService extends IService<VerificationCode> {
 
     /**
-     * 发送验证码
+     * 发送注册验证码
      *
+     * @author Jiahan Wang
+     * @create 2020.11.30
      * @param username  用户名：手机或邮箱
      */
     void sendRegisterCode(String username);
+
+    /**
+     * 发送找回密码验证码
+     *
+     * @author Jiahan Wang
+     * @create 2020.11.30
+     * @param username
+     */
+    void sendGetPasswordBackCode(String username);
 }

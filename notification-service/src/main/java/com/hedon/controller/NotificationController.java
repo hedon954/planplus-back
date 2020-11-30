@@ -24,11 +24,11 @@ public class NotificationController {
     private VerificationCodePublisher verificationCodePublisher;
 
 
-    @PostMapping("/code/register")
-    public ResponseBean sendRegisterCode(@RequestBody VerificationCode verificationCode){
-        log.info("正在调用通知模块的接口 sendRegisterCode，verificationCode：" + verificationCode);
+    @PostMapping("/code")
+    public ResponseBean sendCode(@RequestBody VerificationCode verificationCode){
+        log.info("正在调用通知模块的接口 sendCode，verificationCode：" + verificationCode);
         try {
-            return verificationCodePublisher.sendRegisterCode(verificationCode);
+            return verificationCodePublisher.sendCode(verificationCode);
         }catch (ServiceException e){
             return e.getFailResponse();
         }

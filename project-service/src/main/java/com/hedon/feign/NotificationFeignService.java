@@ -33,7 +33,7 @@ public interface NotificationFeignService {
      * @param verificationCode
      * @return
      */
-    @PostMapping("/notification/code/register")
-    ResponseBean sendRegisterCode(@RequestBody VerificationCode verificationCode);
+    @PostMapping("/notification/code")
+    ResponseBean sendCode(@RequestBody VerificationCode verificationCode);
 
 }

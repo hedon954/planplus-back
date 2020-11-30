@@ -45,7 +45,7 @@ public class VerificationCodePublisher {
      * @param verificationCode
      * @return
      */
-    public ResponseBean sendRegisterCode(VerificationCode verificationCode) {
+    public ResponseBean sendCode(VerificationCode verificationCode) {
         if (verificationCode != null) {
             try {
                 //设置消息传输格式为JSON
@@ -67,15 +67,15 @@ public class VerificationCodePublisher {
                     }
                 });
                 //发送成功
-                log.info("发送注册验证码，内容为：({})", verificationCode);
+                log.info("发送验证码成功，内容为：({})", verificationCode);
                 return ResponseBean.success();
             } catch (Exception e) {
-                log.error("发送注册验证码，内容为：({})，失败原因为：({})", verificationCode, e.getMessage());
-                return ResponseBean.fail(ResultCode.TIMED_TASK_CREATE_FAILED);
+                log.error("发送验证码失败，内容为：({})，失败原因为：({})", verificationCode, e.getMessage());
+                return ResponseBean.fail(ResultCode.REGISTER_FAILED);
             }
         } else {
-            log.error("发送注册验证码，原因为：没有传递任务信息过来");
-            return ResponseBean.fail(ResultCode.TIMED_TASK_CREATE_FAILED);
+            log.error("发送验证码失败，原因为：没有传递任务信息过来");
+            return ResponseBean.fail(ResultCode.REGISTER_FAILED);
         }
     }
 }

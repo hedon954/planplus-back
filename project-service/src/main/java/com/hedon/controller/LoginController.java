@@ -6,6 +6,7 @@ import com.hedon.service.IShortMessageService;
 import common.code.ResultCode;
 import common.exception.ServiceException;
 import common.vo.common.ResponseBean;
+import common.vo.request.ChangePwdRequestVo;
 import common.vo.request.LoginRequestVo;
 import common.vo.request.RegisterRequestVo;
 import lombok.extern.slf4j.Slf4j;
@@ -107,7 +108,7 @@ public class LoginController {
 
 
     /**
-     * 通过手机号和密码进行注册
+     * 注册
      *
      * @author Jiahan Wang
      * @create 2020.11.26
@@ -128,6 +129,28 @@ public class LoginController {
         }
 
         return ResponseBean.success();
+    }
+
+
+    /**
+     * 找回密码
+     * @param vo
+     * @return
+     */
+    @PostMapping("/getPasswordBack")
+    public ResponseBean getPasswordBack(@RequestBody ChangePwdRequestVo vo){
+        if (vo == null){
+            return ResponseBean.fail(ResultCode.ERROR);
+        }
+        //找回密码
+        try {
+            didaUserService.getPasswordBack(vo.getUsername(),vo.getPassword(),vo.getCode());
+        }catch (ServiceException e){
+            return e.getFailResponse();
+        }
+
+        return ResponseBean.success();
+
     }
 
     /**
