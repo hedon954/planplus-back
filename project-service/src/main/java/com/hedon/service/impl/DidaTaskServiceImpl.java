@@ -20,6 +20,7 @@ import common.vo.common.ResponseBean;
 import common.vo.request.DidaTaskRequestVo;
 import common.vo.request.DidaTaskSentenceRequestVo;
 import common.vo.response.DidaTaskResponseVo;
+import lombok.extern.slf4j.Slf4j;
 import org.ansj.domain.Result;
 import org.ansj.domain.Term;
 import org.ansj.splitWord.analysis.ToAnalysis;
@@ -41,6 +42,7 @@ import java.util.*;
  * @since 2020-10-23
  */
 @Service
+@Slf4j
 public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> implements IDidaTaskService {
 
     @Autowired
@@ -315,6 +317,9 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
      */
     @Override
     public void modifyTask(Integer taskId, Integer userId, DidaTaskRequestVo taskInfo) {
+
+        log.info("正在修改任务，修改前：({})",taskInfo);
+
         /**
          * 判断任务和用户是否匹配，
          * 若不匹配则抛出异常
@@ -368,6 +373,8 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
 
         //更新数据库
         didaTaskMapper.updateById(task);
+
+        log.info("修改任务完毕，修改后：({})",task);
     }
 
 

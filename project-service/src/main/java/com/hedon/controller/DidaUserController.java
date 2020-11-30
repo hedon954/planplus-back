@@ -162,8 +162,9 @@ public class DidaUserController {
      * @return
      * @throws JsonProcessingException
      */
-    @PutMapping("/pwd/{userId}")
-    public ResponseBean updatePassword(@PathVariable("userId")Integer userId,@RequestBody String json)throws JsonProcessingException {
+    @PutMapping("/pwd")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseBean updatePassword(@AuthenticationPrincipal(expression = "#this.userId")Integer userId,@RequestBody String json)throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         //获取新旧密码
         String oldPwd = objectMapper.readValue(json, ObjectNode.class).get("oldPwd").asText();

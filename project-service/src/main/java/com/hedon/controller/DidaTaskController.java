@@ -254,7 +254,9 @@ public class DidaTaskController {
     })
     @PutMapping("/modify/{taskId}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseBean modifyTask(@PathVariable("taskId") Integer taskId, @AuthenticationPrincipal(expression = "#this.userId") Integer userId, @RequestBody @Validated DidaTaskRequestVo taskInfo) {
+    public ResponseBean modifyTask(@PathVariable("taskId") Integer taskId,
+                                   @AuthenticationPrincipal(expression = "#this.userId") Integer userId,
+                                   @RequestBody @Validated DidaTaskRequestVo taskInfo) {
         //判断userId是否为空
         if(userId == null) {
             return ResponseBean.fail(ResultCode.EMPTY_USER_ID);
@@ -527,5 +529,32 @@ public class DidaTaskController {
             return ResponseBean.fail(ResultCode.TIMED_TASK_CREATE_FAILED);
         }
         return ResponseBean.success(map);
+    }
+
+    /**
+     * 接口2.1.3.6 查询草稿任务
+     *
+     * @author Jiahan Wang
+     * @create 2020-11-30
+     * @param userId
+     * @return
+     */
+    @ApiOperation(value = "接口2.1.3.6 查询草稿任务", httpMethod = "GET")
+    @ApiImplicitParam(name = "userId", value = "用户ID", dataType = "Integer", paramType = "query", required = true)
+    @GetMapping("/draft")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseBean getDraftTasks(@AuthenticationPrincipal(expression = "#this.userId") Integer userId) {
+        if (userId == null) {
+            return ResponseBean.fail(ResultCode.EMPTY_USER_ID);
+        }
+
+        //查询所有已办任务
+        ArrayList<DidaTaskResponseVo> didaTaskResponseVos = new ArrayList<>();
+        try {
+            didaTaskResponseVos = didaTaskService.getTasksByStatus(userId, 3);
+        } catch (ServiceException e) {
+            return e.getFailResponse();
+        }
+        return ResponseBean.success(didaTaskResponseVos);
     }
 }

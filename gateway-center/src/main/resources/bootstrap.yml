@@ -8,15 +8,15 @@ server:
       force: true
       force-request: true
       force-response: true
-#  #配置HTTPS证书
-#  ssl:
-#    key-store: classpath:hedon-wang-tomcat-1127211857.jks   #证书名称
-#    key-store-password: planplus                            #密钥库密码
-#    key-store-type: JKS                                     #证书类型
-#  #请求头大小
-#  tomcat:
-#    max-http-form-post-size: 32768
-#  max-http-header-size: 32768
+  #配置HTTPS证书
+  ssl:
+    key-store: classpath:hedon-wang-tomcat-1127211857.jks   #证书名称
+    key-store-password: planplus                            #密钥库密码
+    key-store-type: JKS                                     #证书类型
+  #请求头大小
+  tomcat:
+    max-http-form-post-size: 32768
+  max-http-header-size: 32768
 
 
 #配置spring
@@ -35,7 +35,7 @@ spring:
   cloud:
     #注册进 Consul
     consul:
-      host: localhost
+      host: www.hedon.wang
       port: 8500              #Consul默认端口8500
       discovery:
         register: true
@@ -43,8 +43,8 @@ spring:
         service-name: ${spring.application.name}
         port: ${server.port}
         prefer-ip-address: true #开启 ip 地址注册(默认是DNS解析）
-        ip-address: localhost
-#        scheme: https
+        ip-address: www.hedon.wang
+        scheme: https
     #ockingLoadBalancerClientRibbonWarnLogger : You already have RibbonLoadBalancerClient on your classpath. It will be used by default. As Spring Cloud Ribbon is in maintenance mode. We recommend switching to BlockingLoadBalancerClient instead. In order to use it, set the value of `spring.cloud.loadbalancer.ribbon.enabled` to `false` or remove spring-cloud-starter-netflix-ribbon from your project.
     #eactorLoadBalancerClientRibbonWarnLogger : You have RibbonLoadBalancerClient on your classpath. LoadBalancerExchangeFilterFunction that uses it under the hood will be used by default. Spring Cloud Ribbon is now in maintenance mode, so we suggest switching to ReactorLoadBalancerExchangeFilterFunction instead. In order to use it, set the value of `spring.cloud.loadbalancer.ribbon.enabled` to `false` or remove spring-cloud-starter-netflix-ribbon from your project.
 #    loadbalancer:

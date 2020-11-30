@@ -20,7 +20,7 @@ spring:
   #配置邮箱警报
   mail:
     host: smtp.qq.com                     #邮箱服务商
-    username: 321584084@qq.com            #邮箱地址
+    username: 1453370940@qq.com            #邮箱地址
     password: wurufzzingiahdeb            #不是密码，是授权码，需要获取
     properties:
       mail:
@@ -38,7 +38,7 @@ spring:
     admin:
       notify:
         mail:
-          from: 321584084@qq.com         #谁来发邮件
+          from: 1453370940@qq.com         #谁来发邮件
           to: 171725713@qq.com   #邮件发送给谁
       #忽略掉 consul，不然会一直报 8300 断开连接的信息
       discovery:

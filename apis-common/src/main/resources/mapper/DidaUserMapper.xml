@@ -4,7 +4,7 @@
 
     <!--  不要写 *  后面会修改  -->
     <select id="getUserByPhoneOrEmail" resultType="common.entity.DidaUser">
-        SELECT * FROM tbl_dida_user WHERE user_phone = #{username} or user_email = #{username};
+        SELECT * FROM tbl_dida_user WHERE (user_phone = #{username} or user_email = #{username}) and is_deleted=0;
     </select>
 
 </mapper>
