@@ -19,7 +19,8 @@ import java.io.Serializable;
 @ToString
 public class RegisterRequestVo implements Serializable {
 
-    private String phoneNumber;
+    private String username;
     private String password;
+    private String code;
 
 }

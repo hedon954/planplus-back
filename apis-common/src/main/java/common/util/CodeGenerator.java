@@ -23,7 +23,7 @@ public class CodeGenerator {
     /**
      * 把要生成的数据库表明写在 TABLENAMES 里面
      */
-    private static final String[] TABLENAMES = new String[]{"tbl_baidu_info"};
+    private static final String[] TABLENAMES = new String[]{"tbl_verification_code"};
 
 
     /**

@@ -3,8 +3,8 @@
 <mapper namespace="common.mapper.DidaUserMapper">
 
     <!--  不要写 *  后面会修改  -->
-    <select id="getUserByPhone" resultType="common.entity.DidaUser">
-        SELECT * FROM tbl_dida_user WHERE user_phone = #{phone}
+    <select id="getUserByPhoneOrEmail" resultType="common.entity.DidaUser">
+        SELECT * FROM tbl_dida_user WHERE user_phone = #{username} or user_email = #{username};
     </select>
 
 </mapper>

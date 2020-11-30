@@ -32,6 +32,8 @@ public class DidaUser implements Serializable {
 
     private String userPhone;
 
+    private String userEmail;
+
     private String userNickname;
 
     private String userPassword;

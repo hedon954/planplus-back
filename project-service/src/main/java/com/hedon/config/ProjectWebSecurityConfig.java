@@ -37,7 +37,7 @@ public class ProjectWebSecurityConfig extends WebSecurityConfigurerAdapter {
         RemoteTokenServices remoteTokenServices =  new RemoteTokenServices();
         remoteTokenServices.setClientId("planplus");
         remoteTokenServices.setClientSecret("123456");
-        remoteTokenServices.setCheckTokenEndpointUrl("https://www.hedon.wang:443/oauth/check_token"); //验证token的请求
+        remoteTokenServices.setCheckTokenEndpointUrl("http://localhost:10040/oauth/check_token"); //验证token的请求
         //把令牌转换为用户信息
         remoteTokenServices.setAccessTokenConverter(getAccessTokenConverter());
         return remoteTokenServices;

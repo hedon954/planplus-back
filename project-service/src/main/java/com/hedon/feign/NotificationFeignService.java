@@ -1,9 +1,11 @@
 package com.hedon.feign;
 
 import common.dto.TaskNotificationDto;
+import common.entity.VerificationCode;
 import common.vo.common.ResponseBean;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -24,5 +26,14 @@ public interface NotificationFeignService {
      */
     @PostMapping("/notification/notify")
     ResponseBean sendNotificationMsg(@RequestBody TaskNotificationDto dto);
+
+
+    /**
+     * 发送注册码到死信队列中，等待消费者消费
+     * @param verificationCode
+     * @return
+     */
+    @PostMapping("/notification/code/register")
+    ResponseBean sendRegisterCode(@RequestBody VerificationCode verificationCode);
 
 }

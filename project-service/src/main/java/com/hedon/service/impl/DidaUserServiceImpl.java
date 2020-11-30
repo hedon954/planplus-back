@@ -5,8 +5,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hedon.service.IDidaUserService;
 import common.code.ResultCode;
 import common.entity.DidaUser;
+import common.entity.VerificationCode;
 import common.exception.ServiceException;
 import common.mapper.DidaUserMapper;
+import common.mapper.VerificationCodeMapper;
+import common.util.EmailFormatCheckUtils;
 import common.util.PhoneFormatCheckUtils;
 import common.vo.common.UserBaiduInfo;
 import common.vo.response.DidaUserResponseVo;
@@ -44,6 +47,9 @@ public class DidaUserServiceImpl extends ServiceImpl<DidaUserMapper, DidaUser> i
 
     @Autowired
     DidaUserMapper didaUserMapper;
+
+    @Autowired
+    VerificationCodeMapper verificationCodeMapper;
 
     /**
      * 根据ID查询用户信息
@@ -218,27 +224,54 @@ public class DidaUserServiceImpl extends ServiceImpl<DidaUserMapper, DidaUser> i
     }
 
     /**
-     * 通过手机号和密码进行注册
+     * 通过手机号或密码进行注册
      *
      * @author Jiahan Wang
      * @create 2020.11.26
-     * @param phoneNumber
+     * @param username
      * @param password
+     * @param code
      */
     @Override
-    public void registerByPhoneAndPwd(String phoneNumber, String password) {
-        //判断手机格式是否正确
-        if (!PhoneFormatCheckUtils.isPhoneLegal(phoneNumber)){
-            throw new ServiceException(ResultCode.PHONE_FORMAT_ERROR);
+    public void register(String username, String password, String code) {
+        //检查验证码是否正确
+        QueryWrapper<VerificationCode> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("code_username",username);
+        VerificationCode verificationCode = verificationCodeMapper.selectOne(queryWrapper);
+        if (verificationCode == null){
+            throw new ServiceException("请先获取验证码",ResultCode.REGISTER_FAILED);
+        }
+        if (verificationCode.getIsActive() == 0){
+            throw new ServiceException("验证码已失效",ResultCode.REGISTER_FAILED);
+        }
+        if (!verificationCode.getCodeNumber().equals(code)){
+            throw new ServiceException("验证码错误",ResultCode.REGISTER_FAILED);
+        }
+        //注册用户
+        DidaUser didaUser = new DidaUser();
+        //判断是邮箱还是手机
+        if (username.contains("@")){
+            //判断邮箱格式是否正确
+            if (!EmailFormatCheckUtils.isEmailLegal(username)){
+                throw new ServiceException(ResultCode.EMAIL_FORMAT_ERROR);
+            }
+            didaUser.setUserEmail(username);
+        }else{
+            //判断手机格式是否正确
+            if (!PhoneFormatCheckUtils.isPhoneLegal(username)){
+                throw new ServiceException(ResultCode.PHONE_FORMAT_ERROR);
+            }
+            didaUser.setUserPhone(username);
         }
         //判断密码是否为空
         if (StringUtils.isBlank(password)) {
             throw new ServiceException(ResultCode.EMPTY_PASSWORD);
         }
-        //注册用户
-        DidaUser didaUser = new DidaUser();
-        didaUser.setUserPassword(phoneNumber);
         didaUser.setUserPassword(passwordEncoder.encode(password));
         didaUserMapper.insert(didaUser);
+
+        //失效验证码
+        verificationCode.setIsActive(0);
+        verificationCodeMapper.updateById(verificationCode);
     }
 }

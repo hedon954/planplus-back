@@ -18,13 +18,13 @@ import org.springframework.stereotype.Repository;
  */
 public interface DidaUserMapper extends BaseMapper<DidaUser> {
 
-    //根据手机（用户名）获取用户信息
-    DidaUser getUserByPhone(String user_name);
+    /**
+     * 根据手机（用户名）获取用户信息
+     *
+     * @param username 用户名：手机或者邮箱
+     * @return         用户信息
+     */
+    DidaUser getUserByPhoneOrEmail(String username);
 
-
-
-//    String getPsw(Integer user_id);
-//
-//    void updatePsw(Integer user_id,String new_psw);
 
 }

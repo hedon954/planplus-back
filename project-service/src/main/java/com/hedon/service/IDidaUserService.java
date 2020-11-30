@@ -92,8 +92,9 @@ public interface IDidaUserService extends IService<DidaUser> {
      *
      * @author Jiahan Wang
      * @create 2020.11.26
-     * @param phoneNumber
+     * @param username
      * @param password
+     * @param code
      */
-    void registerByPhoneAndPwd(String phoneNumber, String password);
+    void register(String username, String password, String code);
 }

@@ -2,12 +2,14 @@ package com.hedon.controller;
 
 import com.hedon.sercurity.TokenInfo;
 import com.hedon.service.IDidaUserService;
+import com.hedon.service.IShortMessageService;
 import common.code.ResultCode;
 import common.exception.ServiceException;
 import common.vo.common.ResponseBean;
 import common.vo.request.LoginRequestVo;
 import common.vo.request.RegisterRequestVo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,6 +35,9 @@ public class LoginController {
 
     @Autowired
     IDidaUserService didaUserService;
+
+    @Autowired
+    IShortMessageService shortMessageService;
 
     /**
      * 发送 http 请求工具
@@ -72,14 +77,14 @@ public class LoginController {
              */
             try{
                 //请求路径
-                String oauthServiceUrl = "https://www.hedon.wang:443/oauth/token";
+                String oauthServiceUrl = "http://localhost:10040/oauth/token";
                 //请求头
                 HttpHeaders httpHeaders = new HttpHeaders();
                 httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
                 httpHeaders.setBasicAuth("planplus","123456");
                 //请求参数
                 MultiValueMap<String,String> params = new LinkedMultiValueMap<>();
-                params.add("username",loginVo.getPhoneNumber());
+                params.add("username",loginVo.getUsername());
                 params.add("password",loginVo.getPassword());
                 params.add("grant_type","password");
                 params.add("scope","write read");
@@ -109,15 +114,15 @@ public class LoginController {
      * @param vo
      * @return
      */
-    @PostMapping("/registerByPhoneAndPwd")
-    public ResponseBean registerByPhoneAndPwd(@RequestBody RegisterRequestVo vo){
+    @PostMapping("/register")
+    public ResponseBean register(@RequestBody RegisterRequestVo vo){
 
         if (vo == null){
             return ResponseBean.fail(ResultCode.REGISTER_FAILED);
         }
         //注册
         try {
-            didaUserService.registerByPhoneAndPwd(vo.getPhoneNumber(),vo.getPassword());
+            didaUserService.register(vo.getUsername(),vo.getPassword(),vo.getCode());
         }catch (ServiceException e){
             return e.getFailResponse();
         }
@@ -138,6 +143,21 @@ public class LoginController {
         //将 session 失效
         request.getSession().invalidate();
         return ResponseBean.success();
+    }
+
+
+    /**
+     * 测试发送验证码
+     * @param userId
+     * @param phoneNumber
+     * @return
+     */
+    @PostMapping("/code")
+    @PreAuthorize(("hasAuthority('ROLE_ADMIN')"))
+    public ResponseBean sendCode(@AuthenticationPrincipal(expression = "#this.userId") Integer userId,
+                                 @RequestParam("phoneNumber")String phoneNumber){
+        System.out.println(userId);
+        return shortMessageService.sendCode(phoneNumber);
     }
 
 }

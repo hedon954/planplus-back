@@ -54,7 +54,13 @@ public class ZuulResourceSecurityConfig extends ResourceServerConfigurerAdapter 
                 .addFilterBefore(new ZuulRateLimitFilter(), ChannelProcessingFilter.class)   //插入限流过滤器
                 .addFilterBefore(new ZuulAuditLogFilter(), ExceptionTranslationFilter.class)  //插入审计过滤器
                 .authorizeRequests()
-                .antMatchers("/oauth/**","/project/login/login","/actuator/**","/instances","/instances/**").permitAll()  //放行所有以 /oauth 开头的请求
+                .antMatchers("/oauth/**",
+                        "/project/login/login",
+                        "/actuator/**",
+                        "/instances",
+                        "/instances/**",
+                        "/project/login/register",
+                        "/project/code/**").permitAll()
                 .anyRequest().access("#permissionService.hasPermission(request,authentication)");
     }
 }

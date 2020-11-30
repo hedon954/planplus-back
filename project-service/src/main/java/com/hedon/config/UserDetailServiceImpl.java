@@ -34,7 +34,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("用户名不能为空！");
         }
         //获取用户信息
-        DidaUser user = didaUserMapper.getUserByPhone(username);
+        DidaUser user = didaUserMapper.getUserByPhoneOrEmail(username);
         if (user == null){
             throw new UsernameNotFoundException("用户名不存在");
         }
@@ -46,7 +46,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
 //                .build();
         String[] auths = new String[]{"ROLE_ADMIN"};
         UserDetailsEnhance userDetailsEnhance = new UserDetailsEnhance(
-                user.getUserPhone(),
+                username,
                 user.getUserPassword(),
                 (Collection) AuthorityUtils.createAuthorityList(auths));
         userDetailsEnhance.setUserId(user.getUserId());

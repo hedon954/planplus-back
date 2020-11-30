@@ -27,6 +27,8 @@ public class DidaUserResponseVo implements Serializable {
 
     private String userPhone;
 
+    private String userEmail;
+
     private String userNickname;
 
     private Integer userGender;

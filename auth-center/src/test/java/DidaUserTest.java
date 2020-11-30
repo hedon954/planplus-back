@@ -18,7 +18,7 @@ public class DidaUserTest {
 
     @Test
     public void testGetUserByPhone(){
-        DidaUser user = didaUserMapper.getUserByPhone("15623205156");
+        DidaUser user = didaUserMapper.getUserByPhoneOrEmail("15623205156");
         System.out.println(user);
     }
 }

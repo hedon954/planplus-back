@@ -128,8 +128,8 @@ public class RabbitMqConfig {
         args.put("x-dead-letter-exchange",environment.getProperty("mq.dead.exchange.name"));
         //创建死信路由
         args.put("x-dead-letter-routing-key",environment.getProperty("mq.dead.routing.key.name"));
-        //设定 TTL，在消息那边设定，单位是 ms，这里设置大一些，最大是100天
-        args.put("x-message-ttl",100*24*60*60*100);
+        //设定 TTL，在消息那边设定，单位是 ms，这里设置5分钟
+        args.put("x-message-ttl",1000*60*5);
         //创建并返回死信队列实例
         return new Queue(environment.getProperty("mq.dead.queue.name"),true,false,false,args);
     }
