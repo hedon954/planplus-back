@@ -7,7 +7,10 @@ import common.exception.ServiceException;
 import common.vo.common.ResponseBean;
 import common.vo.request.RegisterRequestVo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * <p>
@@ -18,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
  * @since 2020-11-30
  */
 @RestController
-@RequestMapping("/project/code")
+@RequestMapping("/mail/code")
 public class VerificationCodeController {
 
     @Autowired

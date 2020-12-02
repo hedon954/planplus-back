@@ -79,6 +79,10 @@ zuul:
       path: /project/**
       serviceId: project-service
       strip-prefix: false
+    mail-service:  #路由业务模块
+      path: /mail/**
+      serviceId: mail-service
+      strip-prefix: false
 #    notification-service: #路由到通知模块
 #      path: /notification/**
 #      serviceId: notification-service

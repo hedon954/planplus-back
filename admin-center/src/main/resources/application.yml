@@ -20,18 +20,23 @@ spring:
   #配置邮箱警报
   mail:
     host: smtp.qq.com                     #邮箱服务商
-    username: 1453370940@qq.com            #邮箱地址
-    password: wurufzzingiahdeb            #不是密码，是授权码，需要获取
+    #邮箱地址
+    username: 1453370940@qq.com
+    #不是密码，是授权码，需要获取
+    password: wurufzzingiahdeb
     properties:
       mail:
         stmp:
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory
           #设置是否需要认证，如果为true,那么用户名和密码就必须的
           #如果设置false，可以不设置用户名和密码，当然也得看你的对接的平台是否支持无密码进行访问的。
           auth: true
           ##TARTTLS[1]  是对纯文本通信协议的扩展。它提供一种方式将纯文本连接升级为加密连接（TLS或SSL），而不是另外使用一个端口作加密通信
           starttls:
             enable: true                 #服务器启动 tls 验证
-            required: true               #服务器需要 tls 验证
+    #            required: true               #服务器需要 tls 验证
+    default-encoding: utf-8
 
   boot:
     #配置 admin

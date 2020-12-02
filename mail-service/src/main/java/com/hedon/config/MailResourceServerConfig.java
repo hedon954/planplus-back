@@ -12,7 +12,7 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Res
  */
 @Configuration
 @EnableResourceServer
-public class ProjectResourceServerConfig extends ResourceServerConfigurerAdapter {
+public class MailResourceServerConfig extends ResourceServerConfigurerAdapter {
 
 
     @Override

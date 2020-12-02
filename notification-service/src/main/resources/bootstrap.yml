@@ -9,15 +9,6 @@ server:
       force: true
       force-request: true
       force-response: true
-#  #配置HTTPS证书
-#  ssl:
-#    key-store: classpath:hedon-wang-tomcat-1127211857.jks   #证书名称
-#    key-store-password: planplus                            #密钥库密码
-#    key-store-type: JKS                                     #证书类型
-#  #请求头大小
-#  tomcat:
-#    max-http-form-post-size: 32768
-#  max-http-header-size: 32768
 
 #配置 Spring
 spring:
@@ -44,7 +35,6 @@ spring:
         port: ${server.port}
         prefer-ip-address: true #开启 ip 地址注册(默认是DNS解析）
         ip-address: localhost
-#        scheme: https
 
     #开启断路器
     circuitbreaker:

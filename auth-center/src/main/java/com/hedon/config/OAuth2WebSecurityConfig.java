@@ -54,7 +54,7 @@ public class OAuth2WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/actuator/**",
                         "/instances", "/instances/**",
                         "/project/login/register",
-                        "/project/code/**",
+                        "/mail/code/**",
                         "/project/login/getPasswordBack").permitAll()
                 .anyRequest().authenticated()
                 .and()

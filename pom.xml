@@ -16,6 +16,7 @@
         <module>auth-center</module>
         <module>gateway-center</module>
         <module>notification-service</module>
+        <module>mail-service</module>
     </modules>
 
     <!-- spring boot -->

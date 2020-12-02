@@ -21,11 +21,8 @@ import java.util.Collection;
 @Component
 public class UserDetailServiceImpl implements UserDetailsService {
 
-
     @Autowired
     private DidaUserMapper didaUserMapper;
-
-
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

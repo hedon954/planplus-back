@@ -60,7 +60,7 @@ public class ZuulResourceSecurityConfig extends ResourceServerConfigurerAdapter 
                         "/instances",
                         "/instances/**",
                         "/project/login/register",
-                        "/project/code/**",
+                        "/mail/code/**",
                         "/project/login/getPasswordBack").permitAll()
                 .anyRequest().access("#permissionService.hasPermission(request,authentication)");
     }
