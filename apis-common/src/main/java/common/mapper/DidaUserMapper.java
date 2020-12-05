@@ -26,5 +26,12 @@ public interface DidaUserMapper extends BaseMapper<DidaUser> {
      */
     DidaUser getUserByPhoneOrEmail(String username);
 
+    /**
+     * 在登录的时候根据 UnionId 获取用户信息，没有的话就登录失败，不进行自动注册
+     *
+     * @param userUnionId
+     * @return
+     */
+    DidaUser getUserByUnionIdWhenLogin(String userUnionId);
 
 }

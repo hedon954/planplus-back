@@ -55,6 +55,8 @@ public class DidaUser implements Serializable {
 
     private String userSessionKey;
 
+    private String userUnionId;
+
     public DidaUser(){
         this.userGender = 1;
         this.userBirthday = LocalDateTime.now();

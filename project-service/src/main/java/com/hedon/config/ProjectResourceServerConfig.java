@@ -32,7 +32,8 @@ public class ProjectResourceServerConfig extends ResourceServerConfigurerAdapter
                         "/instances/**",
                         "/project/login/register",
                         "/mail/code/**",
-                        "/project/login/getPasswordBack").permitAll()
+                        "/project/login/getPasswordBack",
+                        "/project/login/getUserOpenIdAndSessionKeyAndUnionId**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic();

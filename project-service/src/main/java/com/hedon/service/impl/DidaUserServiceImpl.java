@@ -314,4 +314,51 @@ public class DidaUserServiceImpl extends ServiceImpl<DidaUserMapper, DidaUser> i
         verificationCode.setIsActive(0);
         verificationCodeMapper.updateById(verificationCode);
     }
+
+
+    /**
+     * 在百度登陆的时候根据 unionId 查询用户信息，如果没有的话就自动注册
+     *
+     * @author Jiahan Wang
+     * @create 2020.12.6
+     * @param userUnionId
+     * @param userOpenId
+     * @param userSessionKey
+     * @return
+     */
+    @Override
+    public DidaUser selectUserByUnionId(String userOpenId, String userSessionKey, String userUnionId) {
+        userUnionId = "union_id_" + userUnionId;
+        QueryWrapper<DidaUser> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_union_id",userUnionId);
+        DidaUser didaUser = didaUserMapper.selectOne(queryWrapper);
+        //如果用户存在，则返回用户信息
+        if (didaUser != null){
+            return didaUser;
+        }else{
+            //如果用户不存在，则创建一个新的用户
+            didaUser = new DidaUser();
+            didaUser.setUserOpenId(userOpenId);
+            didaUser.setUserUnionId(userUnionId);
+            didaUser.setUserSessionKey(userSessionKey);
+            didaUser.setUserPassword(passwordEncoder.encode("123456"));
+            didaUserMapper.insert(didaUser);
+            return didaUser;
+        }
+
+    }
+
+    /**
+     * 在登录的时候根据 UnionId 获取用户信息，没有的话就登录失败，不进行自动注册
+     *
+     * @param userUnionId
+     * @return
+     */
+    @Override
+    public DidaUser getUserByUnionIdWhenLogin(String userUnionId){
+        QueryWrapper<DidaUser> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_union_id",userUnionId);
+        DidaUser didaUser = didaUserMapper.selectOne(queryWrapper);
+        return didaUser;
+    }
 }

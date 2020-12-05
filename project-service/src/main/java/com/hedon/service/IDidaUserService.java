@@ -108,4 +108,24 @@ public interface IDidaUserService extends IService<DidaUser> {
      * @param code
      */
     void getPasswordBack(String username, String password, String code);
+
+    /**
+     * 根据 unionId 查询用户信息
+     *
+     * @author Jiahan Wang
+     * @create 2020.12.6
+     * @param userUnionId
+     * @param userOpenId
+     * @param userSessionKey
+     * @return
+     */
+    DidaUser selectUserByUnionId(String userOpenId, String userSessionKey, String userUnionId);
+
+    /**
+     * 在登录的时候根据 UnionId 获取用户信息，没有的话就登录失败，不进行自动注册
+     *
+     * @param userUnionId
+     * @return
+     */
+    DidaUser getUserByUnionIdWhenLogin(String userUnionId);
 }

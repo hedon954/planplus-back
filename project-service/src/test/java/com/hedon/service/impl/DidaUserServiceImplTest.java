@@ -33,4 +33,10 @@ public class DidaUserServiceImplTest {
         DidaUser user = didaUserMapper.getUserByPhoneOrEmail("171725713@qq.com");
         System.out.println(user);
     }
+
+    @Test
+    public void test3(){
+        DidaUser user = didaUserMapper.getUserByUnionIdWhenLogin("union_id_SbUiseGVAKMQ5TRqrT2qLy3");
+        System.out.println(user);
+    }
 }
