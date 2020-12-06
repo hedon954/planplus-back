@@ -6,6 +6,7 @@ import common.exception.ServiceException;
 import common.vo.request.DidaTaskRequestVo;
 import common.vo.request.DidaTaskSentenceRequestVo;
 import common.vo.response.DidaTaskResponseVo;
+import common.vo.response.DidaTaskStateResponseVo;
 
 import java.net.URISyntaxException;
 import java.time.LocalDate;
@@ -144,4 +145,14 @@ public interface IDidaTaskService extends IService<DidaTask> {
      * @return
      */
     DidaTask createTaskBySentence(Integer userId, DidaTaskSentenceRequestVo taskInfo) throws URISyntaxException, ServiceException;
+
+    /**
+     *获取近一周的任务状态
+     *
+     * @author Ruolin
+     * @create 2020.12.05
+     * @param userId 用户ID
+     * @return
+     */
+    DidaTaskStateResponseVo getTaskStateForThisWeek(Integer userId, LocalDate date);
 }

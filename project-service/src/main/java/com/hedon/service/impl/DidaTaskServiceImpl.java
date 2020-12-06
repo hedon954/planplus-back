@@ -19,6 +19,7 @@ import common.vo.common.ResponseBean;
 import common.vo.request.DidaTaskRequestVo;
 import common.vo.request.DidaTaskSentenceRequestVo;
 import common.vo.response.DidaTaskResponseVo;
+import common.vo.response.DidaTaskStateResponseVo;
 import org.ansj.domain.Result;
 import org.ansj.domain.Term;
 import org.ansj.splitWord.analysis.ToAnalysis;
@@ -622,6 +623,46 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
     }
 
     /**
+     * 获取近一周的任务状态
+     *
+     * @param userId 用户ID
+     * @return
+     * @author Ruolin
+     * @create 2020.12.05
+     */
+    @Override
+    public DidaTaskStateResponseVo getTaskStateForThisWeek(Integer userId, LocalDate date) {
+        //任务状态，包括任务总数和已完成任务总数
+        int[][] taskState = new int[2][7];
+        //任务完成百分比
+        float[] completePercentage = new float[7];
+        //近一周日期
+        String[] dateOfWeek = new String[7];
+
+        for(int i=0;i<7;i++){
+            date = date.plusDays(-1);
+            //获取月份和日期部分
+            dateOfWeek[i] = date.toString().substring(6,11);
+            //获取这一天的任务
+            ArrayList<DidaTask> didaTasks = didaTaskMapper.selectByDate(userId, date.toString() + "%");
+            taskState[0][i]=didaTasks.size();
+            for (DidaTask task:didaTasks) {
+                if(task.getTaskStatus()==2) {
+                    taskState[1][i]++;
+                }
+            }
+            //计算完成率
+            completePercentage[i] = taskState[1][i]/taskState[0][i]*100;
+        }
+        //构建返回体
+        DidaTaskStateResponseVo didaTaskStateResponseVo = new DidaTaskStateResponseVo();
+        didaTaskStateResponseVo.setNumOfTasks(taskState[0]);
+        didaTaskStateResponseVo.setNumOfFinishedTasks(taskState[1]);
+        didaTaskStateResponseVo.setCompletePercentage(completePercentage);
+        return didaTaskStateResponseVo;
+    }
+
+    /**
      * 从句子中抽取出时间成分
      *
      * @author Jiahan Wang
@@ -829,4 +870,6 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         map.put("address",address);
         return map;
     }
+
+
 }

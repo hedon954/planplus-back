@@ -10,6 +10,7 @@ import common.vo.common.ResponseBean;
 import common.vo.request.DidaTaskRequestVo;
 import common.vo.request.DidaTaskSentenceRequestVo;
 import common.vo.response.DidaTaskResponseVo;
+import common.vo.response.DidaTaskStateResponseVo;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -17,6 +18,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -528,4 +530,30 @@ public class DidaTaskController {
         }
         return ResponseBean.success(map);
     }
+
+
+    /**
+     *
+     * @author Ruolin
+     * @create 2020.12.05
+     * @param userId
+     * @return
+     */
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userId", value = "用户ID", dataType = "Integer", paramType = "query", required = true)
+    })
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @GetMapping("/weeklyState")
+    public ResponseBean getWeeklyTaskState(@AuthenticationPrincipal(expression = "#this.userId")Integer userId) {
+        try{
+            //获取近一周的任务状态
+            DidaTaskStateResponseVo didaTaskStateResponseVo = didaTaskService.getTaskStateForThisWeek(userId,LocalDate.now());
+            return ResponseBean.success(didaTaskStateResponseVo);
+        }catch (ServiceException e){
+            e.printStackTrace();
+            return e.getFailResponse();
+        }
+    }
+
+
 }

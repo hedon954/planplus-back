@@ -233,6 +233,7 @@ public class DidaUserController {
 
     /**
      * 用户上传头像接口
+     * @author Ruolin
      * @param userId 用户id
      * @param avatar 头像文件
      * @return
