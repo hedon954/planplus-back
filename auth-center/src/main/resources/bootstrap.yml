@@ -11,6 +11,16 @@ server:
       force-response: true
     session:
       timeout: 259200
+#  #配置HTTPS证书
+#  ssl:
+#    key-store: classpath:hedon-wang-tomcat-1127211857.jks   #证书名称
+#    key-store-password: planplus                            #密钥库密码
+#    key-store-type: JKS                                     #证书类型
+#  #请求头大小
+#  tomcat:
+#    max-http-form-post-size: 32768
+#  max-http-header-size: 32768
+
 
 #配置spring
 spring:
@@ -28,7 +38,7 @@ spring:
   cloud:
     #注册进 Consul
     consul:
-      host: localhost         #先配置在本机
+      host: localhost
       port: 8500              #Consul默认端口8500
       discovery:
         register: true
@@ -37,6 +47,8 @@ spring:
         port: ${server.port}
         prefer-ip-address: true #开启 ip 地址注册(默认是DNS解析）
         ip-address: localhost
+#        scheme: https
+
 
 #    #配置config-client
 #    config:

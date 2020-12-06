@@ -20,7 +20,7 @@ import java.io.Serializable;
 @ToString
 public class LoginRequestVo implements Serializable {
 
-    private String phoneNumber;
+    private String username;
     private String password;
 
 }

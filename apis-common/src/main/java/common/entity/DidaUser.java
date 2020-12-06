@@ -5,11 +5,14 @@ import com.baomidou.mybatisplus.annotation.*;
 
 import java.time.LocalDateTime;
 import java.io.Serializable;
+import java.util.Random;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomUtils;
 
 /**
  * <p>
@@ -32,6 +35,8 @@ public class DidaUser implements Serializable {
 
     private String userPhone;
 
+    private String userEmail;
+
     private String userNickname;
 
     private String userPassword;
@@ -49,6 +54,8 @@ public class DidaUser implements Serializable {
     private String userOpenId;
 
     private String userSessionKey;
+
+    private String userUnionId;
 
     public DidaUser(){
         this.userGender = 1;
@@ -87,7 +94,7 @@ public class DidaUser implements Serializable {
                 ""
         };
 
-        return avatars[RandomUtil.randomInt(0,avatars.length)];
+        return avatars[RandomUtils.nextInt(0,avatars.length-1)];
 
 
     }

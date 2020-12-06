@@ -1,14 +1,12 @@
 package com.hedon.controller;
 
-import com.hedon.rabbitmq.TimedTaskPublisher;
-import common.dto.TaskNotificationDto;
+import com.hedon.rabbitmq.VerificationCodePublisher;
+import common.entity.VerificationCode;
 import common.exception.ServiceException;
 import common.vo.common.ResponseBean;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 通知的控制器，用于暴露接口给 project-service 进行调用
@@ -18,25 +16,22 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/notification")
+@Slf4j
 public class NotificationController {
 
+
     @Autowired
-    private TimedTaskPublisher publisher;
+    private VerificationCodePublisher verificationCodePublisher;
 
 
-    /**
-     * 通知接口
-     * @param dto
-     * @return
-     */
-    @PostMapping("/notify")
-    public ResponseBean sendNotificationMsg(@RequestBody TaskNotificationDto dto){
-       System.out.println("正在调用通知模块的接口，dto：" + dto);
-       try{
-           return publisher.sendTimedTaskMsg(dto);
-       }catch (ServiceException e){
-           return e.getFailResponse();
-       }
+    @PostMapping("/code")
+    public ResponseBean sendCode(@RequestBody VerificationCode verificationCode){
+        log.info("正在调用通知模块的接口 sendCode，verificationCode：" + verificationCode);
+        try {
+            return verificationCodePublisher.sendCode(verificationCode);
+        }catch (ServiceException e){
+            return e.getFailResponse();
+        }
     }
 
 

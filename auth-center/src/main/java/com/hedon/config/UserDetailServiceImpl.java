@@ -38,19 +38,24 @@ public class UserDetailServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("用户名不能为空！");
         }
         //获取用户信息
-        DidaUser user = didaUserMapper.getUserByPhone(username);
-        if (user == null){
-            throw new UsernameNotFoundException("用户名不存在");
+        DidaUser user = null;
+        if (username.startsWith("union_id_")){
+            //如果是用 unionId 进行登录的话
+            user = didaUserMapper.getUserByUnionIdWhenLogin(username);
+            if (user == null){
+                throw new UsernameNotFoundException("用户名不存在");
+            }
+        }else{
+            //手机或邮箱登录
+            user = didaUserMapper.getUserByPhoneOrEmail(username);
+            if (user == null){
+                throw new UsernameNotFoundException("用户名不存在");
+            }
         }
         //返回用户信息
-//        UserDetails userDetails = User
-//                .withUsername(user.getUserPhone())
-//                .password(user.getUserPassword())
-//                .authorities("ROLE_ADMIN")   //这里用户的权限需要根据项目具体需求来定
-//                .build();
         String[] auths = new String[]{"ROLE_ADMIN"};
         UserDetailsEnhance userDetailsEnhance = new UserDetailsEnhance(
-                user.getUserPhone(),
+                username,
                 user.getUserPassword(),
                 (Collection) AuthorityUtils.createAuthorityList(auths));
         userDetailsEnhance.setUserId(user.getUserId());

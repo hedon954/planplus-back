@@ -25,7 +25,15 @@ public class ProjectResourceServerConfig extends ResourceServerConfigurerAdapter
     public void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/project/img/**","/project/login/login","/oauth/**","/actuator/**").permitAll()
+                .antMatchers("/oauth/**",
+                        "/project/login/login",
+                        "/actuator/**",
+                        "/instances",
+                        "/instances/**",
+                        "/project/login/register",
+                        "/mail/code/**",
+                        "/project/login/getPasswordBack",
+                        "/project/login/getUserOpenIdAndSessionKeyAndUnionId**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic();

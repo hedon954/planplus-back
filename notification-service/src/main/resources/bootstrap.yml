@@ -9,6 +9,7 @@ server:
       force: true
       force-request: true
       force-response: true
+
 #配置 Spring
 spring:
   application:
@@ -25,7 +26,7 @@ spring:
   cloud:
     #注册进 Consul
     consul:
-      host: localhost        #先配置在本机
+      host: localhost
       port: 8500             #Consul 默认端口 8500
       discovery:
         register: true
@@ -34,6 +35,7 @@ spring:
         port: ${server.port}
         prefer-ip-address: true #开启 ip 地址注册(默认是DNS解析）
         ip-address: localhost
+
     #开启断路器
     circuitbreaker:
       hystrix:
@@ -58,7 +60,7 @@ spring:
 
 #RabbitMQ 环境变量
 mq:
-  env: timedtask
+  env: code
   dead:
     queue:
       name: ${mq.env}.mq.dead.queue

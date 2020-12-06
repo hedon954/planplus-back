@@ -92,8 +92,40 @@ public interface IDidaUserService extends IService<DidaUser> {
      *
      * @author Jiahan Wang
      * @create 2020.11.26
-     * @param phoneNumber
+     * @param username
      * @param password
+     * @param code
      */
-    void registerByPhoneAndPwd(String phoneNumber, String password);
+    void register(String username, String password, String code);
+
+    /**
+     * 找回密码
+     *
+     * @author Jiahan Wang
+     * @create 2020.11.30
+     * @param username
+     * @param password
+     * @param code
+     */
+    void getPasswordBack(String username, String password, String code);
+
+    /**
+     * 根据 unionId 查询用户信息
+     *
+     * @author Jiahan Wang
+     * @create 2020.12.6
+     * @param userUnionId
+     * @param userOpenId
+     * @param userSessionKey
+     * @return
+     */
+    DidaUser selectUserByUnionId(String userOpenId, String userSessionKey, String userUnionId);
+
+    /**
+     * 在登录的时候根据 UnionId 获取用户信息，没有的话就登录失败，不进行自动注册
+     *
+     * @param userUnionId
+     * @return
+     */
+    DidaUser getUserByUnionIdWhenLogin(String userUnionId);
 }

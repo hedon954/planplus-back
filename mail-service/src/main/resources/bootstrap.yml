@@ -1,0 +1,154 @@
+#配置端口
+server:
+  port: 10060
+  servlet:
+    context-path: /
+    encoding:
+      enabled: true
+      charset: UTF-8
+      force: true
+      force-request: true
+      force-response: true
+
+#配置 Spring
+spring:
+  application:
+    name: mail-service
+  #数据库配置
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://182.61.131.18:3306/dida_manager?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: Hedon954!
+
+  #cloud相关配置
+  cloud:
+    #注册进 Consul
+    consul:
+      host: localhost
+      port: 8500             #Consul 默认端口 8500
+      discovery:
+        register: true
+        instance-id: ${spring.application.name}-1
+        service-name: ${spring.application.name}
+        port: ${server.port}
+        prefer-ip-address: true #开启 ip 地址注册(默认是DNS解析）
+        ip-address: localhost
+
+    #开启断路器
+    circuitbreaker:
+      hystrix:
+        enabled: true
+
+  #配置邮箱
+
+  mail:
+    host: smtp.qq.com                     #邮箱服务商
+    #邮箱地址
+    username: 171725713@qq.com
+    #不是密码，是授权码，需要获取
+    password: jsylfpctjhnubhdc
+    from: 171725713@qq.com
+    to: 171725713@qq.com
+    properties:
+      mail:
+        stmp:
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory
+          #设置是否需要认证，如果为true,那么用户名和密码就必须的
+          #如果设置false，可以不设置用户名和密码，当然也得看你的对接的平台是否支持无密码进行访问的。
+          auth: true
+          ##TARTTLS[1]  是对纯文本通信协议的扩展。它提供一种方式将纯文本连接升级为加密连接（TLS或SSL），而不是另外使用一个端口作加密通信
+          starttls:
+            enable: true                 #服务器启动 tls 验证
+#            required: true               #服务器需要 tls 验证
+    default-encoding: utf-8
+
+#    #配置config-client
+#    config:
+#      label: master          #分支名称
+#      name: config           #配置文件名称
+#      profile: dev           #读取后缀名称
+#      #上述3个综合起来 = master分支上的 config-dev.yml 配置文件被读取
+#      uri: http://localhost:10010   #配置中心地址
+
+
+#mybatis 配置
+mybatis-plus:
+  mapper-locations: classpath*:mapper/*.xml
+  global-config:
+    db-config:
+      #配置逻辑删除
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+#-----------------Hystrix配置-----------------------
+hystrix:
+  # === === === == 默认Command === === === ==
+  command:
+    default:
+      execution:
+        isolation:
+          # 调用隔离方式, 默认: 采用线程隔离, ExecutionIsolationStrategy:THREAD
+          strategy: THREAD
+          # 调用超时时间, 默认: 5 秒
+          thread:
+            timeoutInMilliseconds: 8000
+          # 使用信号量隔离时, 命令调用最大的并发数
+          semaphore:
+            maxConcurrentRequests: 10
+      #使用信号量隔离时, 命令fallback调用最大的并发数
+      fallback:
+        isolation:
+          semaphore:
+            maxConcurrentRequests: 10
+      # === === === == 熔断器 === === === ==
+      circuitBreaker:
+        # 熔断器在整个统计时间内是否开启的阀值, 默认20个请求
+        requestVolumeThreshold: 8
+        # 熔断器默认工作时间, 默认: 5 秒
+        sleepWindowInMilliseconds: 5
+        # 默认: 50%, 当出错率超过50% 后熔断器启动
+        errorThresholdPercentage: 50
+        # 是否强制开启熔断器阻断所有请求, 默认: false, 不开启
+        forceOpen: false
+        # 是否允许熔断器忽略错误, 默认false, 不开启
+        forceClosed: false
+  # === === === == 线程池 === === === ==
+  threadpool:
+    default:
+      # 配置线程池大小, 默认值10个
+      coreSize: 10
+      # 配置队列长度, 默认-1使用SynchronousQueue,其他值则使用LinkedBlockingQueue:不可动态修改:
+      maxQueueSize: -1
+      # 队列拒绝的阈值,可通过修改这个变量动态修改允许排队的长度: maxQueueSize=-1时不适用:
+      queueSizeRejectionThreshold: 5
+      # 线程生存时间, 默认1分钟
+      keepAliveTimeMinutes: 1
+
+#日志配置
+logging:
+  file:
+    name: ./logs/mail-service.log
+    clean-history-on-start: true
+
+# 暴露监控端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+#去获取 signingkey
+security:
+  oauth2:
+    #配置客户端信息
+    client:
+      client-id: mail-service
+      client-secret: 123456
+    #配置拿 key 的请求路径
+    resource:
+      jwt:
+        key-uri: http://localhost:10040/oauth/token_key

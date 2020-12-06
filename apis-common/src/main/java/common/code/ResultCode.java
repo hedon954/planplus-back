@@ -50,6 +50,9 @@ public enum ResultCode {
     NO_LOGIN_IN(40304L,"未登录"),
     TO_MANY_REQUESTS(40305L,"请求过多"),
     NO_AUTHENTICATION_CODE(40306L,"小程序的 swan.login 没有成功传 code"),
+    SEND_SMS_FAILED(40307L,"发送短信验证码错误"),
+    GET_VERIFICATION_CODE_FAILED(40408L,"获取验证码失败"),
+    UPDATE_BAIDU_INFO_FAILED(40409L,"更新百度 token 失败"),
 
 
     /**
@@ -71,6 +74,9 @@ public enum ResultCode {
     EMPTY_PASSWORD(50004L,"密码不能为空"),
     GET_OPENID_FAILED(50005L,"获取 openId 和 sessionKey 错误"),
     REGISTER_FAILED(50006L,"注册失败"),
+    EMAIL_FORMAT_ERROR(50007L,"邮箱格式不正确"),
+    USER_EXIST(50008L,"用户已存在"),
+    GET_UNIONID_FAILED(50009L,"获取用户 unionId 错误"),
 
 
     /**

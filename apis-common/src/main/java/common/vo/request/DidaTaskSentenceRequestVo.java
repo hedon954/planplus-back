@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * 根据一句话创建任务的封装类
  *
@@ -13,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DidaTaskSentenceRequestVo {
+public class DidaTaskSentenceRequestVo implements Serializable {
 
     /**
      * 任务信息

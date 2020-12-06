@@ -14,10 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.xml.ws.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 
 /**
@@ -27,7 +25,7 @@ import java.util.Date;
  * @create 2020-11-26 19:21
  */
 @RestController
-@RequestMapping("/project/mail")
+@RequestMapping("/mail")
 public class MailController {
 
     @Autowired

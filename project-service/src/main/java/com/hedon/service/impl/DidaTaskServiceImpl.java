@@ -15,11 +15,13 @@ import common.mapper.DidaUserMapper;
 import common.mapper.DidaUserTaskMapper;
 import common.util.timenlp.nlp.TimeNormalizer;
 import common.util.timenlp.nlp.TimeUnit;
+import common.util.timenlp.util.StringUtil;
 import common.vo.common.ResponseBean;
 import common.vo.request.DidaTaskRequestVo;
 import common.vo.request.DidaTaskSentenceRequestVo;
 import common.vo.response.DidaTaskResponseVo;
 import common.vo.response.DidaTaskStateResponseVo;
+import lombok.extern.slf4j.Slf4j;
 import org.ansj.domain.Result;
 import org.ansj.domain.Term;
 import org.ansj.splitWord.analysis.ToAnalysis;
@@ -41,6 +43,7 @@ import java.util.*;
  * @since 2020-10-23
  */
 @Service
+@Slf4j
 public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> implements IDidaTaskService {
 
     @Autowired
@@ -315,6 +318,9 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
      */
     @Override
     public void modifyTask(Integer taskId, Integer userId, DidaTaskRequestVo taskInfo) {
+
+        log.info("正在修改任务，修改前：({})",taskInfo);
+
         /**
          * 判断任务和用户是否匹配，
          * 若不匹配则抛出异常
@@ -368,6 +374,8 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
 
         //更新数据库
         didaTaskMapper.updateById(task);
+
+        log.info("修改任务完毕，修改后：({})",task);
     }
 
 
@@ -705,8 +713,12 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
                             timeStr.startsWith("下午") ||
                             timeStr.startsWith("晚上")) &&
                timeStr.contains("点")){
-                //TODO:这里先往前推一天
-                startTime = startTime.plusDays(-1);
+                //进一步判断是否是第二天
+                if (startTime.getDayOfMonth() != LocalDateTime.now().getDayOfMonth()){
+                    //TODO:这里先往前推一天
+                    startTime = startTime.plusDays(-1);
+                }
+
             }
 
             //如果只有日期，没有时间，那么默认就是早上9点，如（"明天去青岛"），那么就是明天早上9点去青岛
@@ -738,9 +750,12 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
                             timeStr.startsWith("下午") ||
                             timeStr.startsWith("晚上")) &&
                     timeStr.contains("点")){
-                //TODO:这里先往前推一天
-                startTime = startTime.plusDays(-1);
-                finishTime = finishTime.plusDays(-1);
+                //进一步判断是否是第二天
+                if (startTime.getDayOfMonth() != LocalDateTime.now().getDayOfMonth()){
+                    //TODO:这里先往前推一天
+                    startTime = startTime.plusDays(-1);
+                    finishTime = finishTime.plusDays(-1);
+                }
             }
             //判断开始时间是否早于当前时间
             if (startTime.isBefore(LocalDateTime.now())){
@@ -818,6 +833,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
             map.put("address","");
             return map;
         }
+
 
         //遍历结果 —— 往后找到任务内容的起始位置
         for (Term term: terms){

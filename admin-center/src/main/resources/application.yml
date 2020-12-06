@@ -3,6 +3,16 @@ server:
   port: 10020
   servlet:
     context-path: /
+#  #配置HTTPS证书
+#  ssl:
+#    key-store: classpath:hedon-wang-tomcat-1127211857.jks   #证书名称
+#    key-store-password: planplus                            #密钥库密码
+#    key-store-type: JKS                                     #证书类型
+#  #请求头大小
+#  tomcat:
+#    max-http-form-post-size: 32768
+#  max-http-header-size: 32768
+
 #配置 spring
 spring:
   application:
@@ -10,26 +20,31 @@ spring:
   #配置邮箱警报
   mail:
     host: smtp.qq.com                     #邮箱服务商
-    username: 171725713@qq.com            #邮箱地址
-    password: wtsyivyphqzubjie            #不是密码，是授权码，需要获取
+    #邮箱地址
+    username: 1453370940@qq.com
+    #不是密码，是授权码，需要获取
+    password: wurufzzingiahdeb
     properties:
       mail:
         stmp:
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory
           #设置是否需要认证，如果为true,那么用户名和密码就必须的
           #如果设置false，可以不设置用户名和密码，当然也得看你的对接的平台是否支持无密码进行访问的。
           auth: true
           ##TARTTLS[1]  是对纯文本通信协议的扩展。它提供一种方式将纯文本连接升级为加密连接（TLS或SSL），而不是另外使用一个端口作加密通信
           starttls:
             enable: true                 #服务器启动 tls 验证
-            required: true               #服务器需要 tls 验证
+    #            required: true               #服务器需要 tls 验证
+    default-encoding: utf-8
 
   boot:
     #配置 admin
     admin:
       notify:
         mail:
-          from: 171725713@qq.com         #谁来发邮件
-          to: 2018302110022@whu.edu.cn   #邮件发送给谁
+          from: 1453370940@qq.com         #谁来发邮件
+          to: 171725713@qq.com   #邮件发送给谁
       #忽略掉 consul，不然会一直报 8300 断开连接的信息
       discovery:
         ignored-services: consul
@@ -46,6 +61,7 @@ spring:
         port: ${server.port}
         prefer-ip-address: true #开启 ip 地址注册(默认是DNS解析）
         ip-address: localhost
+#        scheme: https
 
 # 暴露监控端点
 management:
