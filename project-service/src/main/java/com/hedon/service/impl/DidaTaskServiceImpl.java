@@ -649,24 +649,35 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
 
         for(int i=0;i<7;i++){
             date = date.plusDays(-1);
-            //获取月份和日期部分
-            dateOfWeek[i] = date.toString().substring(6,11);
+            //获取月份和日期部分,因前端显示需要，每隔一个加换行符
+            if(i%2!=0){
+                dateOfWeek[6-i] = "\n"+date.toString().substring(5,10);
+            }else {
+                dateOfWeek[6-i] = date.toString().substring(5, 10);
+            }
             //获取这一天的任务
             ArrayList<DidaTask> didaTasks = didaTaskMapper.selectByDate(userId, date.toString() + "%");
-            taskState[0][i]=didaTasks.size();
+            taskState[0][6-i]=didaTasks.size();
             for (DidaTask task:didaTasks) {
                 if(task.getTaskStatus()==2) {
-                    taskState[1][i]++;
+                    taskState[1][6-i]++;
                 }
             }
             //计算完成率
-            completePercentage[i] = taskState[1][i]/taskState[0][i]*100;
+            if(taskState[0][6-i]!=0)
+            {
+                completePercentage[6-i] = ((float)taskState[1][6-i]/taskState[0][6-i])*100;
+            }else {
+                completePercentage[6-i]=0;
+            }
+
         }
         //构建返回体
         DidaTaskStateResponseVo didaTaskStateResponseVo = new DidaTaskStateResponseVo();
         didaTaskStateResponseVo.setNumOfTasks(taskState[0]);
         didaTaskStateResponseVo.setNumOfFinishedTasks(taskState[1]);
         didaTaskStateResponseVo.setCompletePercentage(completePercentage);
+        didaTaskStateResponseVo.setDateOfWeek(dateOfWeek);
         return didaTaskStateResponseVo;
     }
 
