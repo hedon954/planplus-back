@@ -1,6 +1,7 @@
 package common.vo.response;
 
 import common.entity.DidaUser;
+import io.swagger.models.auth.In;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -36,6 +37,8 @@ public class DidaUserResponseVo implements Serializable {
     private LocalDateTime userBirthday;
 
     private String userAvatarUrl;
+
+    private Integer isNewUser;
 
     /**
      * 通过 DidaUser 对象来构造 DidaUserResponseVo

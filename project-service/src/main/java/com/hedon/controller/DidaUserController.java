@@ -1,6 +1,7 @@
 package com.hedon.controller;
 
 
+import com.baomidou.mybatisplus.extension.api.R;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -230,6 +231,27 @@ public class DidaUserController {
         }
 
         return ResponseBean.fail(ResultCode.NO_AUTHENTICATION_CODE);
+    }
+
+    /**
+     * 将用户设置为老用户，即后面不再需要出示使用指南
+     *
+     * @author Jiahan Wang
+     * @create 2020.12.7
+     * @param userId
+     * @return
+     */
+    @PutMapping("/setUserToOld")
+    @PreAuthorize(("hasAuthority('ROLE_ADMIN')"))
+    public ResponseBean setUserToOld(@AuthenticationPrincipal(expression = "#this.userId")Integer userId){
+        DidaUser didaUser = didaUserService.getUserById(userId);
+        didaUser.setIsNewUser(0);
+        try {
+            didaUserService.updateUserInfoById(didaUser);
+        }catch (ServiceException e){
+            return e.getFailResponse();
+        }
+        return ResponseBean.success();
     }
 
     /**

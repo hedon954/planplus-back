@@ -57,11 +57,14 @@ public class DidaUser implements Serializable {
 
     private String userUnionId;
 
+    private Integer isNewUser;
+
     public DidaUser(){
         this.userGender = 1;
         this.userBirthday = LocalDateTime.now();
         this.userNickname = "新用户";
         this.userAvatarUrl = assignAvatarRandom();
+        this.isNewUser = 1;
     }
 
     /**
