@@ -656,6 +656,8 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         float[] completePercentage = new float[7];
         //近一周日期
         String[] dateOfWeek = new String[7];
+        //近一周推迟次数
+        int[] numOfDelay = new int[7];
 
         for(int i=0;i<7;i++){
             date = date.plusDays(-1);
@@ -672,7 +674,10 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
                 if(task.getTaskStatus()==2) {
                     taskState[1][6-i]++;
                 }
+                //计算推迟次数
+                numOfDelay[6-i] = numOfDelay[6-i]+task.getTaskDelayTimes();
             }
+
             //计算完成率
             if(taskState[0][6-i]!=0)
             {
@@ -688,6 +693,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         didaTaskStateResponseVo.setNumOfFinishedTasks(taskState[1]);
         didaTaskStateResponseVo.setCompletePercentage(completePercentage);
         didaTaskStateResponseVo.setDateOfWeek(dateOfWeek);
+        didaTaskStateResponseVo.setNumOfDelay(numOfDelay);
         return didaTaskStateResponseVo;
     }
 

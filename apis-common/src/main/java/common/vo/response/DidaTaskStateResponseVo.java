@@ -19,4 +19,5 @@ public class DidaTaskStateResponseVo {
     private int[] numOfFinishedTasks;
     private String[] dateOfWeek;
     private float[]  completePercentage;
+    private int[] numOfDelay;
 }
