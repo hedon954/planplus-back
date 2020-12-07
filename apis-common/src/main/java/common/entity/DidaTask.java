@@ -37,7 +37,11 @@ public class DidaTask implements Serializable {
 
     private LocalDateTime taskPredictedFinishTime;
 
+    private LocalDateTime taskRealStartTime;
+
     private LocalDateTime taskRealFinishTime;
+
+    private Integer taskDelayTimes;
 
     private Integer taskAdvanceRemindTime;
 
@@ -60,6 +64,7 @@ public class DidaTask implements Serializable {
         this.taskAdvanceRemindTime = 5;
         this.taskStatus = 0;
         this.taskFinishPercent = 0;
+        this.taskDelayTimes = 0;
     }
 
 }

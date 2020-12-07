@@ -141,6 +141,13 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         }
 
         task.setTaskStatus(1);
+        task.setTaskRealStartTime(LocalDateTime.now());
+
+        //如果是瞬时任务，则直接结束
+        if (Math.abs(task.getTaskStartTime().toEpochSecond(ZoneOffset.UTC) - task.getTaskPredictedFinishTime().toEpochSecond(ZoneOffset.UTC)) < 10000){
+            task.setTaskStatus(2);
+            task.setTaskRealFinishTime(task.getTaskRealStartTime());
+        }
         didaTaskMapper.updateById(task);
     }
 
@@ -182,6 +189,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         task.setTaskPredictedFinishTime(predictedFinishTime);
         task.setTaskRemindTime(startTime.minusMinutes(task.getTaskAdvanceRemindTime()));
         task.setTaskFormId(formId);
+        task.setTaskDelayTimes(task.getTaskDelayTimes() + 1);
 
         /*
                         暂时不需要
@@ -227,7 +235,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         }
 
 
-        LocalDateTime startTime = didaTask.getTaskStartTime();
+        LocalDateTime startTime = didaTask.getTaskRealStartTime();
         LocalDateTime finishTime = LocalDateTime.now();
 
         //计算花费时间
@@ -265,9 +273,11 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         //修改任务表
         didaTask.setTaskId(null);
         didaTask.setTaskFormId(formId);
+        didaTask.setTaskRealStartTime(null);
         didaTask.setTaskRealFinishTime(null);
         didaTask.setTaskConsumedTime(null);
         didaTask.setTaskStatus(0);
+        didaTask.setTaskDelayTimes(0);
 
         //判断频率
         switch (didaTask.getTaskRate()){

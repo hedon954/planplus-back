@@ -29,6 +29,8 @@ public class DidaUserRequestVo implements Serializable {
 
     private Integer userId;
 
+    private String userAvatarUrl;
+
 
 
 }

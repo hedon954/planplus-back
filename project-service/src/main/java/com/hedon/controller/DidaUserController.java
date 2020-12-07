@@ -139,7 +139,7 @@ public class DidaUserController {
     @PutMapping("/info")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseBean updateUserInfo(@AuthenticationPrincipal(expression = "#this.userId")Integer userId,@RequestBody DidaUserRequestVo didaUserRequestVo) throws JsonProcessingException {
-        DidaUser didaUser = new DidaUser();
+        DidaUser didaUser = didaUserService.getUserById(userId);
         //从前端传输的对象中复制属性
         BeanUtils.copyProperties(didaUserRequestVo,didaUser);
         //设置用户id
