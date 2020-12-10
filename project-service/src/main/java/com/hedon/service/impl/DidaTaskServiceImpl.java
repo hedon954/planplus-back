@@ -144,7 +144,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         task.setTaskRealStartTime(LocalDateTime.now());
 
         //如果是瞬时任务，则直接结束
-        if (Math.abs(task.getTaskStartTime().toEpochSecond(ZoneOffset.UTC) - task.getTaskPredictedFinishTime().toEpochSecond(ZoneOffset.UTC)) < 10000){
+        if (Math.abs(task.getTaskStartTime().toEpochSecond(ZoneOffset.UTC) - task.getTaskPredictedFinishTime().toEpochSecond(ZoneOffset.UTC)) < 10){
             task.setTaskStatus(2);
             task.setTaskRealFinishTime(task.getTaskRealStartTime());
         }
@@ -792,6 +792,10 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
             map.put("finishTime",finishTime);
             map.put("timeStr",timeStr);
         }
+        //"十"->"10"的话 length 会加1，这里需要去掉
+        if (sentence.contains("十")){
+            map.put("timeStr",StringUtils.replaceOnce(map.get("timeStr").toString(),"10","十"));
+        }
         return map;
     }
 
@@ -841,8 +845,8 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         for (Term term: terms){
             String s = term.toString();
             String[] split = s.split("/");
-            //先找找看有没有"在"
-            if (StringUtils.equals(split[0],"在")){
+            //先找找看有没有"在"或者"去"
+            if (StringUtils.equals(split[0],"在") || StringUtils.equals(split[0],"去")){
                 addressStart = term.getOffe();
                 index ++;
                 break;
