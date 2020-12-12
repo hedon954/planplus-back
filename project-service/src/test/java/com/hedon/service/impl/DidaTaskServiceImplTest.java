@@ -70,7 +70,7 @@ public class DidaTaskServiceImplTest {
      */
     @Test
     public void testStartTask() {
-        didaTaskService.startTask(17, 1);
+        didaTaskService.startTask(17, 1,"formId");
     }
 
     /**
@@ -110,7 +110,7 @@ public class DidaTaskServiceImplTest {
         requestVo.setTaskStartTime(LocalDateTime.now());
         requestVo.setTaskPredictedFinishTime(LocalDateTime.now().plusHours(2));
         requestVo.setTaskAdvanceRemindTime(30);
-        didaTaskService.modifyTask(17, 1, requestVo);
+        didaTaskService.modifyTask(17, 1, requestVo,requestVo.getTaskFormId());
     }
 
     /**

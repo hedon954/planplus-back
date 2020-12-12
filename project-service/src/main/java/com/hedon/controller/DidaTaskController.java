@@ -103,11 +103,14 @@ public class DidaTaskController {
     @ApiOperation(value = "接口2.1.2.2 开始任务", httpMethod = "PUT")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "taskId", value = "任务ID", dataType = "Integer", paramType = "path", required = true),
-            @ApiImplicitParam(name = "userId", value = "用户ID", dataType = "Integer", paramType = "query", required = true)
+            @ApiImplicitParam(name = "userId", value = "用户ID", dataType = "Integer", paramType = "query", required = true),
+            @ApiImplicitParam(name = "formId", value = "订阅ID", dataType = "String", paramType = "query", required = true)
     })
     @PutMapping("/start/{taskId}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseBean startTask(@PathVariable("taskId") Integer taskId, @AuthenticationPrincipal(expression = "#this.userId") Integer userId) {
+    public ResponseBean startTask(@PathVariable("taskId") Integer taskId,
+                                  @AuthenticationPrincipal(expression = "#this.userId") Integer userId,
+                                  @RequestParam("formId")String formId) {
         //判断userId是否为空
         if(userId == null) {
             return ResponseBean.fail(ResultCode.EMPTY_USER_ID);
@@ -119,7 +122,7 @@ public class DidaTaskController {
 
         //开始任务
         try {
-            didaTaskService.startTask(taskId, userId);
+            didaTaskService.startTask(taskId, userId, formId);
         } catch (ServiceException e) {
             return e.getFailResponse();
         }
@@ -275,7 +278,7 @@ public class DidaTaskController {
         Map<String,Object> map = new HashMap<>();
         //修改任务内容
         try {
-            didaTaskService.modifyTask(taskId, userId, taskInfo);
+            didaTaskService.modifyTask(taskId, userId, taskInfo, taskInfo.getTaskFormId());
             map.put("subScribeId",UUID.randomUUID().toString().substring(0,30));
         } catch (ServiceException e) {
             return e.getFailResponse();
