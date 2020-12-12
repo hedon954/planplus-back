@@ -50,8 +50,9 @@ public interface IDidaTaskService extends IService<DidaTask> {
      * @create 2020-10-29 11:30
      * @param taskId
      * @param userId
+     * @param formId
      */
-    void startTask(Integer taskId, Integer userId);
+    void startTask(Integer taskId, Integer userId, String formId);
 
     /**
      * 推迟任务，修改任务开始时间、预计结束时间
@@ -83,8 +84,9 @@ public interface IDidaTaskService extends IService<DidaTask> {
      * @param taskId
      * @param userId
      * @param taskInfo
+     * @param formId
      */
-    void modifyTask(Integer taskId, Integer userId, DidaTaskRequestVo taskInfo);
+    void modifyTask(Integer taskId, Integer userId, DidaTaskRequestVo taskInfo, String formId);
 
     /**
      * 按状态查询任务

@@ -15,7 +15,6 @@ import common.mapper.DidaUserMapper;
 import common.mapper.DidaUserTaskMapper;
 import common.util.timenlp.nlp.TimeNormalizer;
 import common.util.timenlp.nlp.TimeUnit;
-import common.util.timenlp.util.StringUtil;
 import common.vo.common.ResponseBean;
 import common.vo.request.DidaTaskRequestVo;
 import common.vo.request.DidaTaskSentenceRequestVo;
@@ -32,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -123,9 +123,10 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
      * @create 2020-10-29 11:30
      * @param taskId
      * @param userId
+     * @param formId
      */
     @Override
-    public void startTask(Integer taskId, Integer userId) {
+    public void startTask(Integer taskId, Integer userId, String formId) {
 
         /**
          * 判断任务和用户是否匹配，
@@ -149,8 +150,194 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
             task.setTaskRealFinishTime(task.getTaskRealStartTime());
         }
         didaTaskMapper.updateById(task);
+
+        /**
+         * 判断任务频率
+         * 若任务仅执行一次，则写任务结束时间；
+         * 若任务执行多次，则按频率推迟任务开始时间和提前提醒时间
+         */
+        generateTask(task, userId, formId);
     }
 
+    /**
+     * 迭代任务
+     *
+     * @param didaTask
+     * @param userId
+     */
+    @Transactional()
+    public void generateTask(DidaTask didaTask, Integer userId, String formId) {
+
+        //修改任务表
+        didaTask.setTaskId(null);
+        didaTask.setTaskFormId(formId);
+        didaTask.setTaskRealStartTime(null);
+        didaTask.setTaskRealFinishTime(null);
+        didaTask.setTaskConsumedTime(null);
+        didaTask.setTaskStatus(0);
+        didaTask.setTaskDelayTimes(0);
+
+        //判断频率
+        switch (didaTask.getTaskRate()){
+            //每天 -> 创建后天的任务
+            case 1:
+                setTomorrowTaskFormId(didaTask,formId);
+                didaTask.setTaskStartTime(didaTask.getTaskStartTime().plusDays(2));
+                didaTask.setTaskPredictedFinishTime(didaTask.getTaskPredictedFinishTime().plusDays(2));
+                didaTask.setTaskRemindTime(didaTask.getTaskStartTime().minusMinutes(didaTask.getTaskAdvanceRemindTime()));
+                break;
+            //每周
+            case 2:
+                didaTask.setTaskStartTime(didaTask.getTaskStartTime().plusWeeks(1));
+                didaTask.setTaskPredictedFinishTime(didaTask.getTaskPredictedFinishTime().plusWeeks(1));
+                didaTask.setTaskRemindTime(didaTask.getTaskStartTime().minusMinutes(didaTask.getTaskAdvanceRemindTime()));
+                break;
+            //每月
+            case 3:
+                didaTask.setTaskStartTime(didaTask.getTaskStartTime().plusMonths(1));
+                didaTask.setTaskPredictedFinishTime(didaTask.getTaskPredictedFinishTime().plusMonths(1));
+                didaTask.setTaskRemindTime(didaTask.getTaskStartTime().minusMinutes(didaTask.getTaskAdvanceRemindTime()));
+                break;
+            default:
+                return;
+        }
+
+        didaTaskMapper.insert(didaTask);
+
+        //获取新建任务的taskId
+        Integer taskId = didaTask.getTaskId();
+
+        //修改用户任务表
+        DidaUserTask didaUserTask = new DidaUserTask();
+        didaUserTask.setDidaTaskId(taskId);
+        didaUserTask.setDidaUserId(userId);
+        didaUserTaskMapper.insert(didaUserTask);
+    }
+
+    /**
+     * 给迭代出来的明天的任务设置 FormId
+     *
+     * @author Jiahan Wang
+     * @create 2020.12.12
+     * @param didaTask
+     * @param formId
+     */
+    public void setTomorrowTaskFormId(DidaTask didaTask, String formId){
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String startDate = dtf.format(didaTask.getTaskStartTime().plusDays(1)).substring(0,10);
+        String startTime = dtf.format(didaTask.getTaskStartTime()).substring(10,19);
+        String finishDate = dtf.format(didaTask.getTaskPredictedFinishTime().plusDays(1)).substring(0,10);
+        String finishTime = dtf.format(didaTask.getTaskPredictedFinishTime()).substring(10,19);
+        QueryWrapper<DidaTask> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("task_content",didaTask.getTaskContent())
+                .eq("task_place",didaTask.getTaskPlace())
+                .likeLeft("task_start_time",startDate+startTime)
+                .likeLeft("task_predicted_finish_time",finishDate+finishTime);
+        List<DidaTask> didaTasks = didaTaskMapper.selectList(queryWrapper);
+        for (DidaTask didaTask1 :didaTasks){
+            didaTask1.setTaskFormId(formId);
+            didaTaskMapper.updateById(didaTask1);
+        }
+    }
+
+    /**
+     * 根据指定任务删除迭代出来的第二天的任务
+     *
+     * @author Jiahan Wang
+     * @create 2020.12.12
+     * @param didaTask
+     */
+    @Transactional()
+    public void deleteTomorrowTask(DidaTask didaTask){
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String startDate = dtf.format(didaTask.getTaskStartTime().plusDays(1)).substring(0,10);
+        String startTime = dtf.format(didaTask.getTaskStartTime()).substring(10,19);
+        String finishDate = dtf.format(didaTask.getTaskPredictedFinishTime().plusDays(1)).substring(0,10);
+        String finishTime = dtf.format(didaTask.getTaskPredictedFinishTime()).substring(10,19);
+        QueryWrapper<DidaTask> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("task_content",didaTask.getTaskContent())
+                .eq("task_place",didaTask.getTaskPlace())
+                .likeLeft("task_start_time",startDate+startTime)
+                .likeLeft("task_predicted_finish_time",finishDate+finishTime);
+        List<DidaTask> didaTasks = didaTaskMapper.selectList(queryWrapper);
+        for (DidaTask didaTask1: didaTasks){
+            didaTaskMapper.deleteById(didaTask1.getTaskId());
+            //修改用户任务表
+            QueryWrapper<DidaUserTask> queryWrapper1 = new QueryWrapper();
+            queryWrapper1.eq("dida_task_id", didaTask1.getTaskId());
+            didaUserTaskMapper.delete(queryWrapper1);
+        }
+    }
+
+    /**
+     * 迭代出明天的任务
+     *
+     * @author Jiahan Wang
+     * @create 2020.12.12
+     * @param didaTask
+     * @param userId
+     * @param formId
+     */
+    @Transactional()
+    public void generateTomorrowTask(DidaTask didaTask, Integer userId, String formId) {
+
+        //修改任务表
+        didaTask.setTaskId(null);
+        didaTask.setTaskFormId(formId);
+        didaTask.setTaskRealStartTime(null);
+        didaTask.setTaskRealFinishTime(null);
+        didaTask.setTaskConsumedTime(null);
+        didaTask.setTaskStatus(0);
+        didaTask.setTaskDelayTimes(0);
+        didaTask.setTaskStartTime(didaTask.getTaskStartTime().plusDays(1));
+        didaTask.setTaskPredictedFinishTime(didaTask.getTaskPredictedFinishTime().plusDays(1));
+        didaTask.setTaskRemindTime(didaTask.getTaskStartTime().minusMinutes(didaTask.getTaskAdvanceRemindTime()));
+
+        didaTaskMapper.insert(didaTask);
+
+        //获取新建任务的taskId
+        Integer taskId = didaTask.getTaskId();
+
+        //修改用户任务表
+        DidaUserTask didaUserTask = new DidaUserTask();
+        didaUserTask.setDidaTaskId(taskId);
+        didaUserTask.setDidaUserId(userId);
+        didaUserTaskMapper.insert(didaUserTask);
+    }
+
+    /**
+     * "每天"类型的任务修改的时候，同步修改第二天的
+     *
+     * @author Jiahan Wang
+     * @create 2020.12.12
+     * @param didaTask
+     * @param taskInfo
+     */
+    public void synchronizeTomorrowTask(DidaTask didaTask, DidaTaskRequestVo taskInfo) {
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String startDate = dtf.format(didaTask.getTaskStartTime().plusDays(1)).substring(0,10);
+        String startTime = dtf.format(didaTask.getTaskStartTime()).substring(10,19);
+        String finishDate = dtf.format(didaTask.getTaskPredictedFinishTime().plusDays(1)).substring(0,10);
+        String finishTime = dtf.format(didaTask.getTaskPredictedFinishTime()).substring(10,19);
+        QueryWrapper<DidaTask> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("task_content",didaTask.getTaskContent())
+                .eq("task_place",didaTask.getTaskPlace())
+                .likeLeft("task_start_time",startDate+startTime)
+                .likeLeft("task_predicted_finish_time",finishDate+finishTime);
+        List<DidaTask> didaTasks = didaTaskMapper.selectList(queryWrapper);
+        for (DidaTask task: didaTasks){
+            task.setTaskContent(taskInfo.getTaskContent());
+            task.setTaskPlace(taskInfo.getTaskPlace());
+            task.setTaskStartTime(taskInfo.getTaskStartTime().plusDays(1));
+            task.setTaskPredictedFinishTime(taskInfo.getTaskPredictedFinishTime().plusDays(1));
+            task.setTaskAdvanceRemindTime(taskInfo.getTaskAdvanceRemindTime());
+            task.setTaskRemindTime(task.getTaskStartTime().minusMinutes(taskInfo.getTaskAdvanceRemindTime()));
+            task.setTaskRate(taskInfo.getTaskRate());
+            didaTaskMapper.updateById(task);
+        }
+
+    }
 
     /**
      * 推迟任务，修改任务开始时间、预计结束时间
@@ -177,6 +364,11 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
             throw new ServiceException(ResultCode.TASK_NOT_EXIST);
         }
 
+        //如果是"每天"类型的任务，需要提前修改第二天的formId
+        if (task.getTaskRate() == 1){
+            setTomorrowTaskFormId(task,formId);
+        }
+
         LocalDateTime startTime = task.getTaskStartTime();
         LocalDateTime predictedFinishTime = task.getTaskPredictedFinishTime();
 
@@ -188,7 +380,6 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         task.setTaskStartTime(startTime);
         task.setTaskPredictedFinishTime(predictedFinishTime);
         task.setTaskRemindTime(startTime.minusMinutes(task.getTaskAdvanceRemindTime()));
-        task.setTaskFormId(formId);
         task.setTaskDelayTimes(task.getTaskDelayTimes() + 1);
 
         /*
@@ -252,69 +443,9 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         didaTask.setTaskStatus(2);
         didaTaskMapper.updateById(didaTask);
 
-        /**
-         * 判断任务频率
-         * 若任务仅执行一次，则写任务结束时间；
-         * 若任务执行多次，则按频率推迟任务开始时间和提前提醒时间
-         */
-        generateTask(didaTask, userId, formId);
-
     }
 
-    /**
-     * 迭代任务
-     *
-     * @param didaTask
-     * @param userId
-     */
-    @Transactional
-    public void generateTask(DidaTask didaTask, Integer userId, String formId) {
 
-        //修改任务表
-        didaTask.setTaskId(null);
-        didaTask.setTaskFormId(formId);
-        didaTask.setTaskRealStartTime(null);
-        didaTask.setTaskRealFinishTime(null);
-        didaTask.setTaskConsumedTime(null);
-        didaTask.setTaskStatus(0);
-        didaTask.setTaskDelayTimes(0);
-
-        //判断频率
-        switch (didaTask.getTaskRate()){
-            //每天
-            case 1:
-                didaTask.setTaskStartTime(didaTask.getTaskStartTime().plusDays(1));
-                didaTask.setTaskPredictedFinishTime(didaTask.getTaskPredictedFinishTime().plusDays(1));
-                didaTask.setTaskRemindTime(didaTask.getTaskStartTime().minusMinutes(didaTask.getTaskAdvanceRemindTime()));
-                break;
-            //每周
-            case 2:
-                didaTask.setTaskStartTime(didaTask.getTaskStartTime().plusWeeks(1));
-                didaTask.setTaskPredictedFinishTime(didaTask.getTaskPredictedFinishTime().plusWeeks(1));
-                didaTask.setTaskRemindTime(didaTask.getTaskStartTime().minusMinutes(didaTask.getTaskAdvanceRemindTime()));
-                break;
-            //每月
-            case 3:
-                didaTask.setTaskStartTime(didaTask.getTaskStartTime().plusMonths(1));
-                didaTask.setTaskPredictedFinishTime(didaTask.getTaskPredictedFinishTime().plusMonths(1));
-                didaTask.setTaskRemindTime(didaTask.getTaskStartTime().minusMinutes(didaTask.getTaskAdvanceRemindTime()));
-                break;
-            default:
-                return;
-        }
-
-        didaTaskMapper.insert(didaTask);
-
-        //获取新建任务的taskId
-        Integer taskId = didaTask.getTaskId();
-
-        //修改用户任务表
-        DidaUserTask didaUserTask = new DidaUserTask();
-        didaUserTask.setDidaTaskId(taskId);
-        didaUserTask.setDidaUserId(userId);
-        didaUserTaskMapper.insert(didaUserTask);
-
-    }
 
 
     /**
@@ -325,9 +456,10 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
      * @param taskId
      * @param userId
      * @param taskInfo
+     * @param formId
      */
     @Override
-    public void modifyTask(Integer taskId, Integer userId, DidaTaskRequestVo taskInfo) {
+    public void modifyTask(Integer taskId, Integer userId, DidaTaskRequestVo taskInfo, String formId) {
 
         log.info("正在修改任务，修改前：({})",taskInfo);
 
@@ -362,14 +494,32 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         }
          */
 
+        //修改频率的时候需要注意删除或者增加迭代的任务
+        Integer oldTaskRate = task.getTaskRate();
+        boolean needGenerateTomorrowTask = false;
+        if (!oldTaskRate.equals(taskInfo.getTaskRate())){
+            //频率发生改变，但是之前是每天，这样的话就要删除迭代出来的"明天"的任务
+            if (oldTaskRate == 1){
+                deleteTomorrowTask(task);
+            }
+            //频率发送改变，现在是每天，说明之前不是每天，需要迭代出"明天"的任务
+            if (taskInfo.getTaskRate() == 1){
+                needGenerateTomorrowTask = true;
+            }
+        }
+
+        //如果之前的频率就是每天，现在也是每天，则需要同步更改
+        if (oldTaskRate == 1 && taskInfo.getTaskRate() == 1){
+            synchronizeTomorrowTask(task,taskInfo);
+        }
+
         task.setTaskContent(taskInfo.getTaskContent());
         task.setTaskPlace(taskInfo.getTaskPlace());
-        task.setTaskRate(taskInfo.getTaskRate());
         task.setTaskStartTime(taskInfo.getTaskStartTime());
         task.setTaskPredictedFinishTime(taskInfo.getTaskPredictedFinishTime());
         task.setTaskAdvanceRemindTime(taskInfo.getTaskAdvanceRemindTime());
         task.setTaskRemindTime(taskInfo.getTaskStartTime().minusMinutes(taskInfo.getTaskAdvanceRemindTime()));
-
+        task.setTaskRate(taskInfo.getTaskRate());
         /*
         //发送通知
         if (needNotify){
@@ -381,12 +531,17 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         }
          */
 
-
         //更新数据库
         didaTaskMapper.updateById(task);
 
+        if (needGenerateTomorrowTask){
+            generateTomorrowTask(task,userId,formId);
+        }
+
         log.info("修改任务完毕，修改后：({})",task);
     }
+
+
 
 
     /**
@@ -845,8 +1000,8 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         for (Term term: terms){
             String s = term.toString();
             String[] split = s.split("/");
-            //先找找看有没有"在"或者"去"
-            if (StringUtils.equals(split[0],"在") || StringUtils.equals(split[0],"去")){
+            //先找找看有没有"在"
+            if (StringUtils.equals(split[0],"在")){
                 addressStart = term.getOffe();
                 index ++;
                 break;
