@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -139,10 +140,14 @@ public class DidaUserController {
      */
     @PutMapping("/info")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseBean updateUserInfo(@AuthenticationPrincipal(expression = "#this.userId")Integer userId,@RequestBody DidaUserRequestVo didaUserRequestVo) throws JsonProcessingException {
+    public ResponseBean updateUserInfo(@AuthenticationPrincipal(expression = "#this.userId")Integer userId,
+                                       @RequestBody DidaUserRequestVo didaUserRequestVo){
         DidaUser didaUser = didaUserService.getUserById(userId);
         //从前端传输的对象中复制属性
-        BeanUtils.copyProperties(didaUserRequestVo,didaUser);
+        didaUser.setUserNickname(didaUserRequestVo.getUserNickname());
+        didaUser.setUserBirthday(didaUserRequestVo.getUserBirthday());
+        didaUser.setUserGender(didaUserRequestVo.getUserGender());
+        didaUser.setUserAvatarUrl(didaUserRequestVo.getUserAvatarUrl());
         //只要用户修改过信息，那一定是同步过百度信息的
         didaUser.setUserHasBaiduInfo(1);
         try{
