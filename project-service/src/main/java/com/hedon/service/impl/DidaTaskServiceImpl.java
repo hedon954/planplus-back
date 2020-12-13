@@ -231,8 +231,10 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         QueryWrapper<DidaTask> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("task_content",didaTask.getTaskContent())
                 .eq("task_place",didaTask.getTaskPlace())
-                .likeLeft("task_start_time",startDate+startTime)
-                .likeLeft("task_predicted_finish_time",finishDate+finishTime);
+                .likeRight("task_start_time",startDate+startTime)
+                .likeRight("task_predicted_finish_time",finishDate+finishTime);
+        System.out.println("开始：" + startDate + startTime);
+        System.out.println("结束：" + finishDate + finishTime);
         List<DidaTask> didaTasks = didaTaskMapper.selectList(queryWrapper);
         for (DidaTask didaTask1 :didaTasks){
             didaTask1.setTaskFormId(formId);
@@ -249,6 +251,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
      */
     @Transactional()
     public void deleteTomorrowTask(DidaTask didaTask){
+        log.info("正在删除迭代出来的第二天的任务");
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String startDate = dtf.format(didaTask.getTaskStartTime().plusDays(1)).substring(0,10);
         String startTime = dtf.format(didaTask.getTaskStartTime()).substring(10,19);
@@ -257,8 +260,10 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         QueryWrapper<DidaTask> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("task_content",didaTask.getTaskContent())
                 .eq("task_place",didaTask.getTaskPlace())
-                .likeLeft("task_start_time",startDate+startTime)
-                .likeLeft("task_predicted_finish_time",finishDate+finishTime);
+                .likeRight("task_start_time",startDate+startTime)
+                .likeRight("task_predicted_finish_time",finishDate+finishTime);
+        System.out.println("开始：" + startDate + startTime);
+        System.out.println("结束：" + finishDate + finishTime);
         List<DidaTask> didaTasks = didaTaskMapper.selectList(queryWrapper);
         for (DidaTask didaTask1: didaTasks){
             didaTaskMapper.deleteById(didaTask1.getTaskId());
@@ -280,7 +285,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
      */
     @Transactional()
     public void generateTomorrowTask(DidaTask didaTask, Integer userId, String formId) {
-
+        log.info("正在迭代\"明天\"的任务");
         //修改任务表
         didaTask.setTaskId(null);
         didaTask.setTaskFormId(formId);
@@ -314,7 +319,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
      * @param taskInfo
      */
     public void synchronizeTomorrowTask(DidaTask didaTask, DidaTaskRequestVo taskInfo) {
-
+        log.info("正在同步\"每天\"类型的任务");
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String startDate = dtf.format(didaTask.getTaskStartTime().plusDays(1)).substring(0,10);
         String startTime = dtf.format(didaTask.getTaskStartTime()).substring(10,19);
@@ -323,8 +328,8 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         QueryWrapper<DidaTask> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("task_content",didaTask.getTaskContent())
                 .eq("task_place",didaTask.getTaskPlace())
-                .likeLeft("task_start_time",startDate+startTime)
-                .likeLeft("task_predicted_finish_time",finishDate+finishTime);
+                .likeRight("task_start_time",startDate+startTime)
+                .likeRight("task_predicted_finish_time",finishDate+finishTime);
         List<DidaTask> didaTasks = didaTaskMapper.selectList(queryWrapper);
         for (DidaTask task: didaTasks){
             task.setTaskContent(taskInfo.getTaskContent());

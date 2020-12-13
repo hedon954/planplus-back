@@ -57,6 +57,8 @@ public class DidaUser implements Serializable {
 
     private String userUnionId;
 
+    private Integer userHasBaiduInfo;
+
     private Integer isNewUser;
 
     public DidaUser(){
@@ -64,6 +66,7 @@ public class DidaUser implements Serializable {
         this.userBirthday = LocalDateTime.now();
         this.userNickname = "新用户";
         this.userAvatarUrl = assignAvatarRandom();
+        this.userHasBaiduInfo = 0;
         this.isNewUser = 1;
     }
 

@@ -38,6 +38,8 @@ public class DidaUserResponseVo implements Serializable {
 
     private String userAvatarUrl;
 
+    private Integer userHasBaiduInfo;
+
     private Integer isNewUser;
 
     /**

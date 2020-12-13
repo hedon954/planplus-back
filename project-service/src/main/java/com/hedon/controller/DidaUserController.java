@@ -143,8 +143,8 @@ public class DidaUserController {
         DidaUser didaUser = didaUserService.getUserById(userId);
         //从前端传输的对象中复制属性
         BeanUtils.copyProperties(didaUserRequestVo,didaUser);
-        //设置用户id
-        didaUser.setUserId(userId);
+        //只要用户修改过信息，那一定是同步过百度信息的
+        didaUser.setUserHasBaiduInfo(1);
         try{
             didaUserService.updateUserInfoById(didaUser);
             return ResponseBean.success();
