@@ -16,13 +16,11 @@ public class TestTimeNlp {
         TimeNormalizer normalizer = new TimeNormalizer(url.toURI().toString());
         normalizer.setPreferFuture(true);
 
-        normalizer.parse("今天晚上九点到十点去食堂吃饭");// 抽取时间
+        normalizer.parse("明天晚上九点做浮雕ppt");// 抽取时间
         TimeUnit[] unit = normalizer.getTimeUnit();
-        System.out.println("今天晚上九点到十点去食堂吃饭");
+        System.out.println("明天晚上九点做浮雕ppt");
         System.out.println(unit[0].Time_Expression);
         System.out.println(DateUtil.formatDateDefault(unit[0].getTime()) + "-" + unit[0].getIsAllDayTime());
-        System.out.println(unit[1].Time_Expression);
-        System.out.println(DateUtil.formatDateDefault(unit[1].getTime()) + "-" + unit[1].getIsAllDayTime());
 
         normalizer.parse("Hi，all.下周一下午开会");// 抽取时间
         unit = normalizer.getTimeUnit();

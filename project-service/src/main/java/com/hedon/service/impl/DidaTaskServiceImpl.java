@@ -1033,8 +1033,8 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
             //找到第2个动词，或者是"在"后面的动词
             if (StringUtils.equals(split[1],"v")){
                 //不要第一个动词 —— 那是地址的
+                contentStart = term.getOffe();
                 if (index!=0){
-                    contentStart = term.getOffe();
                     break;
                 }
                 index++;
@@ -1073,7 +1073,12 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         String content = s1.substring(contentStart);
         map.put("content",content);
         //第一个动词v(或"在") - 第二个动词v/vn 这个区间就是地址内容
-        String address = s1.substring(addressStart+1,contentStart);
+        String address;
+        if (index <=1 ){
+            address = s1.substring(addressStart,contentStart);
+        }else{
+            address = s1.substring(addressStart+1,contentStart);
+        }
         map.put("address",address);
         return map;
     }

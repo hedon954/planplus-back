@@ -30,6 +30,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 登录、鉴权相关的控制器
@@ -80,8 +82,10 @@ public class LoginController {
     @PostMapping("/checkLogin")
     @PreAuthorize(("hasAuthority('ROLE_ADMIN')"))
     public ResponseBean checkLogin(@AuthenticationPrincipal(expression = "#this.userId") Integer userId){
-        System.out.println("user is :" + userId);
-        return ResponseBean.success(userId);
+        DidaUser didaUser = didaUserService.getUserById(userId);
+        Map<String,Object> map = new HashMap<>();
+        map.put("new",didaUser.getIsNewUser());
+        return ResponseBean.success(map);
     }
 
 
