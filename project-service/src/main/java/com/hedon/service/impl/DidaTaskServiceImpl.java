@@ -15,6 +15,7 @@ import common.mapper.DidaUserMapper;
 import common.mapper.DidaUserTaskMapper;
 import common.util.timenlp.nlp.TimeNormalizer;
 import common.util.timenlp.nlp.TimeUnit;
+import common.util.timenlp.util.StringUtil;
 import common.vo.common.ResponseBean;
 import common.vo.request.DidaTaskRequestVo;
 import common.vo.request.DidaTaskSentenceRequestVo;
@@ -143,6 +144,7 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
 
         task.setTaskStatus(1);
         task.setTaskRealStartTime(LocalDateTime.now());
+        task.setTaskFormId(formId);
 
         //如果是瞬时任务，则直接结束
         if (Math.abs(task.getTaskStartTime().toEpochSecond(ZoneOffset.UTC) - task.getTaskPredictedFinishTime().toEpochSecond(ZoneOffset.UTC)) < 10){
@@ -233,8 +235,6 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
                 .eq("task_place",didaTask.getTaskPlace())
                 .likeRight("task_start_time",startDate+startTime)
                 .likeRight("task_predicted_finish_time",finishDate+finishTime);
-        System.out.println("开始：" + startDate + startTime);
-        System.out.println("结束：" + finishDate + finishTime);
         List<DidaTask> didaTasks = didaTaskMapper.selectList(queryWrapper);
         for (DidaTask didaTask1 :didaTasks){
             didaTask1.setTaskFormId(formId);
@@ -262,8 +262,6 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
                 .eq("task_place",didaTask.getTaskPlace())
                 .likeRight("task_start_time",startDate+startTime)
                 .likeRight("task_predicted_finish_time",finishDate+finishTime);
-        System.out.println("开始：" + startDate + startTime);
-        System.out.println("结束：" + finishDate + finishTime);
         List<DidaTask> didaTasks = didaTaskMapper.selectList(queryWrapper);
         for (DidaTask didaTask1: didaTasks){
             didaTaskMapper.deleteById(didaTask1.getTaskId());
@@ -448,9 +446,82 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         didaTask.setTaskStatus(2);
         didaTaskMapper.updateById(didaTask);
 
+        //给迭代出来的任务设置formId
+        setGenerateTasksFormId(didaTask,formId);
+
     }
 
+    /**
+     * 给迭代出来的任务设置formId
+     *
+     * @author Jiahan Wang
+     * @create 2020.12.16
+     * @param didaTask
+     * @param formId
+     */
+    public void setGenerateTasksFormId(DidaTask didaTask, String formId) {
+        //如果频率等于1，则要更新明天和后天的 formId
+        if (didaTask.getTaskRate() == 1){
+            updateGenerateTasksFormIdByDay(didaTask,formId,1);
+            updateGenerateTasksFormIdByDay(didaTask,formId,2);
+        }else if (didaTask.getTaskRate() == 2){
+            updateGenerateTasksFormIdByDay(didaTask,formId,7);
+        }else if (didaTask.getTaskRate() == 3){
+            updateGenerateTasksFormIdByMonth(didaTask,formId,1);
+        }
+    }
 
+    /**
+     * 给迭代出来的任务设置formId —— 按天
+     *
+     * @author Jiahan Wang
+     * @create 2020.12.16
+     * @param didaTask
+     * @param formId
+     */
+    public void updateGenerateTasksFormIdByDay(DidaTask didaTask, String formId, int days){
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String startDate = dtf.format(didaTask.getTaskStartTime().plusDays(days)).substring(0,10);
+        String startTime = dtf.format(didaTask.getTaskStartTime()).substring(10,19);
+        String finishDate = dtf.format(didaTask.getTaskPredictedFinishTime().plusDays(days)).substring(0,10);
+        String finishTime = dtf.format(didaTask.getTaskPredictedFinishTime()).substring(10,19);
+        QueryWrapper<DidaTask> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("task_content",didaTask.getTaskContent())
+                .eq("task_place",didaTask.getTaskPlace())
+                .likeRight("task_start_time",startDate+startTime)
+                .likeRight("task_predicted_finish_time",finishDate+finishTime);
+        List<DidaTask> didaTasks = didaTaskMapper.selectList(queryWrapper);
+        for (DidaTask didaTask1 :didaTasks){
+            didaTask1.setTaskFormId(formId);
+            didaTaskMapper.updateById(didaTask1);
+        }
+    }
+
+    /**
+     * 给迭代出来的任务设置formId —— 按月
+     *
+     * @author Jiahan Wang
+     * @create 2020.12.16
+     * @param didaTask
+     * @param formId
+     */
+    public void updateGenerateTasksFormIdByMonth(DidaTask didaTask, String formId, int months){
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String startDate = dtf.format(didaTask.getTaskStartTime().plusMonths(months)).substring(0,10);
+        String startTime = dtf.format(didaTask.getTaskStartTime()).substring(10,19);
+        String finishDate = dtf.format(didaTask.getTaskPredictedFinishTime().plusMonths(months)).substring(0,10);
+        String finishTime = dtf.format(didaTask.getTaskPredictedFinishTime()).substring(10,19);
+        QueryWrapper<DidaTask> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("task_content",didaTask.getTaskContent())
+                .eq("task_place",didaTask.getTaskPlace())
+                .likeRight("task_start_time",startDate+startTime)
+                .likeRight("task_predicted_finish_time",finishDate+finishTime);
+        List<DidaTask> didaTasks = didaTaskMapper.selectList(queryWrapper);
+        for (DidaTask didaTask1 :didaTasks){
+            didaTask1.setTaskFormId(formId);
+            didaTaskMapper.updateById(didaTask1);
+        }
+    }
 
 
     /**
@@ -1001,19 +1072,42 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         //索引值，用来粗略估计哪个动词是地址的，哪个动词是任务内容的
         int index = 0;
 
+        //标记第一个动词或者"在"后面有没有名词，如果有的话，那就是地点
+        boolean hasN = false;
+        int nIndex = -1;
+        boolean hasV = false;
+
         //遍历结果 —— 先找地址起始点
-        for (Term term: terms){
-            String s = term.toString();
+        for (int i = 0; i < terms.size(); i++) {
+            String s = terms.get(i).toString();
             String[] split = s.split("/");
             //先找找看有没有"在"
             if (StringUtils.equals(split[0],"在")){
-                addressStart = term.getOffe();
+                addressStart = terms.get(i).getOffe();
                 index ++;
+                //判断后面是不是名词
+                if (i<terms.size()-1){
+                    s = terms.get(i+1).toString();
+                    split = s.split("/");
+                    if (StringUtils.equals(split[1],"n")){
+                        hasN = true;
+                        nIndex = i+1;
+                    }
+                }
                 break;
             }
             //没有"在"就找到第一个动词
             if (StringUtils.equals(split[1],"v")){
-                addressStart = term.getOffe();
+                addressStart = terms.get(i).getOffe();
+                //检查后面是不是名词
+                if (i<terms.size()-1){
+                    s = terms.get(i+1).toString();
+                    split = s.split("/");
+                    if (StringUtils.equals(split[1],"n")){
+                        hasN = true;
+                        nIndex = i+1;
+                    }
+                }
                 break;
             }
         }
@@ -1030,16 +1124,38 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         for (Term term: terms){
             String s = term.toString();
             String[] split = s.split("/");
-            //找到第2个动词，或者是"在"后面的动词
-            if (StringUtils.equals(split[1],"v")){
-                //不要第一个动词 —— 那是地址的
-                contentStart = term.getOffe();
-                if (index!=0){
-                    break;
+
+            //如果没有名词
+            if (!hasN){
+                //找到第2个动词，或者是"在"后面的动词
+                if (StringUtils.equals(split[1],"v")){
+                    //不要第一个动词 —— 那是地址的
+                    if (index!=0){
+                        contentStart = term.getOffe();
+                        break;
+                    }
+                    hasV = true;
+                    index++;
                 }
-                index++;
+            }else{
+                //如果有名词，则vn就不会是地点
+                //找到第一个动名词
+                if (StringUtils.equals(split[1],"vn")){
+                    contentStart = term.getOffe();
+                    break;
+                //或者找到第二个动词或"在"后面的动词
+                }else if(StringUtils.equals(split[1],"v")){
+                    //不要第一个动词 —— 那是地址的
+                    if (index!=0){
+                        contentStart = term.getOffe();
+                        break;
+                    }
+                    hasV = true;
+                    index++;
+                }
             }
         }
+
         //动词找不到的话尝试找动名词 vn
         if (contentStart < 0){
             for (Term term: terms){
@@ -1065,19 +1181,37 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
             }
         }
 
+        //都找不到，但是有且只有一个v，那就后面全是任务内容
+        String content;
+        if (contentStart < 0 && hasV && index == 1){
+            map.put("content",s1);
+            map.put("address","");
+            return map;
+        }
+
         //如果还找不到，则抛出异常
         if (contentStart < 0){
-            throw new ServiceException("识别不到任务内容",ResultCode.TIMED_TASK_CREATE_FAILED);
+            throw new ServiceException("小程序还不太聪明哦~ \r\n识别不到您要创建的任务内容 T_T \r\n 请再以\"时间-地点-事件\"格式尝试一下！",ResultCode.TIMED_TASK_CREATE_FAILED);
         }
+
         //第二个动词 v/vn - end 这个区间就是任务内容
-        String content = s1.substring(contentStart);
+        content = s1.substring(contentStart);
         map.put("content",content);
-        //第一个动词v(或"在") - 第二个动词v/vn 这个区间就是地址内容
+
         String address;
-        if (index <=1 ){
-            address = s1.substring(addressStart,contentStart);
-        }else{
-            address = s1.substring(addressStart+1,contentStart);
+
+        //如果有名词，那么那个名词就是地点
+        if (hasN){
+            int offe = terms.get(nIndex).getOffe();
+            int length = terms.get(nIndex).toString().split("/")[0].length();
+            address = s1.substring(offe,offe+length);
+        }else {
+            //content之前的就是address
+            address = StringUtils.substringBefore(s1, content);
+            if (address.length() > 0){
+                //去掉第一个动词
+                address = address.substring(1);
+            }
         }
         map.put("address",address);
         return map;

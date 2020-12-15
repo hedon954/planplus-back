@@ -121,12 +121,15 @@ public class DidaTaskController {
         }
 
         //开始任务
+        Map<String,Object> map = new HashMap<>();
         try {
             didaTaskService.startTask(taskId, userId, formId);
+            //返回一个随机生成的订阅ID，便于前端发起订阅
+            map.put("subScribeId",UUID.randomUUID().toString().substring(0,30));
         } catch (ServiceException e) {
             return e.getFailResponse();
         }
-        return ResponseBean.success();
+        return ResponseBean.success(map);
     }
 
 
@@ -221,7 +224,7 @@ public class DidaTaskController {
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseBean finishTask(@PathVariable("taskId") Integer taskId,
                                    @AuthenticationPrincipal(expression = "#this.userId") Integer userId,
-                                   @RequestParam("fromId") String formId) {
+                                   @RequestParam("formId") String formId) {
         //判断userId是否为空
         if(userId == null) {
             return ResponseBean.fail(ResultCode.EMPTY_USER_ID);
@@ -232,12 +235,15 @@ public class DidaTaskController {
         }
 
         //结束任务
+        Map<String,Object> map = new HashMap<>();
         try {
             didaTaskService.finishTask(taskId, userId, formId);
+            //返回一个随机生成的订阅ID，便于前端发起订阅
+            map.put("subScribeId",UUID.randomUUID().toString().substring(0,30));
         } catch (ServiceException e) {
             return e.getFailResponse();
         }
-        return ResponseBean.success();
+        return ResponseBean.success(map);
     }
 
 

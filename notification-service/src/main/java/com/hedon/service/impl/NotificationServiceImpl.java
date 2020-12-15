@@ -36,6 +36,9 @@ import java.util.List;
 @Slf4j
 public class NotificationServiceImpl implements INotificationService {
 
+    private static final int START = 1;
+    private static final int FINISH = 2;
+
     private RestTemplate restTemplate = new RestTemplate();
 
     @Autowired
@@ -64,15 +67,15 @@ public class NotificationServiceImpl implements INotificationService {
 
 
     /**
-     * 每一分钟扫描一次：判断是否需要给用户发送通知
+     * 每一分钟扫描一次：判断是否需要给用户发送开始任务通知
      *
      * @author Jiahan Wang
      * @create 2020.11.26
      */
     @Override
     @Scheduled(cron = "0 * * * * *")
-    public void handleTimedTaskRemind(){
-        log.info("正在检测需要进行通知的任务......");
+    public void handleTimedTaskStartRemind(){
+        log.info("正在检测需要进行通知的即将开始任务......");
 
         //补充百度信息 access_token 和 token_time
         BaiduInfo planPlusInfo = baiduInfoService.getPlanPlusInfo();
@@ -109,11 +112,60 @@ public class NotificationServiceImpl implements INotificationService {
             dto.setSceneId(didaTask.getTaskFormId());
             dto.setTouserOpenId(didaUser.getUserOpenId());
             dto.setPage("/pages/modification/modification?taskId="+didaTask.getTaskId());
-            sendTimedTaskMsgToUser(dto,didaTask);
+            sendTimedTaskMsgToUser(dto,didaTask,START);
         }
 
     }
 
+    /**
+     * 每一分钟扫描一次：判断是否需要给用户发送结束任务通知
+     *
+     * @author Jiahan Wang
+     * @create 2020.12.16
+     */
+    @Override
+    @Scheduled(cron = "30 * * * * *")
+    public void handleTimedTaskFinishRemind() {
+        log.info("正在检测需要进行通知的已达完成时间的任务......");
+
+        //补充百度信息 access_token 和 token_time
+        BaiduInfo planPlusInfo = baiduInfoService.getPlanPlusInfo();
+        //检查 token 是否过期
+        if (planPlusInfo.tokenIsExpired()){
+            //如果过期，则重新获取 token
+            try{
+                getBaiduToken(planPlusInfo);
+            }catch (Exception e){
+                log.error("更新百度 token 失败，原因为为：({})",e.getMessage());
+                return;
+            }
+        }
+        //获取当前时间
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+        String nowStr = now.format(dtf);
+        nowStr = nowStr.substring(0,16);
+        QueryWrapper<DidaTask> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("task_status",0)
+                .likeRight("task_predicted_finish_time",nowStr);
+        List<DidaTask> didaTasks = didaTaskMapper.selectList(queryWrapper);
+        for (DidaTask didaTask: didaTasks){
+            //查询用户信息
+            Integer taskId = didaTask.getTaskId();
+            System.out.println("taskId = " + taskId);
+            QueryWrapper<DidaUserTask> queryWrapper1 = new QueryWrapper<>();
+            queryWrapper1.eq("dida_task_id",taskId);
+            DidaUserTask didaUserTask = didaUserTaskMapper.selectOne(queryWrapper1);
+            DidaUser didaUser = didaUserMapper.selectById(didaUserTask.getDidaUserId());
+            //封装dto
+            TaskNotificationDto dto = new TaskNotificationDto();
+            dto.setAccessToken(planPlusInfo.getAccessToken());
+            dto.setSceneId(didaTask.getTaskFormId());
+            dto.setTouserOpenId(didaUser.getUserOpenId());
+            dto.setPage("/pages/modification/modification?taskId="+didaTask.getTaskId());
+            sendTimedTaskMsgToUser(dto,didaTask,FINISH);
+        }
+    }
 
     /**
      * 发送通知给用户
@@ -123,7 +175,7 @@ public class NotificationServiceImpl implements INotificationService {
      * @param dto
      * @param didaTask
      */
-    private void sendTimedTaskMsgToUser(TaskNotificationDto dto, DidaTask didaTask) {
+    private void sendTimedTaskMsgToUser(TaskNotificationDto dto, DidaTask didaTask,int time) {
         try{
             //请求链接
             String sendTemplateMessageUrl = "https://openapi.baidu.com/rest/2.0/smartapp/template/send?access_token="+dto.getAccessToken();
@@ -134,7 +186,7 @@ public class NotificationServiceImpl implements INotificationService {
             MultiValueMap<String,Object> params = new LinkedMultiValueMap<>();
             params.add("template_id",dto.getTemplateId());
             params.add("touser_openId",dto.getTouserOpenId());
-            params.add("data",objectToJsonStr(didaTask));
+            params.add("data",objectToJsonStr(didaTask,time));
             params.add("scene_id",dto.getSceneId());
             params.add("scene_type",dto.getSceneType());
             params.add("page",dto.getPage());
@@ -195,7 +247,7 @@ public class NotificationServiceImpl implements INotificationService {
      * @param didaTask
      * @return
      */
-    private String objectToJsonStr(DidaTask didaTask) {
+    private String objectToJsonStr(DidaTask didaTask, int time) {
         String jsonStr = "";
         //参数1：日程描述
         jsonStr += "{\"keyword1\":{\"value\": \""+didaTask.getTaskContent()+"\"},";
@@ -205,8 +257,17 @@ public class NotificationServiceImpl implements INotificationService {
         jsonStr += "\"keyword3\":{\"value\": \""+didaTask.getTaskPredictedFinishTime()+"\"},";
         //参数4：日程地点
         jsonStr += "\"keyword4\":{\"value\": \""+didaTask.getTaskPlace()+"\"},";
-        //参数5：备注
-        jsonStr += "\"keyword5\":{\"value\": \""+"备注"+"\"}}";
+        if (time == START){
+            //参数5：开始任务的备注
+            jsonStr += "\"keyword5\":{\"value\": \""+"任务开始时间要到啦！进入小程序点击\"开始任务\"吧~"+"\"}}";
+        }else if (time == FINISH){
+            //参数5：结束任务的备注
+            jsonStr += "\"keyword5\":{\"value\": \""+"任务设定的完成时间到啦！完成任务的话进入小程序点击\"完成任务\"吧~"+"\"}}";
+        }else {
+            //参数5：备注
+            jsonStr += "\"keyword5\":{\"value\": \""+"备注"+"\"}}";
+        }
+
         return jsonStr;
     }
 }

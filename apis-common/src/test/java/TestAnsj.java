@@ -14,7 +14,7 @@ public class TestAnsj {
     public static void main(String[] args) {
 
 //        String str = "明天下午3点到5点去计算机学院进行计算机组成原理考试" ;
-        String str = "明天晚上九点做浮雕PPT";
+        String str = "明天晚上九点去老街烧烤吃烧烤";
         Result parse = ToAnalysis.parse(str);
         System.out.println(ToAnalysis.parse(str));
         List<Term> terms = parse.getTerms();

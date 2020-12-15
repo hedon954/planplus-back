@@ -24,7 +24,7 @@ public class ZuulRateLimitFilter extends OncePerRequestFilter {
     /**
      * 限流器，参数为每秒可以接受的请求量
      */
-    private RateLimiter rateLimiter = RateLimiter.create(100);
+    private RateLimiter rateLimiter = RateLimiter.create(1000);
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {

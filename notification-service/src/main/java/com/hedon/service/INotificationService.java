@@ -8,6 +8,7 @@ package com.hedon.service;
  */
 public interface INotificationService {
 
-    void handleTimedTaskRemind();
+    void handleTimedTaskStartRemind();
 
+    void handleTimedTaskFinishRemind();
 }
