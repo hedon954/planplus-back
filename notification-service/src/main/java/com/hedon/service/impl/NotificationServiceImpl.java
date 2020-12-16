@@ -146,7 +146,7 @@ public class NotificationServiceImpl implements INotificationService {
         String nowStr = now.format(dtf);
         nowStr = nowStr.substring(0,16);
         QueryWrapper<DidaTask> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("task_status",0)
+        queryWrapper.eq("task_status",1)
                 .likeRight("task_predicted_finish_time",nowStr);
         List<DidaTask> didaTasks = didaTaskMapper.selectList(queryWrapper);
         for (DidaTask didaTask: didaTasks){
@@ -247,7 +247,7 @@ public class NotificationServiceImpl implements INotificationService {
      * @param didaTask
      * @return
      */
-    private String objectToJsonStr(DidaTask didaTask, int time) {
+    public String objectToJsonStr(DidaTask didaTask, int time) {
         String jsonStr = "";
         //参数1：日程描述
         jsonStr += "{\"keyword1\":{\"value\": \""+didaTask.getTaskContent()+"\"},";
@@ -259,10 +259,10 @@ public class NotificationServiceImpl implements INotificationService {
         jsonStr += "\"keyword4\":{\"value\": \""+didaTask.getTaskPlace()+"\"},";
         if (time == START){
             //参数5：开始任务的备注
-            jsonStr += "\"keyword5\":{\"value\": \""+"任务开始时间要到啦！进入小程序点击\"开始任务\"吧~"+"\"}}";
+            jsonStr += "\"keyword5\":{\"value\": \""+"任务开始时间要到啦！进入小程序点击开始任务吧~"+"\"}}";
         }else if (time == FINISH){
             //参数5：结束任务的备注
-            jsonStr += "\"keyword5\":{\"value\": \""+"任务设定的完成时间到啦！完成任务的话进入小程序点击\"完成任务\"吧~"+"\"}}";
+            jsonStr += "\"keyword5\":{\"value\": \""+"任务设定的完成时间到啦！完成任务的话进入小程序点击完成任务吧~"+"\"}}";
         }else {
             //参数5：备注
             jsonStr += "\"keyword5\":{\"value\": \""+"备注"+"\"}}";

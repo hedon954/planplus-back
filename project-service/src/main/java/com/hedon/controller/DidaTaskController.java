@@ -528,12 +528,8 @@ public class DidaTaskController {
         }
         //创建任务
         Map<String,Object> map = new HashMap<>();
-        DidaTaskResponseVo vo = null;
         try{
-            DidaTask didaTask = didaTaskService.createTaskBySentence(userId,taskInfo);
-            vo = new DidaTaskResponseVo(didaTask);
-            map.put("didaTask",vo);
-            map.put("subScribeId", UUID.randomUUID().toString().substring(0,20));
+            map = didaTaskService.createTaskBySentence(userId, taskInfo);
         }catch (ServiceException e){
             return e.getFailResponse();
         }catch (URISyntaxException e){

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import common.entity.DidaTask;
 import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 /**
@@ -27,4 +28,7 @@ public interface DidaTaskMapper extends BaseMapper<DidaTask> {
 
     //查询所有任务
     ArrayList<DidaTask> selectAll(Integer userId);
+
+    //按照日期区间查询任务
+    ArrayList<DidaTask> selectTasksByTimeRegion(@Param("userId") Integer userId, @Param("startTime") String startTime, @Param("finishTime") String finishTime);
 }

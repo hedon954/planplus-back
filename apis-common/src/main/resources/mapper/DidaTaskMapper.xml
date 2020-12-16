@@ -21,7 +21,7 @@
 
     <!--  按日期查询任务  -->
     <select id="selectByDate" resultType="common.entity.DidaTask">
-        select t.task_id, t.task_content, t.task_place, t.task_rate, t.task_start_time, t.task_predicted_finish_time, t.task_real_finish_time, t.task_advance_remind_time, t.task_consumed_time, t.task_status, t.task_finish_percent
+        select t.task_id, t.task_content, t.task_place, t.task_rate, t.task_start_time, t.task_predicted_finish_time, t.task_real_start_time, t.task_real_finish_time, t.task_advance_remind_time, t.task_consumed_time, t.task_status, t.task_finish_percent
         from tbl_dida_user_task ut
         left join tbl_dida_task t
         on t.task_Id = ut.dida_task_Id
@@ -31,7 +31,7 @@
 
     <!--  按状态查询任务  -->
     <select id="selectByStatus" resultType="common.entity.DidaTask">
-        select t.task_id, t.task_content, t.task_place, t.task_rate, t.task_start_time, t.task_predicted_finish_time, t.task_real_finish_time, t.task_advance_remind_time, t.task_consumed_time, t.task_status, t.task_finish_percent
+        select t.task_id, t.task_content, t.task_place, t.task_rate, t.task_start_time, t.task_predicted_finish_time, t.task_real_start_time, t.task_real_finish_time, t.task_advance_remind_time, t.task_consumed_time, t.task_status, t.task_finish_percent
         from tbl_dida_user_task ut
         left join tbl_dida_task t
         on t.task_Id = ut.dida_task_Id
@@ -41,11 +41,24 @@
 
     <!--  查询所有  -->
     <select id="selectAll" parameterType="integer" resultType="common.entity.DidaTask">
-        select t.task_id, t.task_content, t.task_place, t.task_rate, t.task_start_time, t.task_predicted_finish_time, t.task_real_finish_time, t.task_advance_remind_time, t.task_consumed_time, t.task_status, t.task_finish_percent
+        select t.task_id, t.task_content, t.task_place, t.task_rate, t.task_start_time, t.task_predicted_finish_time, t.task_real_start_time, t.task_real_finish_time, t.task_advance_remind_time, t.task_consumed_time, t.task_status, t.task_finish_percent
         from tbl_dida_user_task ut
         left join tbl_dida_task t
         on t.task_Id = ut.dida_task_Id
         where dida_user_id = #{userId} and t.is_deleted = 0
+        order by task_start_time
+    </select>
+    
+    <!-- 按日期区间查询 -->
+    <select id="selectTasksByTimeRegion" resultType="common.entity.DidaTask">
+        select t.task_id, t.task_content, t.task_place, t.task_rate, t.task_start_time, t.task_predicted_finish_time, t.task_real_start_time, t.task_real_finish_time, t.task_advance_remind_time, t.task_consumed_time, t.task_status, t.task_finish_percent
+        from tbl_dida_user_task ut
+        left join tbl_dida_task t
+        on t.task_Id = ut.dida_task_Id
+        where dida_user_id = #{userId}
+        and (task_status = 0 or task_status = 1)
+        and ((task_start_time between #{startTime} and #{finishTime}) or (task_predicted_finish_time between #{startTime} and #{finishTime}) )
+        and t.is_deleted = 0
         order by task_start_time
     </select>
 

@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * @author yang jie
@@ -189,9 +190,9 @@ public class DidaTaskServiceImplTest {
 //        vo.setTaskInfo("明天下午3点到5点去计算机学院202教室进行计算机组成原理考试");
         vo.setTaskInfo("明天中午去老街烧烤吃烧烤");
         vo.setTaskFormId("13.470d05b4adcfa0cb773edded40b23496.723098.1606269036.1");
-        DidaTask didaTask = didaTaskService.createTaskBySentence(1, vo);
+        Map<String, Object> taskBySentence = didaTaskService.createTaskBySentence(10, vo);
 
-        System.out.println(didaTask);
+        System.out.println(taskBySentence);
 
     }
 }

@@ -1,5 +1,6 @@
 package com.hedon.service.impl;
 
+import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hedon.feign.NotificationFeignService;
@@ -13,6 +14,7 @@ import common.exception.ServiceException;
 import common.mapper.DidaTaskMapper;
 import common.mapper.DidaUserMapper;
 import common.mapper.DidaUserTaskMapper;
+import common.util.CompulateStringSimilarity;
 import common.util.timenlp.nlp.TimeNormalizer;
 import common.util.timenlp.nlp.TimeUnit;
 import common.util.timenlp.util.StringUtil;
@@ -29,6 +31,8 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.NumberUtils;
+
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.*;
@@ -804,8 +808,6 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         dto.setSceneId(formId);
         dto.setTouserOpenId(didaUser.getUserOpenId());
         dto.setPage("/pages/modification/modification?taskId="+didaTask.getTaskId());
-
-        System.out.println("project-service dto : " + dto);
         return notificationFeignService.sendNotificationMsg(dto);
     }
 
@@ -821,7 +823,9 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
      */
     @Override
     @Transactional
-    public DidaTask createTaskBySentence(Integer userId, DidaTaskSentenceRequestVo taskInfo) throws URISyntaxException,ServiceException{
+    public Map<String, Object> createTaskBySentence(Integer userId, DidaTaskSentenceRequestVo taskInfo) throws URISyntaxException,ServiceException{
+
+        Map<String,Object> results = new HashMap<>();
 
         //创建任务体
         DidaTask didaTask = new DidaTask();
@@ -844,6 +848,22 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
 
         //保存 formId
         didaTask.setTaskFormId(taskInfo.getTaskFormId());
+
+        // ===========================
+        //        检查是否有任务冲突
+        // ===========================
+        Map<String,Object> checkResult = checkTasksConflict(userId, didaTask.getTaskStartTime(), didaTask.getTaskPredictedFinishTime());
+        results.put("hasConflict",checkResult.get("hasConflict"));
+        results.put("conflictTasks",checkResult.get("conflictTasks"));
+
+        // ===========================
+        //        进行任务耗时预测
+        // ===========================
+
+        Map<String,Object> predictResult = predictTaskTimeConsuming(userId,didaTask.getTaskContent());
+        results.put("hasPredicted",predictResult.get("hasPredicted"));
+        results.put("timeConsuming",predictResult.get("timeConsuming"));
+
 
         //插入任务
         didaTaskMapper.insert(didaTask);
@@ -868,8 +888,135 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         didaUserTask.setDidaUserId(userId);
         didaUserTaskMapper.insert(didaUserTask);
 
-        return didaTask;
+        DidaTaskResponseVo vo = new DidaTaskResponseVo(didaTask);;
+        results.put("didaTask",vo);
+        results.put("subScribeId", UUID.randomUUID().toString().substring(0,20));
+
+        return results;
     }
+
+
+
+    /**
+     * 检查任务冲突
+     *
+     * @author Jiahan Wang
+     * @create 2020.12.16
+     * @param userId            用户ID
+     * @param startTime         起始时间
+     * @param finishTime        结束时间
+     * @return
+     */
+    public Map<String, Object> checkTasksConflict(Integer userId, LocalDateTime startTime, LocalDateTime finishTime) {
+
+        Map<String,Object> result = new HashMap<>();
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        ArrayList<DidaTask> didaTasks = didaTaskMapper.selectTasksByTimeRegion(userId, dtf.format(startTime), dtf.format(finishTime));
+        int hasConflict = 0;
+        String taskContents = "";
+
+        //没有冲突
+        if (didaTasks == null || didaTasks.size() == 0){
+            taskContents = "";
+        }else{
+            //有冲突
+            hasConflict = 1;
+            for (DidaTask didaTask: didaTasks){
+                String taskContent = didaTask.getTaskContent();
+                taskContents = taskContents + taskContent + "/";
+            }
+            taskContents = taskContents.substring(0,taskContents.length()-1);
+        }
+        result.put("hasConflict",hasConflict);
+        result.put("conflictTasks",taskContents);
+        return  result;
+    }
+
+    /**
+     * 进行任务耗时预测
+     *
+     * @author Jiahan Wang
+     * @create 2020.12.16
+     * @param userId            用户ID
+     * @param taskContent       任务内容
+     * @return
+     */
+    public Map<String, Object> predictTaskTimeConsuming(Integer userId, String taskContent) {
+
+        Map<String, Object> prediceResult = new HashMap<>();
+        int hasPredicted = 0;
+        String timeConsuming = "";
+
+        //查出所有已完成的任务
+        ArrayList<DidaTask> didaTasks = didaTaskMapper.selectByStatus(userId, 2);
+
+        //去掉瞬时任务
+        ArrayList<DidaTask> needToRemove = new ArrayList<>();
+        for (DidaTask didaTask: didaTasks){
+            if (didaTask.getTaskStartTime().toEpochSecond(ZoneOffset.UTC) == didaTask.getTaskPredictedFinishTime().toEpochSecond(ZoneOffset.UTC)){
+                needToRemove.add(didaTask);
+            }
+        }
+        didaTasks.removeAll(needToRemove);
+
+        if (didaTasks.size() == 0){
+            prediceResult.put("hasPredicted", hasPredicted);
+            prediceResult.put("timeConsuming", timeConsuming);
+            return prediceResult;
+        }
+
+        //根据相似度进行排序
+        didaTasks.sort(new Comparator<DidaTask>() {
+            @Override
+            public int compare(DidaTask o1, DidaTask o2) {
+                Float similarity1 = CompulateStringSimilarity.levenshtein(o1.getTaskContent(), taskContent);
+                Float similarity2 = CompulateStringSimilarity.levenshtein(o2.getTaskContent(), taskContent);
+                return similarity1.compareTo(similarity2);
+            }
+        });
+
+        //去掉相似度小于10%
+        needToRemove = new ArrayList<>();
+        for (DidaTask didaTask:didaTasks){
+            if (CompulateStringSimilarity.levenshtein(didaTask.getTaskContent(), taskContent) < 0.1){
+                needToRemove.add(didaTask);
+            }
+        }
+        didaTasks.removeAll(needToRemove);
+
+        if (didaTasks.size() == 0){
+            prediceResult.put("hasPredicted", hasPredicted);
+            prediceResult.put("timeConsuming", timeConsuming);
+            return prediceResult;
+        }
+
+        hasPredicted = 1;
+
+        //计算耗时
+        float weights = (1+didaTasks.size())*didaTasks.size()/2;
+        float weight =0.0f;
+        LocalDateTime startTime;
+        LocalDateTime finishTime;
+        long consumedTimeSum = 0;
+        for (int i = 0; i < didaTasks.size(); i++) {
+            weight = (didaTasks.size() - i)/weights;
+            startTime = didaTasks.get(i).getTaskRealStartTime();
+            finishTime = didaTasks.get(i).getTaskRealFinishTime();
+            consumedTimeSum += (finishTime.toEpochSecond(ZoneOffset.UTC) - startTime.toEpochSecond(ZoneOffset.UTC)) * weight;
+        }
+        //将耗时秒数转为：天/时/分
+        long day = consumedTimeSum / (60 * 60 * 24);
+        long hour = (consumedTimeSum %(60 * 60 * 24))/(60 * 60);
+        long minutes = (consumedTimeSum %(60 * 60))/ 60;
+
+        timeConsuming = (day==0? "": day + "天 ") + (hour==0? "": hour + "小时 ") + minutes + "分钟";
+
+        prediceResult.put("hasPredicted",hasPredicted);
+        prediceResult.put("timeConsuming",timeConsuming);
+
+        return prediceResult;
+    }
+
 
     /**
      * 获取近一周的任务状态
@@ -947,10 +1094,6 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         //抽取时间
         normalizer.parse(sentence);
         TimeUnit[] unit = normalizer.getTimeUnit();
-        for (TimeUnit timeUnit:unit){
-            System.out.println(timeUnit);
-        }
-        System.out.println(sentence);
         
         //先判断时间个数
         //如果没抽取到时间，则抛出异常
@@ -1057,15 +1200,11 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         int addressStart = -1;
         int contentStart = -1;
 
-        System.out.println("任务完整句子：" + sentence);
-
         //去掉时间成分
         String s1 = sentence.substring(timeStr.length());
-        System.out.println("去掉时间成分后：" + s1);
 
         //分词
         Result parse = ToAnalysis.parse(s1);
-        System.out.println("分词结果： " + parse);
 
         List<Term> terms = parse.getTerms();
 
