@@ -15,6 +15,7 @@ import common.mapper.DidaTaskMapper;
 import common.mapper.DidaUserMapper;
 import common.mapper.DidaUserTaskMapper;
 import common.util.CompulateStringSimilarity;
+import common.util.GetTimeUitlByHedon;
 import common.util.timenlp.nlp.TimeNormalizer;
 import common.util.timenlp.nlp.TimeUnit;
 import common.util.timenlp.util.StringUtil;
@@ -1096,10 +1097,20 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         TimeUnit[] unit = normalizer.getTimeUnit();
         
         //先判断时间个数
-        //如果没抽取到时间，则抛出异常
+        //如果没抽取到时间，则尝试："xxx后提醒我"这样的格式
         if (unit.length < 1){
-            throw new ServiceException("创建任务失败，请在任务信息中说明任务开始时间！",ResultCode.TIMED_TASK_CREATE_FAILED);
+            //尝试："xxx后提醒我"这样的格式
+            Map<String, Object> time = GetTimeUitlByHedon.getTime(sentence);
+            if ((boolean)time.get("success")){
+                map.put("startTime", time.get("startTime"));
+                map.put("finishTime", time.get("startTime"));
+                map.put("timeStr", time.get("timeStr"));
+                return map;
+            }else{
+                throw new ServiceException("识别不到任务开始时间！",ResultCode.TIMED_TASK_CREATE_FAILED);
+            }
         }
+
         //如果是有一个时间，那么就是瞬时任务，开始时间和结束时间相等
         if (unit.length == 1){
             Date date = unit[0].getTime();
