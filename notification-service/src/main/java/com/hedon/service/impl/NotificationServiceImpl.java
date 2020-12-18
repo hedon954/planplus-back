@@ -256,16 +256,16 @@ public class NotificationServiceImpl implements INotificationService {
         //参数3：结束时间
         jsonStr += "\"keyword3\":{\"value\": \""+didaTask.getTaskPredictedFinishTime()+"\"},";
         //参数4：日程地点
-        jsonStr += "\"keyword4\":{\"value\": \""+didaTask.getTaskPlace()+"\"},";
+        //jsonStr += "\"keyword4\":{\"value\": \""+didaTask.getTaskPlace()+"\"},";
         if (time == START){
             //参数5：开始任务的备注
-            jsonStr += "\"keyword5\":{\"value\": \""+"任务开始时间要到啦！进入小程序点击开始任务吧~"+"\"}}";
+            jsonStr += "\"keyword4\":{\"value\": \""+"任务开始时间要到啦！进入小程序点击开始任务吧~"+"\"}}";
         }else if (time == FINISH){
             //参数5：结束任务的备注
-            jsonStr += "\"keyword5\":{\"value\": \""+"任务设定的完成时间到啦！完成任务的话进入小程序点击完成任务吧~"+"\"}}";
+            jsonStr += "\"keyword4\":{\"value\": \""+"任务设定的完成时间到啦！完成任务的话进入小程序点击完成任务吧~"+"\"}}";
         }else {
             //参数5：备注
-            jsonStr += "\"keyword5\":{\"value\": \""+"备注"+"\"}}";
+            jsonStr += "\"keyword4\":{\"value\": \""+"备注"+"\"}}";
         }
 
         return jsonStr;

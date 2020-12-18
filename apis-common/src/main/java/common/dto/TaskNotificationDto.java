@@ -70,7 +70,7 @@ public class TaskNotificationDto implements Serializable {
      * 无参构造
      */
     public TaskNotificationDto(){
-        this.templateId = "480d2c84bfb74d25bf15171388625678";
+        this.templateId = "46af47b1cc8d40248bcf73ba8b3c76e4";
         this.sceneType = 1;
     }
 
