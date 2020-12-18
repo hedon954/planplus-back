@@ -315,5 +315,6 @@ public class GetTimeUitlByHedon implements Serializable {
         System.out.println(map.get("timeStr"));
         System.out.println(map.get("startTime"));
         System.out.println(map.get("success"));
+        System.out.println("3个半月四个半小时后到图书馆学习".replaceFirst("提问我",""));
     }
 }

@@ -843,9 +843,12 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
         String timeStr = (String) times.get("timeStr");
 
         //②抽取出任务地点和内容
-        Map<String, String> addressAndContent = extractAddressAndContent(timeStr, taskInfo.getTaskInfo());
-        didaTask.setTaskContent(addressAndContent.get("content"));
-        didaTask.setTaskPlace(addressAndContent.get("address"));
+        //Map<String, String> addressAndContent = extractAddressAndContent(timeStr, taskInfo.getTaskInfo());
+        //didaTask.setTaskContent(addressAndContent.get("content"));
+        //didaTask.setTaskPlace(addressAndContent.get("address"));
+        String content = taskInfo.getTaskInfo().substring(timeStr.length()).replaceFirst("之前","").replaceFirst("提醒我","");
+        didaTask.setTaskContent(content);
+        didaTask.setTaskPlace("");
 
         //保存 formId
         didaTask.setTaskFormId(taskInfo.getTaskFormId());
@@ -976,10 +979,10 @@ public class DidaTaskServiceImpl extends ServiceImpl<DidaTaskMapper, DidaTask> i
             }
         });
 
-        //去掉相似度小于10%
+        //去掉相似度小于30%
         needToRemove = new ArrayList<>();
         for (DidaTask didaTask:didaTasks){
-            if (CompulateStringSimilarity.levenshtein(didaTask.getTaskContent(), taskContent) < 0.1){
+            if (CompulateStringSimilarity.levenshtein(didaTask.getTaskContent(), taskContent) < 0.3){
                 needToRemove.add(didaTask);
             }
         }
